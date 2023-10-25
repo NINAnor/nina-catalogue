@@ -1,0 +1,93 @@
+version: '3'
+
+volumes:
+  pgdata: {}
+
+x-django-env: &django-env
+  DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable"
+  DJANGO_ENV: prod
+  DJANGO_SETTINGS_MODULE: config.settings.production
+  DJANGO_ACCOUNT_ALLOW_REGISTRATION: "True"
+  USE_DOCKER: "yes"
+
+x-django-prod-env: &django-prod-env
+  <<: *django-env
+  DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
+  DJANGO_SERVER_EMAIL: ""
+  DJANGO_ADMIN_URL: 4IUtBJoFJXIR4p2BMf4FFB7aIa7dpYyY/
+  DJANGO_SECURE_SSL_REDIRECT: False
+  WEB_CONCURRENCY: 4
+  REDIS_URL: redis://redis:6379/0
+  DJANGO_ALLOWED_HOSTS: "localhost"
+
+x-django: &django
+  build:
+    context: .
+    dockerfile: ./Dockerfile
+  image: metadata_catalogue_django
+  depends_on:
+    - postgres
+  command: /start
+  ports:
+    - "8000:8000"
+  environment:
+    <<: *django-env
+
+services:
+  django:
+    <<: *django
+    profiles:
+      - prod
+    environment:
+      <<: *django-prod-env
+    depends_on:
+      - redis
+
+  django-dev:
+    <<: *django
+    image: metadata_catalogue_django:dev
+    build:
+      args:
+        BUILD_ENVIRONMENT: local
+    profiles:
+      - local
+    environment:
+      <<: *django-env
+      DJANGO_ENV: local
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      IPYTHONDIR: "/app/.ipython"
+    volumes:
+      - ./:/app
+
+  postgres:
+    image: postgres:15
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+
+  # documentation
+  docs:
+    image: metadata_catalogue_docs
+    build:
+      context: .
+      dockerfile: ./docs/Dockerfile
+    environment:
+      <<: *django-env
+      DJANGO_SETTINGS_MODULE: config.settings.local
+    volumes:
+      - ./docs:/docs
+      - ./config:/app/config
+      - ./metadata_catalogue:/app/metadata_catalogue
+    ports:
+      - '9000:9000'
+    profiles:
+      - local
+
+  # cache
+  redis:
+    image: redis:6
+    profiles:
+      - prod
