@@ -54,6 +54,7 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
 
 COPY ./scripts/entrypoint /entrypoint
 COPY ./scripts/start /start
+COPY ./scripts/start_qcluster /start_qcluster
 
 # copy application code to WORKDIR
 COPY . ${APP_HOME}

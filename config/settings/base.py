@@ -80,6 +80,7 @@ THIRD_PARTY_APPS = [
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
+    "django_q",
 ]
 
 LOCAL_APPS = [
@@ -281,5 +282,22 @@ SOCIALACCOUNT_ADAPTER = "metadata_catalogue.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 SOCIALACCOUNT_FORMS = {"signup": "metadata_catalogue.users.forms.UserSocialSignupForm"}
 
-# Your stuff...
-# ------------------------------------------------------------------------------
+# DJANGO Q
+Q_CLUSTER = {
+    "name": "viltkamera",
+    "workers": env.int("Q_WORKERS", default=1),
+    "recycle": 500,
+    "retry": env.int("Q_RETRY", default=6000),
+    "timeout": env.int("Q_TIMEOUT", default=5999),
+    "cpu_affinity": env.int("Q_AFFINITY", default=0),
+    "save_limit": env.int("Q_SAVE_LIMIT", default=250),
+    "queue_limit": 500,
+    "label": "Django Q",
+    "orm": "default",
+}
+
+if Q_BROKER_CLASS := env(
+    "Q_BROKER_CLASS",
+    default="metadata_catalogue.core.brokers.GeneralPurposeBroker",
+):
+    Q_CLUSTER.update({"broker_class": Q_BROKER_CLASS})

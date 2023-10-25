@@ -20,6 +20,12 @@ x-django-prod-env: &django-prod-env
   REDIS_URL: redis://redis:6379/0
   DJANGO_ALLOWED_HOSTS: "localhost"
 
+x-django-dev-env: &django-dev-env
+  <<: *django-env
+  DJANGO_ENV: local
+  DJANGO_SETTINGS_MODULE: config.settings.local
+  IPYTHONDIR: "/app/.ipython"
+
 x-django: &django
   build:
     context: .
@@ -28,36 +34,56 @@ x-django: &django
   depends_on:
     - postgres
   command: /start
-  ports:
-    - "8000:8000"
   environment:
     <<: *django-env
 
+
+x-django-prod: &django-prod
+  <<: *django
+  depends_on:
+    - redis
+  profiles:
+    - prod
+
+x-django-dev: &django-dev
+  <<: *django
+  image: metadata_catalogue_django:dev
+  build:
+    args:
+      BUILD_ENVIRONMENT: local
+  profiles:
+    - local
+  environment:
+    <<: *django-dev-env
+  volumes:
+    - ./:/app
+
 services:
   django:
-    <<: *django
-    profiles:
-      - prod
+    <<: *django-prod
     environment:
       <<: *django-prod-env
-    depends_on:
-      - redis
+    ports:
+      - "8000:8000"
 
   django-dev:
-    <<: *django
-    image: metadata_catalogue_django:dev
-    build:
-      args:
-        BUILD_ENVIRONMENT: local
-    profiles:
-      - local
+    <<: *django-dev
+    ports:
+      - "8000:8000"
+
+  queue:
+    <<: *django-prod
     environment:
-      <<: *django-env
-      DJANGO_ENV: local
-      DJANGO_SETTINGS_MODULE: config.settings.local
-      IPYTHONDIR: "/app/.ipython"
-    volumes:
-      - ./:/app
+      <<: *django-prod-env
+      DJANGO_HEALTHCHECK_URL: http://django:8000/ht/
+    command: /start_qcluster
+
+  queue-dev:
+    <<: *django-dev
+    environment:
+      <<: *django-dev-env
+      DJANGO_HEALTHCHECK_URL: http://django-dev:8000/ht/
+    command: /start_qcluster
 
   postgres:
     image: postgres:15
