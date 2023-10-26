@@ -4,7 +4,7 @@ volumes:
   pgdata: {}
 
 x-django-env: &django-env
-  DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable"
+  DATABASE_URL: "postgis://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable"
   DJANGO_ENV: prod
   DJANGO_SETTINGS_MODULE: config.settings.production
   DJANGO_ACCOUNT_ALLOW_REGISTRATION: "True"
@@ -86,7 +86,7 @@ services:
     command: /start_qcluster
 
   postgres:
-    image: postgres:15
+    image: postgis/postgis:15-master
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
