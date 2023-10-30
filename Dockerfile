@@ -1,68 +1,62 @@
+FROM registry.opensuse.org/opensuse/bci/python:3.11 as base
+RUN --mount=type=cache,target=/var/cache/zypper \
+    zypper install --no-recommends -y gdal
+WORKDIR /app
+ENV PYTHONPATH=/app/.venv/lib
+ENV PATH=$PATH:/app/.venv/bin
 
-# define an alias for the specific python version used in this file.
-FROM python:3.11.6-slim-bullseye as python
+FROM scratch as source
+WORKDIR /app
+COPY config config
+COPY metadata_catalogue metadata_catalogue
+COPY manage.py .
 
-# Python build stage
-FROM python as python-build-stage
+FROM base as pdm
+RUN --mount=type=cache,target=/var/cache/zypper \
+    zypper install --no-recommends -y python311-pdm
+COPY ./pyproject.toml ./pdm.lock .
 
-ARG BUILD_ENVIRONMENT=production
+FROM pdm as production
+RUN --mount=type=cache,target=/var/cache/zypper \
+    zypper install --no-recommends -y gdal-devel gcc gcc-c++
+RUN pdm add gdal==$(rpm -q --queryformat='%{VERSION}' gdal)
+RUN --mount=type=cache,target=/root/.cache/pdm \
+    pdm install -G production
 
-# Install apt packages
-RUN apt-get update && apt-get install --no-install-recommends -y \
-  # dependencies for building Python packages
-  build-essential \
-  # psycopg2 dependencies
-  libpq-dev
-
-# Requirements are installed here to ensure they will be cached.
-COPY ./requirements .
-
-# Create Python Dependency and Sub-Dependency Wheels.
-RUN pip wheel --wheel-dir /usr/src/app/wheels  \
-  -r ${BUILD_ENVIRONMENT}.txt
-
-
-# Python 'run' stage
-FROM python as python-run-stage
-
-ARG BUILD_ENVIRONMENT=production
-ARG APP_HOME=/app
-
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV BUILD_ENV ${BUILD_ENVIRONMENT}
-
-WORKDIR ${APP_HOME}
-
-# Install required system dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
-  # psycopg2 dependencies
-  libpq-dev \
-  # Translations dependencies
-  gettext \
-  # geospatial libraries
-  binutils libproj-dev gdal-bin \
-  # cleaning up unused files
-  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-  && rm -rf /var/lib/apt/lists/*
-
-# All absolute dir copies ignore workdir instruction. All relative dir copies are wrt to the workdir instruction
-# copy python dependency wheels from python-build-stage
-COPY --from=python-build-stage /usr/src/app/wheels  /wheels/
-
-# use wheels to install python dependencies
-RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
-  && rm -rf /wheels/
-
-COPY ./scripts/entrypoint /entrypoint
-COPY ./scripts/start /start
-COPY ./scripts/start_qcluster /start_qcluster
-
-# copy application code to WORKDIR
-COPY . ${APP_HOME}
-
+FROM pdm as translation
+RUN --mount=type=cache,target=/var/cache/zypper \
+    zypper install --no-recommends -y gettext-tools
+COPY --from=production /app/.venv .venv
+COPY --from=source /app .
+COPY locale locale
 RUN DATABASE_URL="" \
   DJANGO_SETTINGS_MODULE="config.settings.test" \
-  python manage.py compilemessages
+  pdm run ./manage.py compilemessages
 
-ENTRYPOINT ["/entrypoint"]
+FROM pdm as docs
+RUN --mount=type=cache,target=/var/cache/zypper \
+    zypper install --no-recommends -y make
+RUN --mount=type=cache,target=/root/.cache/pdm \
+    pdm install -G docs
+COPY --from=source /app .
+COPY docs docs
+WORKDIR /app/docs
+CMD [ "make", "livehtml" ]
+
+FROM base as django
+COPY --from=production /app .
+COPY --from=translation /app/locale locale
+COPY --from=source /app .
+COPY entrypoint.sh .
+ENV DJANGO_ENV=production
+ENTRYPOINT ["./entrypoint.sh"]
+
+FROM pdm as dev
+COPY --from=django /app/.venv .venv
+RUN --mount=type=cache,target=/root/.cache/pdm \
+    pdm install --dev
+COPY --from=django /app/locale locale
+COPY --from=django /app/manage.py .
+COPY --from=django /app/entrypoint.sh .
+ENV DJANGO_ENV=dev
+ENTRYPOINT ["./entrypoint.sh"]

@@ -5,7 +5,6 @@ volumes:
 
 x-django-env: &django-env
   DATABASE_URL: "postgis://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable"
-  DJANGO_ENV: prod
   DJANGO_SETTINGS_MODULE: config.settings.production
   DJANGO_ACCOUNT_ALLOW_REGISTRATION: "True"
   USE_DOCKER: "yes"
@@ -22,18 +21,15 @@ x-django-prod-env: &django-prod-env
 
 x-django-dev-env: &django-dev-env
   <<: *django-env
-  DJANGO_ENV: local
   DJANGO_SETTINGS_MODULE: config.settings.local
   IPYTHONDIR: "/app/.ipython"
 
 x-django: &django
   build:
-    context: .
-    dockerfile: ./Dockerfile
+    target: django
   image: metadata_catalogue_django
   depends_on:
     - postgres
-  command: /start
   environment:
     <<: *django-env
 
@@ -42,21 +38,25 @@ x-django-prod: &django-prod
   <<: *django
   depends_on:
     - redis
+    - postgres
   profiles:
     - prod
+  command: gunicorn config.wsgi --bind 0.0.0.0:8000 --chdir=/app
 
 x-django-dev: &django-dev
   <<: *django
   image: metadata_catalogue_django:dev
   build:
-    args:
-      BUILD_ENVIRONMENT: local
+    target: dev
   profiles:
-    - local
+    - dev
   environment:
     <<: *django-dev-env
   volumes:
-    - ./:/app
+    - ./config:/app/config
+    - ./metadata_catalogue:/app/metadata_catalogue
+    - ./locale:/app/locale
+  command: python manage.py runserver_plus 0.0.0.0:8000
 
 services:
   django:
@@ -68,6 +68,7 @@ services:
 
   django-dev:
     <<: *django-dev
+    hostname: django
     ports:
       - "8000:8000"
 
@@ -75,18 +76,18 @@ services:
     <<: *django-prod
     environment:
       <<: *django-prod-env
-      DJANGO_HEALTHCHECK_URL: http://django:8000/ht/
-    command: /start_qcluster
+      WAIT_FOR_HTTP: http://django:8000/ht/
+    command: python manage.py qcluster
 
   queue-dev:
     <<: *django-dev
     environment:
       <<: *django-dev-env
-      DJANGO_HEALTHCHECK_URL: http://django-dev:8000/ht/
-    command: /start_qcluster
+      WAIT_FOR_HTTP: http://django:8000/ht/
+    command: python manage.py qcluster
 
   postgres:
-    image: postgis/postgis:15-master
+    image: postgis/postgis:16-3.4
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
@@ -99,18 +100,19 @@ services:
     image: metadata_catalogue_docs
     build:
       context: .
-      dockerfile: ./docs/Dockerfile
+      dockerfile: ./Dockerfile
+      target: docs
     environment:
       <<: *django-env
       DJANGO_SETTINGS_MODULE: config.settings.local
     volumes:
-      - ./docs:/docs
+      - ./docs:/app/docs
       - ./config:/app/config
       - ./metadata_catalogue:/app/metadata_catalogue
     ports:
       - '9000:9000'
     profiles:
-      - local
+      - dev
 
   # cache
   redis:

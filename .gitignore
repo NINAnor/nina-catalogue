@@ -280,3 +280,4 @@ metadata_catalogue/media/
 !.envs/.local/
 
 secrets/
+.pdm-python
