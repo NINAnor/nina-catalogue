@@ -46,6 +46,8 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {"default": env.db("DATABASE_URL")}
+DATABASES["default"]["ENGINE"] = "psqlextra.backend"
+POSTGRES_EXTRA_DB_BACKEND_BASE = "django.contrib.gis.db.backends.postgis"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -81,11 +83,15 @@ THIRD_PARTY_APPS = [
     "health_check.db",
     "health_check.contrib.migrations",
     "django_q",
+    "countries_plus",
+    "languages_plus",
+    "psqlextra",
 ]
 
 LOCAL_APPS = [
     "metadata_catalogue.users",
     "metadata_catalogue.core",
+    "metadata_catalogue.datasets",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
