@@ -5,7 +5,7 @@ set -o pipefail
 
 python manage.py wait_for_database
 
-if [ -z ${var+WAIT_FOR_HTTP} ]
+if [[ -z "${WAIT_FOR_HTTP}" ]]
 then
   echo "No HTTP service to wait for"
 else
