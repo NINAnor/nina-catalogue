@@ -1,6 +1,6 @@
 FROM registry.opensuse.org/opensuse/bci/python:3.11 as base
 RUN --mount=type=cache,target=/var/cache/zypper \
-    zypper install --no-recommends -y gdal
+    zypper install --no-recommends -y gdal proj
 WORKDIR /app
 ENV PYTHONPATH=/app/.venv/lib
 ENV PATH=$PATH:/app/.venv/bin
