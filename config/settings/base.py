@@ -76,7 +76,6 @@ THIRD_PARTY_APPS = [
     "crispy_bootstrap5",
     "allauth",
     "allauth.account",
-    "allauth.socialaccount",
     "django_probes",
     "health_check",
     "health_check.db",
@@ -278,10 +277,6 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_ADAPTER = "metadata_catalogue.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 ACCOUNT_FORMS = {"signup": "metadata_catalogue.users.forms.UserSignupForm"}
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "metadata_catalogue.users.adapters.SocialAccountAdapter"
-# https://django-allauth.readthedocs.io/en/latest/forms.html
-SOCIALACCOUNT_FORMS = {"signup": "metadata_catalogue.users.forms.UserSocialSignupForm"}
 
 # DJANGO Q
 Q_CLUSTER = {
