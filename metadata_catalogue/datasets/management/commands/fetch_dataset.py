@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from metadata_catalogue.datasets.libs.harvester import harvest_dataset
+from metadata_catalogue.datasets.libs.harvesters import harvest_dataset
 
 
 class Command(BaseCommand):

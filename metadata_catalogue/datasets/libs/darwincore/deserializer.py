@@ -24,22 +24,48 @@ from metadata_catalogue.datasets.models import (
 )
 
 
+def text_or_null(node, strip=False):
+    if not node:
+        return None
+
+    if strip:
+        return node.text.strip()
+
+    return node.text
+
+
+def to_date(node):
+    if not node:
+        return None
+
+    return datetime.strptime(node.text.strip(), "%Y-%m-%d")
+
+
 def person_from_block(block):
-    data = {}
+    data = {
+        "first_name": None,
+        "last_name": None,
+        "email": None,
+        "position": None,
+        "belongs_to_id": None,
+        "country_id": None,
+    }
 
     if individual := block.find("individualName"):
-        data["first_name"] = individual.find("givenName").text
-        data["last_name"] = individual.find("surName").text
+        data["first_name"] = text_or_null(individual.find("givenName"))
+        data["last_name"] = text_or_null(individual.find("surName"))
 
-    data["email"] = block.find("electronicMailAddress").text
-    data["position"] = block.find("positionName").text if block.find("positionName") else ""
+    data["email"] = text_or_null(block.find("electronicMailAddress"))
+
+    data["position"] = text_or_null(block.find("positionName"))
 
     if address := block.find("address"):
-        data["country"] = Country.objects.filter(iso=address.find("country").text).first()
+        if country := address.find("country"):
+            data["country_id"] = Country.objects.filter(iso=country.text).first().pk
 
     if org := block.find("organizationName"):
         o, _ = Organization.objects.get_or_create(name=org.text)
-        data["belongs_to"] = o
+        data["belongs_to_id"] = o.id
 
     p, _ = Person.objects.get_or_create(**data)
 
@@ -56,57 +82,80 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
             metadata = dataset.metadata
 
             dataset = soup.find("dataset")
-            metadata.title = dataset.find("title").text
-            metadata.abstract = dataset.find("abstract").text.strip()
+            metadata.title = text_or_null(dataset.find("title"))
+            metadata.abstract = text_or_null(dataset.find("abstract"), strip=True)
 
             for identifier in dataset.find_all("alternateIdentifier"):
                 MetadataIdentifier.objects.get_or_create(metadata=metadata, id=identifier.text)
 
-            metadata.people.add(
-                PersonRole.objects.create(
-                    person=person_from_block(dataset.find("creator")),
-                    metadata=metadata,
-                    role=PersonRole.RoleType.CREATOR,
+            for person in dataset.find_all("creator"):
+                metadata.people.add(
+                    PersonRole.objects.create(
+                        person=person_from_block(person),
+                        metadata=metadata,
+                        role=PersonRole.RoleType.CREATOR,
+                    )
                 )
-            )
-            metadata.people.add(
-                PersonRole.objects.create(
-                    person=person_from_block(dataset.find("metadataProvider")),
-                    metadata=metadata,
-                    role=PersonRole.RoleType.PROVIDER,
+
+            for person in dataset.find_all("metadataProvider"):
+                metadata.people.add(
+                    PersonRole.objects.create(
+                        person=person_from_block(person),
+                        metadata=metadata,
+                        role=PersonRole.RoleType.PROVIDER,
+                    )
                 )
-            )
 
-            metadata.date_publication = datetime.strptime(dataset.find("pubDate").text.strip(), "%Y-%m-%d")
-            metadata.language = Language.objects.filter(iso_639_2T=dataset.find("language").text).first()
+            for person in dataset.find_all("associatedParty"):
+                metadata.people.add(
+                    PersonRole.objects.create(
+                        person=person_from_block(person),
+                        metadata=metadata,
+                        role=PersonRole.RoleType.ASSOCIATED_PARTY,
+                    )
+                )
 
-            license, _ = License.objects.get_or_create(name=dataset.find("intellectualRights").find("citetitle").text)
-            metadata.license = license
-            metadata.maintenance_update_description = dataset.find("maintenance").find("description").text
-            metadata.maintenance_update_description = dataset.find("maintenanceUpdateFrequency").text
+            metadata.date_publication = to_date(dataset.find("pubDate"))
+            if language := dataset.find("language"):
+                metadata.language = Language.objects.filter(iso_639_2T=language.text).first()
 
-            metadata.geographic_description = dataset.find("geographicDescription").text
+            if intellectual_rights := dataset.find("intellectualRights"):
+                name = text_or_null(intellectual_rights.find("citetitle"))
+                url = intellectual_rights.find("ulink")["url"] if intellectual_rights.find("ulink") else None
+                license, _ = License.objects.get_or_create(name=name, url=url)
+                metadata.license = license
+
+            if maintenance := dataset.find("maintenance"):
+                metadata.maintenance_update_description = text_or_null(maintenance.find("description"))
+
+            metadata.maintenance_update_description = text_or_null(dataset.find("maintenanceUpdateFrequency"))
+
+            metadata.geographic_description = text_or_null(dataset.find("geographicDescription"))
             # bounding box
-            coords = dataset.find("boundingCoordinates")
-            poly = Polygon.from_bbox(
-                (
-                    float(coords.find("westBoundingCoordinate").text),
-                    float(coords.find("southBoundingCoordinate").text),
-                    float(coords.find("eastBoundingCoordinate").text),
-                    float(coords.find("northBoundingCoordinate").text),
+            if coords := dataset.find("boundingCoordinates"):
+                poly = Polygon.from_bbox(
+                    (
+                        float(coords.find("westBoundingCoordinate").text),
+                        float(coords.find("southBoundingCoordinate").text),
+                        float(coords.find("eastBoundingCoordinate").text),
+                        float(coords.find("northBoundingCoordinate").text),
+                    )
                 )
-            )
-            poly.srid = 4326
-            metadata.bounding_box = poly
+                poly.srid = 4326
+                metadata.bounding_box = poly
 
-            taxonomy_coverage = dataset.find("taxonomicCoverage")
+            if taxonomy_coverage := dataset.find("taxonomicCoverage"):
+                for classification in taxonomy_coverage.find_all("taxonomicClassification"):
+                    taxonomy_type = None
+                    if rank := classification.find("taxonRankName"):
+                        taxonomy_type, _ = TaxonomyType.objects.get_or_create(name=rank.text)
 
-            for classification in taxonomy_coverage.find_all("taxonomicClassification"):
-                taxonomy_type, _ = TaxonomyType.objects.get_or_create(name=classification.find("taxonRankName").text)
-                taxonomy, _ = Taxonomy.objects.get_or_create(
-                    name=classification.find("taxonRankValue").text, type=taxonomy_type
-                )
-                metadata.taxonomies.add(taxonomy)
+                    taxonomy, _ = Taxonomy.objects.get_or_create(
+                        defaults={"common": text_or_null(classification.find("commonName"))},
+                        name=classification.find("taxonRankValue").text,
+                        type=taxonomy_type,
+                    )
+                    metadata.taxonomies.add(taxonomy)
 
             for contact in dataset.find_all("contact"):
                 metadata.people.add(
@@ -116,49 +165,66 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
                 )
 
             project = dataset.find("project")
-            metadata.project_id = project["id"]
-            metadata.project_title = project.find("title").text
-            metadata.project_abstract = project.find("abstract").text.strip()
+            if project:
+                metadata.project_id = project["id"] if "id" in project else None
+                metadata.project_title = project.find("title").text if project.find("title") else None
+                metadata.project_abstract = project.find("abstract").text.strip() if project.find("abstract") else None
 
-            if funding := project.find("funding"):
-                for org in funding.find_all("para"):
-                    o, _ = Organization.objects.get_or_create(name=org.text)
-                    metadata.organizations.add(
-                        OrganizationRole.objects.create(
-                            organization=o,
-                            metadata=metadata,
-                            role=OrganizationRole.RoleType.FUNDING,
+                if funding := project.find("funding"):
+                    for org in funding.find_all("para"):
+                        o, _ = Organization.objects.get_or_create(name=org.text)
+                        metadata.organizations.add(
+                            OrganizationRole.objects.create(
+                                organization=o,
+                                metadata=metadata,
+                                role=OrganizationRole.RoleType.FUNDING,
+                            )
                         )
+
+                if project.find("studyAreaDescription") and project.find("studyAreaDescription").find("descriptor"):
+                    metadata.project_study_area_description = (
+                        project.find("studyAreaDescription").find("descriptor").text.strip()
+                    )
+                if project.find("designDescription") and project.find("designDescription").find("description"):
+                    metadata.project_design_description = (
+                        project.find("designDescription").find("description").text.strip()
                     )
 
-            metadata.project_study_area_description = (
-                project.find("studyAreaDescription").find("descriptor").text.strip()
-            )
-            metadata.project_design_description = project.find("designDescription").find("description").text.strip()
-
             gbif = soup.find("additionalMetadata").find("gbif")
-            c, _ = Citation.objects.get_or_create(text=gbif.find("citation").text)
-            metadata.citation = c
+            if cit := gbif.find("citation"):
+                c, _ = Citation.objects.get_or_create(text=cit.text)
+                metadata.citation = c
 
             if bibliography := gbif.find("bibliography"):
                 for citation in bibliography.find_all("citation"):
-                    c, _ = Citation.objects.get_or_create(text=citation.text, identifier=citation["identifier"])
+                    c, _ = Citation.objects.get_or_create(
+                        text=citation.text, identifier=citation["identifier"] if "identifier" in citation else None
+                    )
                     metadata.bibliography.add(c)
 
-            metadata.logo_url = gbif.find("resourceLogoUrl").text
+            metadata.logo_url = gbif.find("resourceLogoUrl").text if gbif.find("resourceLogoUrl") else None
 
-            periods = [int(year) for year in (gbif.find("formationPeriod").text).split("-")]
+            if formation_period := gbif.find("formationPeriod"):
+                try:
+                    periods = [int(year) for year in (formation_period.text).split("-")]
+                    if len(periods) == 2:
+                        metadata.formation_period_start = datetime(periods[0], 1, 1)
+                        metadata.formation_period_end = datetime(periods[1], 1, 1)
+                    elif len(periods) == 1:
+                        metadata.formation_period_start = datetime(periods[0], 1, 1)
+                        metadata.formation_period_end = datetime(periods[0], 1, 1)
+                except ValueError:
+                    metadata.formation_period_description = formation_period.text
 
-            metadata.formation_period_start = datetime(periods[0], 1, 1)
-            metadata.formation_period_end = datetime(periods[1], 1, 1)
+            for keyword_set in dataset.find_all("keywordSet"):
+                thesaurus = text_or_null(keyword_set.find("keywordThesaurus"))
+                match = re.search(r"(?P<url>https?://[^\s]+)", thesaurus)
+                definition = match.group("url") if match else None
 
-            for keyword in dataset.find_all("keywordSet"):
-                thesaurus = keyword.find("keywordThesaurus").text
-                definition = re.search(r"(?P<url>https?://[^\s]+)", thesaurus).group("url")
-
-                k, _ = Keyword.objects.get_or_create(
-                    name=keyword.find("keyword").text, definition=definition, description=thesaurus
-                )
-                metadata.keywords.add(k)
+                for kw in keyword_set.find_all("keyword"):
+                    k, _ = Keyword.objects.get_or_create(
+                        name=text_or_null(kw), definition=definition, description=thesaurus
+                    )
+                    metadata.keywords.add(k)
 
             metadata.save()
