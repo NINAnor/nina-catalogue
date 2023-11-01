@@ -11,7 +11,7 @@ from metadata_catalogue.core.fields import AutoOneToOneField
 
 class Dataset(models.Model):
     class FetchType(models.IntegerChoices):
-        DARWINCORE = 1, "DarwinCORE"
+        DARWINCORE = 1, "DarwinCore Archive"
 
     name = models.CharField(max_length=250, verbose_name=_("Internal name"))
     uuid = models.UUIDField(default=uuid.uuid4)
@@ -249,8 +249,21 @@ class Citation(models.Model):
 
 
 class MetadataIdentifier(models.Model):
-    id = models.CharField(max_length=500, primary_key=True)
+    class Type(models.TextChoices):
+        IPT = "IPT", _("IPT")
+        GBIF = "GBIF", _("GBIF")
+
+    identifier = models.CharField(max_length=500)
     metadata = models.ForeignKey("datasets.Metadata", on_delete=models.CASCADE)
+    source = models.CharField(max_length=5, choices=Type.choices, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(name="unique_metadata_identifier", fields=["identifier", "source"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.source} - {self.identifier}"
 
 
 class Metadata(models.Model):

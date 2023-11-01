@@ -86,7 +86,10 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
             metadata.abstract = text_or_null(dataset.find("abstract"), strip=True)
 
             for identifier in dataset.find_all("alternateIdentifier"):
-                MetadataIdentifier.objects.get_or_create(metadata=metadata, id=identifier.text)
+                source = (
+                    MetadataIdentifier.Type.IPT if "ipt.nina.no" in identifier.text else MetadataIdentifier.Type.GBIF
+                )
+                MetadataIdentifier.objects.get_or_create(metadata=metadata, identifier=identifier.text, source=source)
 
             for person in dataset.find_all("creator"):
                 metadata.people.add(
