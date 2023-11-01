@@ -14,7 +14,7 @@ urlpatterns = [
     path("users/", include("metadata_catalogue.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     path("ht/", include("health_check.urls")),
-    # Your stuff: custom urls includes go here
+    path("", include("metadata_catalogue.csw.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

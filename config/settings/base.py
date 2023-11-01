@@ -86,13 +86,14 @@ THIRD_PARTY_APPS = [
     "countries_plus",
     "languages_plus",
     "psqlextra",
+    "solo",
 ]
 
 LOCAL_APPS = [
     "metadata_catalogue.users",
     "metadata_catalogue.core",
     "metadata_catalogue.datasets",
-    # Your stuff: custom apps go here
+    "metadata_catalogue.csw",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -303,3 +304,9 @@ if Q_BROKER_CLASS := env(
     default="metadata_catalogue.core.brokers.GeneralPurposeBroker",
 ):
     Q_CLUSTER.update({"broker_class": Q_BROKER_CLASS})
+
+
+CSW = {
+    "repository": "metadata_catalogue.datasets.repository.DatasetsRepository",
+    "mappings": "metadata_catalogue.datasets.mappings",
+}
