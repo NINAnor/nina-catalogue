@@ -18,7 +18,11 @@ def rss_to_datasets(rss_content):
                 archive = item.find("ipt:dwca")
                 if archive:
                     d, _ = Dataset.objects.update_or_create(
-                        defaults={"name": item.find("title").text, "fetch_type": Dataset.FetchType.DARWINCORE},
+                        defaults={
+                            "name": item.find("title").text,
+                            "source": item.find("link").text,
+                            "fetch_type": Dataset.FetchType.DARWINCORE,
+                        },
                         fetch_url=archive.text,
                     )
                     async_task("metadata_catalogue.datasets.libs.harvesters.harvest_dataset", d.id)

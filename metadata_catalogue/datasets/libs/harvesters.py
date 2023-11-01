@@ -27,7 +27,6 @@ def handle_file_as_darwincore_zip(file: NamedTemporaryFile, dataset: Dataset):
 
 
 def harvest_dataset(dataset_id: int):
-    print(dataset_id)
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         dataset.set_fetch_message("", success=False)

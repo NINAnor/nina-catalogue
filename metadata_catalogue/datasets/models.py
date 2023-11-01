@@ -1,6 +1,9 @@
+import uuid
+
 from django.contrib.gis.db import models
 from django.db.models import Value
 from django.db.models.functions import Coalesce
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from metadata_catalogue.core.fields import AutoOneToOneField
@@ -11,6 +14,8 @@ class Dataset(models.Model):
         DARWINCORE = 1, "DarwinCORE"
 
     name = models.CharField(max_length=250, verbose_name=_("Internal name"))
+    uuid = models.UUIDField(default=uuid.uuid4)
+    source = models.URLField(null=True, blank=True)
     fetch_url = models.URLField(verbose_name=_("URL of the resource to fetch"), null=True, blank=True)
     fetch_type = models.IntegerField(choices=FetchType.choices, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
@@ -34,6 +39,7 @@ class Dataset(models.Model):
     )
     fetch_success = models.BooleanField(default=False)
     fetch_message = models.TextField(null=True, blank=True)
+    last_fetch_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -47,6 +53,7 @@ class Dataset(models.Model):
 
         if success is not None:
             self.fetch_success = success
+            self.last_fetch_at = now()
 
         if logger_fn:
             logger_fn(message)
@@ -55,7 +62,10 @@ class Dataset(models.Model):
 
     class Meta:
         verbose_name = _("Dataset")
-        constraints = [models.UniqueConstraint(name="unique_dataset_source", fields=["fetch_url"])]
+        constraints = [
+            models.UniqueConstraint(name="unique_dataset_source", fields=["fetch_url"]),
+            models.UniqueConstraint(name="unique_dataset_uuid", fields=["uuid"]),
+        ]
 
 
 class Keyword(models.Model):
