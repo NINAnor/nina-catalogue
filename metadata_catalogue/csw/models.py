@@ -7,7 +7,7 @@ from solo.models import SingletonModel
 class CSWConfig(SingletonModel):
     language = models.CharField(max_length=7, null=True, blank=True)
     max_records = models.IntegerField(default=10)
-    profiles = models.TextField(default="", blank=True)
+    profiles = models.TextField(default="apiso", blank=True)
     pretty_print = models.BooleanField(default=False)
 
     identification_title = models.TextField(null=True, blank=True, default="")
@@ -33,7 +33,7 @@ class CSWConfig(SingletonModel):
     contact_instructions = models.TextField(blank=True, default="")
     contact_role = models.TextField(blank=True, default="")
 
-    def get_config(self, url):
+    def get_config(self, url=""):
         metadata = model_to_dict(
             self,
             fields=[

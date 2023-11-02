@@ -92,31 +92,28 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
                 MetadataIdentifier.objects.get_or_create(metadata=metadata, identifier=identifier.text, source=source)
 
             for person in dataset.find_all("creator"):
-                metadata.people.add(
-                    PersonRole.objects.create(
-                        person=person_from_block(person),
-                        metadata=metadata,
-                        role=PersonRole.RoleType.CREATOR,
-                    )
+                pr, _ = PersonRole.objects.get_or_create(
+                    person=person_from_block(person),
+                    metadata=metadata,
+                    role=PersonRole.RoleType.CREATOR,
                 )
+                metadata.people.add(pr)
 
             for person in dataset.find_all("metadataProvider"):
-                metadata.people.add(
-                    PersonRole.objects.create(
-                        person=person_from_block(person),
-                        metadata=metadata,
-                        role=PersonRole.RoleType.PROVIDER,
-                    )
+                pr, _ = PersonRole.objects.get_or_create(
+                    person=person_from_block(person),
+                    metadata=metadata,
+                    role=PersonRole.RoleType.PROVIDER,
                 )
+                metadata.people.add(pr)
 
             for person in dataset.find_all("associatedParty"):
-                metadata.people.add(
-                    PersonRole.objects.create(
-                        person=person_from_block(person),
-                        metadata=metadata,
-                        role=PersonRole.RoleType.ASSOCIATED_PARTY,
-                    )
+                pr, _ = PersonRole.objects.get_or_create(
+                    person=person_from_block(person),
+                    metadata=metadata,
+                    role=PersonRole.RoleType.ASSOCIATED_PARTY,
                 )
+                metadata.people.add(pr)
 
             metadata.date_publication = to_date(dataset.find("pubDate"))
             if language := dataset.find("language"):
@@ -161,11 +158,10 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
                     metadata.taxonomies.add(taxonomy)
 
             for contact in dataset.find_all("contact"):
-                metadata.people.add(
-                    PersonRole.objects.create(
-                        person=person_from_block(contact), metadata=metadata, role=PersonRole.RoleType.CONTACT
-                    )
+                pr, _ = PersonRole.objects.get_or_create(
+                    person=person_from_block(contact), metadata=metadata, role=PersonRole.RoleType.CONTACT
                 )
+                metadata.people.add(pr)
 
             project = dataset.find("project")
             if project:
@@ -176,13 +172,20 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
                 if funding := project.find("funding"):
                     for org in funding.find_all("para"):
                         o, _ = Organization.objects.get_or_create(name=org.text)
-                        metadata.organizations.add(
-                            OrganizationRole.objects.create(
-                                organization=o,
-                                metadata=metadata,
-                                role=OrganizationRole.RoleType.FUNDING,
-                            )
+                        org_role, _ = OrganizationRole.objects.create(
+                            organization=o,
+                            metadata=metadata,
+                            role=OrganizationRole.RoleType.FUNDING,
                         )
+                        metadata.organizations.add(org_role)
+
+                for personnel in project.find_all("personnel"):
+                    pr, _ = PersonRole.objects.get_or_create(
+                        person=person_from_block(personnel),
+                        metadata=metadata,
+                        role=PersonRole.RoleType.PROJECT_PERSONNEL,
+                    )
+                    metadata.people.add(pr)
 
                 if project.find("studyAreaDescription") and project.find("studyAreaDescription").find("descriptor"):
                     metadata.project_study_area_description = (

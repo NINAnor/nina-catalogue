@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from django.contrib.gis.db import models
@@ -7,6 +8,20 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from metadata_catalogue.core.fields import AutoOneToOneField
+from metadata_catalogue.datasets.libs.csw_mapping import CSWMapping
+
+logger = logging.getLogger(__name__)
+
+
+class DatasetQuerySet(models.QuerySet):
+    def as_csw(self, *args, warn=True, **kwargs):
+        logger.warn("DANGER: This method consumes the queryset and returns and array of items")
+        return [CSWMapping(instance) for instance in self]
+
+
+class DatasetManager(models.Manager):
+    def get_queryset(self):
+        return DatasetQuerySet(self.model, using=self._db)
 
 
 class Dataset(models.Model):
@@ -40,6 +55,8 @@ class Dataset(models.Model):
     fetch_success = models.BooleanField(default=False)
     fetch_message = models.TextField(null=True, blank=True)
     last_fetch_at = models.DateTimeField(null=True, blank=True)
+
+    objects = DatasetManager()
 
     def __str__(self):
         return self.name
@@ -147,7 +164,7 @@ class Person(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.last_name}, {self.first_name}"
 
 
 class PersonRole(models.Model):
@@ -160,11 +177,32 @@ class PersonRole(models.Model):
 
     person = models.ForeignKey("datasets.Person", on_delete=models.CASCADE, related_name="roles")
     metadata = models.ForeignKey("datasets.Metadata", on_delete=models.CASCADE, related_name="people")
-    role = models.CharField(max_length=10)
+    role = models.CharField(max_length=10, choices=RoleType.choices)
     description = models.CharField(max_length=250, null=True, blank=True)
 
     def __str__(self) -> str:
-        return f"{self.person} @ {self.metadata} - {self.role}"
+        return f"{self.person}"
+
+    def _as_csw_dict(self):
+        return {
+            "name": "creator",
+            "individual": str(self.person),
+            "roles": [
+                {
+                    "name": self.get_role_display(),
+                }
+            ],
+        }
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                "person_id",
+                "metadata_id",
+                "role",
+                name="unique_role_per_person_in_metadata",
+            )
+        ]
 
 
 class OrganizationRole(models.Model):
@@ -177,6 +215,16 @@ class OrganizationRole(models.Model):
 
     def __str__(self) -> str:
         return f"{self.organization} @ {self.metadata} - {self.role}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                "organization_id",
+                "metadata_id",
+                "role",
+                name="unique_role_per_org_in_metadata",
+            )
+        ]
 
 
 class License(models.Model):
@@ -278,7 +326,7 @@ class Metadata(models.Model):
     date_publication = models.DateField(null=True, blank=True)
     language = models.ForeignKey("languages_plus.Language", null=True, blank=True, on_delete=models.PROTECT)
     abstract = models.TextField(null=True, blank=True)
-    keywords = models.ManyToManyField("datasets.Keyword", blank=True)
+    keywords = models.ManyToManyField("datasets.Keyword", blank=True, related_name="metadatas")
     license = models.ForeignKey("datasets.License", null=True, blank=True, on_delete=models.PROTECT)
     maintenance_update_frequency = models.TextField(
         null=True, blank=True

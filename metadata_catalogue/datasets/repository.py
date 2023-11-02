@@ -1,4 +1,5 @@
 # from pycsw.core.repository import Repository
+from metadata_catalogue.datasets.models import Dataset
 
 
 class DatasetsRepository:
@@ -30,7 +31,13 @@ class DatasetsRepository:
 
     def query_ids(self, ids):
         """Query by list of identifiers"""
-        return []
+        try:
+            return (
+                self._get_repo_filter(Dataset.objects).filter(uuid__in=[s.split(":")[-1] for s in ids]).all().as_csw()
+            )
+        except Exception as err:
+            print(err)
+            return []
 
         # identifiers are URN masked, where the last token of the identifier
         # is opendata.models.Resource.id (integer)
@@ -71,8 +78,10 @@ class DatasetsRepository:
 
     def query(self, constraint, sortby=None, typenames=None, maxrecords=10, startposition=0):
         """Query records from underlying repository"""
-
-        return [str(0), []]
+        limit = int(maxrecords)
+        offset = int(startposition)
+        query = Dataset.objects.all()
+        return [str(query.count()), query[offset : offset + limit].as_csw()]
 
         # # run the raw query and get total
         # if 'where' in constraint:  # GetRecords with constraint
@@ -102,7 +111,6 @@ class DatasetsRepository:
 
     def _get_repo_filter(self, query):
         """Apply repository wide side filter / mask query"""
+        if self.filter is not None:
+            return query.extra(where=[self.filter])
         return query
-        # if self.filter is not None:
-        #     return query.extra(where=[self.filter])
-        # return query

@@ -14,10 +14,11 @@ def csw_invoke(request, *args, **kwargs):
     env.update(
         {
             "local.app_root": os.path.dirname(__file__),
-            "REQUEST_URI": request.build_absolute_uri(),
+            "REQUEST_URI": request.build_absolute_uri().replace("%", "%%"),
         }
     )
-    csw = server.Csw(csw_settings.get_config(request.build_absolute_uri()), env)
+    csw_conf = csw_settings.get_config(request.build_absolute_uri().replace("%", "%%"))
+    csw = server.Csw(csw_conf, env)
     status, content = csw.dispatch_wsgi()
     status_code, _status_message = status.split(" ", 1)
     status_code = int(status_code)
