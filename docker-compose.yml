@@ -56,7 +56,8 @@ x-django-dev: &django-dev
     - ./config:/app/config
     - ./metadata_catalogue:/app/metadata_catalogue
     - ./locale:/app/locale
-  command: python manage.py runserver_plus 0.0.0.0:8000
+  command: python manage.py runserver 0.0.0.0:8000
+  # command: python -m pdb -c continue manage.py runserver 0.0.0.0:8000 --nothreading --noreload
 
 services:
   django:
@@ -68,6 +69,8 @@ services:
 
   django-dev:
     <<: *django-dev
+    tty: true
+    stdin_open: true
     hostname: django
     ports:
       - "8000:8000"
@@ -119,3 +122,12 @@ services:
     image: redis:6
     profiles:
       - prod
+
+  mitm:
+    image: mitmproxy/mitmproxy:latest
+    command: mitmweb --web-host 0.0.0.0 --mode reverse:http://django-dev:8000 --modify-body /django-dev:8000/mitm:8080
+    profiles:
+      - dev
+    ports:
+      - 8080:8080
+      - 8081:8081
