@@ -1,0 +1,18 @@
+meta {
+  name: DescribeRecord
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/csw/?service=CSW&version=2.0.2&request=DescribeRecord&typeName=gmd:MD_Metadata
+  body: none
+  auth: none
+}
+
+query {
+  service: CSW
+  version: 2.0.2
+  request: DescribeRecord
+  typeName: gmd:MD_Metadata
+}
