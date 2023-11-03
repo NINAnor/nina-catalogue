@@ -159,6 +159,7 @@ dependencies = [
     "geolinks>=0.2.3",
     "pycsw>=2.6.1",
     "django-solo>=2.1.0",
+    "pygeometa>=0.15.3",
 ]
 requires-python = ">=3.10"
 name = ""
