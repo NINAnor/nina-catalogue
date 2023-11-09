@@ -20,7 +20,11 @@ def bbox_to_geometry(bbox):
 
 
 OGC_TO_Q = {
-    "ogc:PropertyIsLike": {"csw:AnyText": lambda ogc_dict: Q(metadata__fts__icontains=ogc_dict["ogc:Literal"])},
+    "ogc:PropertyIsLike": {
+        "csw:AnyText": lambda ogc_dict: Q(metadata__fts__icontains=ogc_dict["ogc:Literal"]),
+        "apiso:AnyText": lambda ogc_dict: Q(metadata__fts__icontains=ogc_dict["ogc:Literal"]),
+        "apiso:ServiceType": lambda ogc_dict: Q() if ogc_dict["ogc:Literal"] == "view" else Q(id__lt=0),
+    },
     "ogc:BBOX": {
         "ows:BoundingBox": lambda ogc_dict: Q(
             metadata__bounding_box__within=bbox_to_geometry(ogc_dict["gml:Envelope"])
