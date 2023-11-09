@@ -120,8 +120,6 @@ services:
   bruno:
     build:
       dockerfile: ./bruno/Dockerfile
-    volumes:
-      - ./bruno/catalogue:/app
     environment:
       WAIT_FOR_HTTP: http://django:8000/ht/
 

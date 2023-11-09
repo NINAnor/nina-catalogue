@@ -1,18 +1,38 @@
 meta {
-  name: DescribeRecord
+  name: GetRecords FILTER BBOX
   type: http
-  seq: 1
+  seq: 3
 }
 
-get {
-  url: {{BASE_URL}}/csw/?service=CSW&version=2.0.2&request=DescribeRecord&typeName=gmd:MD_Metadata
-  body: none
+post {
+  url: {{BASE_URL}}/csw/
+  body: xml
   auth: none
 }
 
-query {
-  service: CSW
-  version: 2.0.2
-  request: DescribeRecord
-  typeName: gmd:MD_Metadata
+body:xml {
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<DescribeRecord service="CSW" version="2.0.2" outputFormat="application/xml" schemaLanguage="http://www.w3.org/XML/Schema" xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
+	<TypeName>gmd:MD_Metadata</TypeName>
+</DescribeRecord>
+
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  const {
+    isValidXML,
+    isNotAnException,
+  } = require('./asserts');
+
+  test("response valid", function() {
+    isValidXML(res);
+  })
+
+  test("not an exception", function(){
+    isNotAnException(res);
+  })
 }
