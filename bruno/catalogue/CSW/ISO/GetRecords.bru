@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: http://localhost:8000/csw/?service=CSW&version=2.0.2&request=GetRecords&typeNames=gmd:MD_Metadata&resultType=results&elementSetName=full&outputSchema=http://www.isotc211.org/2005/gmd
+  url: {{BASE_URL}}/csw/?service=CSW&version=2.0.2&request=GetRecords&typeNames=gmd:MD_Metadata&resultType=results&elementSetName=full&outputSchema=http://www.isotc211.org/2005/gmd
   body: none
   auth: none
 }

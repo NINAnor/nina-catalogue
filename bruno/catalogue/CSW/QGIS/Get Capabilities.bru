@@ -1,0 +1,17 @@
+meta {
+  name: Get Capabilities
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL}}/csw/?service=CSW&version=2.0.2&request=GetCapabilities
+  body: none
+  auth: none
+}
+
+query {
+  service: CSW
+  version: 2.0.2
+  request: GetCapabilities
+}

@@ -1,0 +1,42 @@
+meta {
+  name: GetRecords - Mixed Search
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{BASE_URL}}/csw/?service=CSW&version=2.0.2&request=GetCapabilities
+  body: xml
+  auth: none
+}
+
+query {
+  service: CSW
+  version: 2.0.2
+  request: GetCapabilities
+}
+
+body:xml {
+  <csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ows="http://www.opengis.net/ows" outputSchema="http://www.opengis.net/cat/csw/2.0.2" outputFormat="application/xml" version="2.0.2" service="CSW" resultType="results" startPosition="1" maxRecords="10" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
+    <csw:Query typeNames="csw:Record">
+      <csw:ElementSetName>full</csw:ElementSetName>
+      <csw:Constraint version="1.1.0">
+        <ogc:Filter>
+          <ogc:And>
+            <ogc:BBOX>
+              <ogc:PropertyName>ows:BoundingBox</ogc:PropertyName>
+              <gml:Envelope srsName="urn:ogc:def:crs:EPSG::4326">
+                <gml:lowerCorner>58.00 5.270</gml:lowerCorner>
+                <gml:upperCorner>64.950 12.280</gml:upperCorner>
+              </gml:Envelope>
+            </ogc:BBOX>
+            <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+              <ogc:PropertyName>csw:AnyText</ogc:PropertyName>
+              <ogc:Literal>arko</ogc:Literal>
+            </ogc:PropertyIsLike>
+          </ogc:And>
+        </ogc:Filter>
+      </csw:Constraint>
+    </csw:Query>
+  </csw:GetRecords>
+}

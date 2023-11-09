@@ -117,6 +117,12 @@ services:
     profiles:
       - dev
 
+  bruno:
+    build:
+      context: ./bruno
+    environment:
+      WAIT_FOR_HTTP: http://django:8000/ht/
+
   # cache
   redis:
     image: redis:6

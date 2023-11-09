@@ -1,0 +1,24 @@
+meta {
+  name: GetRecordById
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/csw/?service=CSW&version=2.0.2&request=GetCapabilities&service=CSW&version=2.0.2&request=GetRecordById&outputFormat=application%2Fxml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&elementsetname=full&id=a2e6d4ad-a4a4-4bd0-ad50-ab18054fe4d6
+  body: none
+  auth: none
+}
+
+query {
+  service: CSW
+  version: 2.0.2
+  request: GetCapabilities
+  service: CSW
+  version: 2.0.2
+  request: GetRecordById
+  outputFormat: application/xml
+  outputSchema: http://www.opengis.net/cat/csw/2.0.2
+  elementsetname: full
+  id: a2e6d4ad-a4a4-4bd0-ad50-ab18054fe4d6
+}
