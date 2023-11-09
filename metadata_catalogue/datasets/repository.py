@@ -1,5 +1,9 @@
 # from pycsw.core.repository import Repository
+from django.db.models import Max, Min
+
 from metadata_catalogue.datasets.models import Dataset
+
+from . import logger
 
 
 class DatasetsRepository:
@@ -31,56 +35,48 @@ class DatasetsRepository:
 
     def query_ids(self, ids):
         """Query by list of identifiers"""
-        try:
-            return (
-                self._get_repo_filter(Dataset.objects).filter(uuid__in=[s.split(":")[-1] for s in ids]).all().as_csw()
-            )
-        except Exception as err:
-            print(err)
-            return []
+        return Dataset.objects.filter(uuid__in=ids).all().as_csw()
 
-        # identifiers are URN masked, where the last token of the identifier
-        # is opendata.models.Resource.id (integer)
-        # if ids are passed which are not int, silently return (does not exist)
-        # try:
-        #     return self._get_repo_filter(Resource.objects).filter(id__in=[s.split(':')[-1] for s in ids]).all()
-        # except Exception as err:
-        #     return []
+    # def query_domain(self, domain, typenames, domainquerytype="list", count=False):
+    #     """Query by property domain values"""
+    #     logger.info("called")
 
-    def query_domain(self, domain, typenames, domainquerytype="list", count=False):
-        """Query by property domain values"""
-        pass
+    #     return []
 
-        # objects = self._get_repo_filter(Resource.objects)
+    # objects = self._get_repo_filter(Resource.objects)
 
-        # if domainquerytype == 'range':
-        #     return [tuple(objects.aggregate(
-        #     Min(domain), Max(domain)).values())]
-        # else:
-        #     if count:
-        #         return [(d[domain], d['%s__count' % domain]) \
-        #         for d in objects.values(domain).annotate(Count(domain))]
-        #     else:
-        #         return objects.values_list(domain).distinct()
+    # if domainquerytype == 'range':
+    #     return [tuple(objects.aggregate(
+    #     Min(domain), Max(domain)).values())]
+    # else:
+    #     if count:
+    #         return [(d[domain], d['%s__count' % domain]) \
+    #         for d in objects.values(domain).annotate(Count(domain))]
+    #     else:
+    #         return objects.values_list(domain).distinct()
 
     def query_insert(self, direction="max"):
         """Query to get latest (default) or earliest update to repository"""
-        # from datetime import datetime
-        # if direction == 'min':
-        #     return Resource.objects.aggregate(
-        #         Min('last_updated'))['last_updated__min'].strftime('%Y-%m-%dT%H:%M:%SZ')
-        # return self._get_repo_filter(Resource.objects).aggregate(
-        #     Max('last_updated'))['last_updated__max'].strftime('%Y-%m-%dT%H:%M:%SZ')
+        if direction == "min":
+            return Dataset.objects.aggregate(Min("last_modified_at"))["last_updated__min"].strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+        return (
+            self._get_repo_filter(Dataset.objects)
+            .aggregate(Max("last_modified_at"))["last_updated__max"]
+            .strftime("%Y-%m-%dT%H:%M:%SZ")
+        )
 
     def query_source(self, source):
         """Query by source"""
-        # return self._get_repo_filter(Resource.objects).filter(source=source)
+        return self._get_repo_filter(Dataset.objects).filter(source=source)
 
     def query(self, constraint, sortby=None, typenames=None, maxrecords=10, startposition=0):
         """Query records from underlying repository"""
         limit = int(maxrecords)
         offset = int(startposition)
-        query = Dataset.objects.all()
+        query = Dataset.objects.csw_filter(constraint)
+        # TODO: sort
         return [str(query.count()), query[offset : offset + limit].as_csw()]
 
         # # run the raw query and get total
@@ -108,9 +104,3 @@ class DatasetsRepository:
         #     query.order_by(pname)[startposition:startposition+int(maxrecords)]]
         # else:  # no sort
         #     return [str(total), query.all()[startposition:startposition+int(maxrecords)]]
-
-    def _get_repo_filter(self, query):
-        """Apply repository wide side filter / mask query"""
-        if self.filter is not None:
-            return query.extra(where=[self.filter])
-        return query

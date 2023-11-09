@@ -5,7 +5,7 @@
 groups = ["default", "dev", "docs"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:a526a02bd614f63c103e3e5e07f1015c4505548d1da5a35a08f160f1a287a113"
+content_hash = "sha256:e5b3aa93b30b764a1d5419135a7d955375e46c6e582579e645934cb371c2c798"
 
 [[package]]
 name = "alabaster"
@@ -644,6 +644,18 @@ dependencies = [
 files = [
     {file = "django_languages_plus-2.0.0-py3-none-any.whl", hash = "sha256:5e7956df58c52ef39b7210612db4679386f560735df1ac7135f1731d21c43a07"},
     {file = "django_languages_plus-2.0.0.tar.gz", hash = "sha256:874a268e6988bd8e4ff7c38aad5e70632e97eb431e4c226f637ea3aae563b910"},
+]
+
+[[package]]
+name = "django-lifecycle"
+version = "1.1.2"
+summary = "Declarative model lifecycle hooks."
+dependencies = [
+    "Django>=3.2",
+]
+files = [
+    {file = "django-lifecycle-1.1.2.tar.gz", hash = "sha256:c127392cf3fe7099362afaca5eef0b79460b73380e807733b3ff9648ce92c6ea"},
+    {file = "django_lifecycle-1.1.2-py3-none-any.whl", hash = "sha256:6083cb2969071f06762316e81441e9cd586b59737e968a27e68710fee874c4d9"},
 ]
 
 [[package]]

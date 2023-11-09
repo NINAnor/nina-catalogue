@@ -160,6 +160,7 @@ dependencies = [
     "pycsw>=2.6.1",
     "django-solo>=2.1.0",
     "pygeometa>=0.15.3",
+    "django-lifecycle>=1.1.2",
 ]
 requires-python = ">=3.10"
 name = ""

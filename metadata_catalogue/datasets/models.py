@@ -1,4 +1,3 @@
-import logging
 import uuid
 
 from django.contrib.gis.db import models
@@ -6,22 +5,12 @@ from django.db.models import Value
 from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from django_lifecycle import AFTER_CREATE, AFTER_DELETE, BEFORE_SAVE, LifecycleModel, hook
 
 from metadata_catalogue.core.fields import AutoOneToOneField
-from metadata_catalogue.datasets.libs.csw_mapping import CSWMapping
 
-logger = logging.getLogger(__name__)
-
-
-class DatasetQuerySet(models.QuerySet):
-    def as_csw(self, *args, warn=True, **kwargs):
-        logger.warn("DANGER: This method consumes the queryset and returns and array of items")
-        return [CSWMapping(instance) for instance in self]
-
-
-class DatasetManager(models.Manager):
-    def get_queryset(self):
-        return DatasetQuerySet(self.model, using=self._db)
+from .libs.iso_mapping import ISOMapping
+from .managers import DatasetManager
 
 
 class Dataset(models.Model):
@@ -167,7 +156,7 @@ class Person(models.Model):
         return f"{self.last_name}, {self.first_name}"
 
 
-class PersonRole(models.Model):
+class PersonRole(LifecycleModel):
     class RoleType(models.TextChoices):
         PROJECT_PERSONNEL = "PROJ_PERS", _("Project personnel")
         CONTACT = "CONTACT", _("Contact person")
@@ -193,6 +182,11 @@ class PersonRole(models.Model):
                 }
             ],
         }
+
+    @hook(AFTER_CREATE)
+    @hook(AFTER_DELETE)
+    def update_metadata_xml(self):
+        self.metadata._update_xml(save=True)
 
     class Meta:
         constraints = [
@@ -314,7 +308,7 @@ class MetadataIdentifier(models.Model):
         return f"{self.source} - {self.identifier}"
 
 
-class Metadata(models.Model):
+class Metadata(LifecycleModel):
     dataset = AutoOneToOneField(
         "datasets.Dataset", related_name="metadata", on_delete=models.CASCADE, null=True, blank=True
     )
@@ -353,32 +347,29 @@ class Metadata(models.Model):
     project_study_area_description = models.TextField(blank=True, null=True)
     project_design_description = models.TextField(blank=True, null=True)
 
-    # edition = models.CharField(max_length=150, null=True, blank=True)
-    # mdsource = models.CharField() # "local" or url of the resource
-    # insert_date = models.DateTimeField()
-    # # themes = models.ManyToManyField("datasets.Concepts", blank=True)
-    # format = models.CharField() # provide choices
-    # # source -- same as mdsource?
-    # date = models.DateTimeField()
-    # date_modified = models.DateTimeField()
-    # date_revision = models.DateTimeField()
-    # type = models.CharField() # TODO
-    # geometry = None # TODO
-    # organization = models.CharField(max_length=250)
-    # security_constraints = None # TODO
-    # parentidentifier = None # TODO
-    # topic_category = models.ForeignKey('datasets.TopicCategory', on_delete=models.SET_NULL, null=True, blank=True)
-    # geographic_description_code = models.CharField(max_length=250)
-    # denominator = None # TODO
-    # distance_value = None
-    # distance_uom = None
-    # time_begin = None
-    # time_end = None
-    # service_type = None
-    # service_type_version = None
-    # operation = None
-    # coupling_type = None
-    # operates_on = None
+    xml = models.TextField(blank=True)
+    fts = models.TextField(blank=True)
 
     def __str__(self) -> str:
         return self.title
+
+    WATCH_FIELDS = [
+        "title",
+        "abstract",
+        "language",
+        "source",
+        "bounding_box",
+        "geographic_description",
+        "license",
+    ]
+
+    def _update_xml(self, save=False):
+        iso = ISOMapping(self.dataset)
+        self.xml = iso.to_xml_string()
+        self.fts = ISOMapping.to_text(self.xml)
+        if save:
+            self.save(update_fields=["xml", "fts"])
+
+    @hook(BEFORE_SAVE, when_any=WATCH_FIELDS, has_changed=True)
+    def update_xml_anytext(self):
+        self._update_xml()
