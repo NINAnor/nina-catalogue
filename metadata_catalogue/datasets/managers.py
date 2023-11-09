@@ -24,7 +24,10 @@ OGC_TO_Q = {
     "ogc:BBOX": {
         "ows:BoundingBox": lambda ogc_dict: Q(
             metadata__bounding_box__within=bbox_to_geometry(ogc_dict["gml:Envelope"])
-        )
+        ),
+        "apiso:BoundingBox": lambda ogc_dict: Q(
+            metadata__bounding_box__within=bbox_to_geometry(ogc_dict["gml:Envelope"])
+        ),
     },
 }
 

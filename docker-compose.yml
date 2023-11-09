@@ -57,7 +57,7 @@ x-django-dev: &django-dev
     - ./metadata_catalogue:/app/metadata_catalogue
     - ./locale:/app/locale
   command: python manage.py runserver 0.0.0.0:8000
-  # command: python -m pdb -c continue manage.py runserver 0.0.0.0:8000 --nothreading --noreload
+  #command: python -m pdb -c continue manage.py runserver 0.0.0.0:8000 --nothreading --noreload
 
 services:
   django:
@@ -119,7 +119,9 @@ services:
 
   bruno:
     build:
-      context: ./bruno
+      dockerfile: ./bruno/Dockerfile
+    volumes:
+      - ./bruno/catalogue:/app
     environment:
       WAIT_FOR_HTTP: http://django:8000/ht/
 
