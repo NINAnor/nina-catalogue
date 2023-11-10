@@ -25,7 +25,7 @@ def build_linear_ring(ring):
 
 def to_sql_like_regex(term):
     escaped = re.escape(term)
-    return re.compile(escaped.replace(r"\?", ".").replace(r"\%", ".*"))
+    return escaped.replace(r"\?", ".").replace(r"\%", ".*")
 
 
 class Rule:
