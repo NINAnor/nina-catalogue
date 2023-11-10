@@ -1,4 +1,4 @@
-const { XMLParser, XMLBuilder, XMLValidator} = require("fast-xml-parser");
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 function isValidXML(res) {
     const parser = new XMLParser();

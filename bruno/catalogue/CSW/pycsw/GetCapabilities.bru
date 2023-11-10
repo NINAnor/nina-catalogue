@@ -1,0 +1,43 @@
+meta {
+  name: GetCapabilities
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL}}/csw/
+  body: xml
+  auth: none
+}
+
+body:xml {
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<GetCapabilities xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ows="http://www.opengis.net/ows" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd" service="CSW">
+   <ows:AcceptVersions>
+      <ows:Version>2.0.2</ows:Version>
+   </ows:AcceptVersions>
+   <ows:AcceptFormats>
+      <ows:OutputFormat>application/xml</ows:OutputFormat>
+   </ows:AcceptFormats>
+</GetCapabilities>
+
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  const {
+    isValidXML,
+    isNotAnException,
+  } = require('./asserts');
+
+  test("response valid", function() {
+    isValidXML(res);
+  })
+
+  test("not an exception", function(){
+    isNotAnException(res);
+  })
+}
