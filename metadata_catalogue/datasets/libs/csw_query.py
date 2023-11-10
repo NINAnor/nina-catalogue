@@ -1,6 +1,7 @@
 import operator
 from functools import reduce
 
+import pyproj
 from django.contrib.gis.geos import Polygon
 from django.db.models import Q
 
@@ -11,7 +12,10 @@ def bbox_to_geometry(bbox):
     xmin, ymin = bbox["gml:lowerCorner"].split(" ")
     xmax, ymax = bbox["gml:upperCorner"].split(" ")
     p = Polygon.from_bbox((xmin, ymin, xmax, ymax))
-    p.srid = 4326
+    if "@srsName" in bbox:
+        p.srid = pyproj.CRS.from_string(bbox["@srsName"]).to_epsg()
+    else:
+        p.srid = 4326
     return p
 
 

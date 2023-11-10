@@ -4,9 +4,7 @@ from . import logger
 from .libs.csw_mapping import CSWMapping
 from .libs.csw_query import Group
 
-SORT_CONFIG = {
-    "title": "metadata__title",
-}
+SORT_CONFIG = {"title": "metadata__title", "csw_wkt_geometry": "metadata__bounding_box"}
 
 
 class DatasetQuerySet(models.QuerySet):
@@ -28,8 +26,8 @@ class DatasetQuerySet(models.QuerySet):
     def csw_sort(self, sort):
         try:
             return self.order_by(f'{"-" if sort["order"] == "DESC" else ""}{SORT_CONFIG[sort["propertyname"]]}')
-        except KeyError:
-            logger.warn(f"Not implemented! {sort.propertyname}")
+        except (AttributeError, KeyError):
+            logger.warn(f"Not implemented! {sort}")
         return self
 
 
