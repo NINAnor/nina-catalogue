@@ -76,7 +76,8 @@ class DatasetsRepository:
         limit = int(maxrecords)
         offset = int(startposition)
         query = Dataset.objects.csw_filter(constraint)
-        # TODO: sort
+        if sortby:
+            query = query.csw_sort(sortby)
         return [str(query.count()), query[offset : offset + limit].as_csw()]
 
         # # run the raw query and get total
