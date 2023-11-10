@@ -1,70 +1,8 @@
-import collections
-import operator
-
 from django.contrib.gis.db import models
-from django.contrib.gis.geos import Polygon
-from django.db.models import Q
-
-from metadata_catalogue.datasets.libs.csw_mapping import CSWMapping
 
 from . import logger
-
-
-def bbox_to_geometry(bbox):
-    xmin, ymin = bbox["gml:lowerCorner"].split(" ")
-    xmax, ymax = bbox["gml:upperCorner"].split(" ")
-    p = Polygon.from_bbox((xmin, ymin, xmax, ymax))
-    p.srid = 4326
-    logger.info(p.ewkt)
-    return p
-
-
-OGC_TO_Q = {
-    "ogc:PropertyIsLike": {
-        "csw:AnyText": lambda ogc_dict: Q(metadata__fts__icontains=ogc_dict["ogc:Literal"]),
-        "apiso:AnyText": lambda ogc_dict: Q(metadata__fts__icontains=ogc_dict["ogc:Literal"]),
-        "apiso:ServiceType": lambda ogc_dict: Q() if ogc_dict["ogc:Literal"] == "view" else Q(id__lt=0),
-    },
-    "ogc:BBOX": {
-        "ows:BoundingBox": lambda ogc_dict: Q(
-            metadata__bounding_box__within=bbox_to_geometry(ogc_dict["gml:Envelope"])
-        ),
-        "apiso:BoundingBox": lambda ogc_dict: Q(
-            metadata__bounding_box__within=bbox_to_geometry(ogc_dict["gml:Envelope"])
-        ),
-    },
-}
-
-
-def with_boolean_operators(filter, op=operator.and_):
-    q = Q()
-
-    print(filter)
-    for query in OGC_TO_Q.keys():
-        if query in filter and filter[query]["ogc:PropertyName"]:
-            result = OGC_TO_Q[query][filter[query]["ogc:PropertyName"]](filter[query])
-            q = op(q, result)
-
-    return q
-
-
-OPERATORS = collections.defaultdict(lambda _: operator.and_)
-OPERATORS["ogc:Or"] = operator.or_
-OPERATORS["ogc:And"] = operator.and_
-
-
-def ogc_filter_to_q(filter):
-    op = "ogc:And"
-    query = filter
-    if any(k in filter for k in OPERATORS.keys()):
-        print("has an operator")
-        for k in OPERATORS.keys():
-            if k in filter:
-                query = filter[k]
-                op = k
-                break
-
-    return with_boolean_operators(query, op=OPERATORS[op])
+from .libs.csw_mapping import CSWMapping
+from .libs.csw_query import Group
 
 
 class DatasetQuerySet(models.QuerySet):
@@ -77,9 +15,9 @@ class DatasetQuerySet(models.QuerySet):
             return self
 
         if "ogc:Filter" in filter["_dict"]:
-            if filter := ogc_filter_to_q(filter["_dict"]["ogc:Filter"]):
-                q = self.filter(filter)
-                print(q.query)
+            if filter_group := Group(filter["_dict"]["ogc:Filter"]):
+                q = self.filter(filter_group.to_q())
+                logger.debug(q.query)
                 return q
         return self
 
