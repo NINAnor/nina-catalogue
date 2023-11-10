@@ -122,6 +122,10 @@ services:
       dockerfile: ./bruno/Dockerfile
     environment:
       WAIT_FOR_HTTP: http://django:8000/ht/
+    profiles:
+      - dev
+    depends_on:
+      - django-dev
 
   # cache
   redis:

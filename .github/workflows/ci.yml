@@ -52,5 +52,8 @@ jobs:
       - name: Run Django Tests
         run: docker compose --profile dev --env-file secrets/docker run django-dev pytest
 
+      - name: Run Bruno Tests
+        run: docker compose --profile dev --env-file secrets/docker run bruno
+
       - name: Tear down the Stack
         run: docker compose --profile dev --env-file secrets/docker down
