@@ -46,6 +46,9 @@ class Rule:
         },
     }
 
+    def __repr__(self) -> str:
+        return f"\n\t({self.operation} {self.field} {self.value if self.value else ''})"
+
     def to_q(self):
         try:
             return self.IMPLEMENTATION[self.operation][self.field](self)
@@ -54,24 +57,40 @@ class Rule:
         return Q()
 
 
+COMBINATORS = {
+    "ogc:And": operator.and_,
+    "ogc:Or": operator.or_,
+    "ogc:Not": operator.not_,
+}
+REVERSED = {v: k for k, v in COMBINATORS.items()}
+
+
 class Group:
-    def __init__(self, xml) -> None:
+    def __init__(self, xml, combinator=None) -> None:
         self.rules = []
-        self.combinator = operator.and_
+        self.combinator = combinator
 
         for k, v in xml.items():
-            if k in ["ogc:And", "ogc:Or"]:
-                self.combinator = operator.or_ if k == "ogc:Or" else operator.and_
+            if k in COMBINATORS.keys():
                 if isinstance(v, list):
-                    [self.rules.append(Group(subvalue)) for subvalue in v]
+                    [self.rules.append(Group(subvalue, COMBINATORS[k])) for subvalue in v]
                 else:
-                    self.rules.append(Group(v))
+                    self.rules.append(Group(v, COMBINATORS[k]))
             else:
                 if isinstance(v, list):
                     [self.rules.append(Rule(k, subvalue)) for subvalue in v]
                 else:
                     self.rules.append(Rule(k, v))
 
+    def __repr__(self) -> str:
+        return f"{REVERSED[self.combinator] if self.combinator else ''}{self.rules}"
+
     def to_q(self):
-        rules = [rule.to_q() for rule in self.rules]
-        return reduce(self.combinator, rules) if len(rules) > 1 else rules[0]
+        if self.combinator == operator.not_:
+            return ~(self.rules[0].to_q())
+        if len(self.rules) == 1:
+            return self.rules[0].to_q()
+        if not self.combinator and len(self.rules) > 1:
+            raise Exception("multiple rules detected without a combinator")
+        else:
+            return reduce(self.combinator, [rule.to_q() for rule in self.rules])
