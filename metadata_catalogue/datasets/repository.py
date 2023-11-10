@@ -14,6 +14,7 @@ class DatasetsRepository:
 
         self.context = context
         self.filter = repo_filter
+        self.transactions = False
         self.dbtype = "postgresql+postgis+wkt"
         self.fts = False
 
@@ -59,29 +60,3 @@ class DatasetsRepository:
         if sortby:
             query = query.csw_sort(sortby)
         return [str(query.count()), query[offset : offset + limit].as_csw()]
-
-        # # run the raw query and get total
-        # if 'where' in constraint:  # GetRecords with constraint
-        #     query = self._get_repo_filter(Resource.objects).extra(where=[constraint['where']], params=constraint['values'])
-
-        # else:  # GetRecords sans constraint
-        #     query = self._get_repo_filter(Resource.objects)
-
-        # total = query.count()
-
-        # # apply sorting, limit and offset
-        # if sortby is not None:
-        #     if 'spatial' in sortby and sortby['spatial']:  # spatial sort
-        #         desc = False
-        #         if sortby['order'] == 'DESC':
-        #             desc = True
-        #         query = query.all()
-        #         return [str(total), sorted(query, key=lambda x: float(util.get_geometry_area(getattr(x, sortby['propertyname']))), reverse=desc)[startposition:startposition+int(maxrecords)]]
-        #     if sortby['order'] == 'DESC':
-        #         pname = '-%s' % sortby['propertyname']
-        #     else:
-        #         pname = sortby['propertyname']
-        #     return [str(total), \
-        #     query.order_by(pname)[startposition:startposition+int(maxrecords)]]
-        # else:  # no sort
-        #     return [str(total), query.all()[startposition:startposition+int(maxrecords)]]
