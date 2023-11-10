@@ -37,39 +37,19 @@ class DatasetsRepository:
         """Query by list of identifiers"""
         return Dataset.objects.filter(uuid__in=ids).all().as_csw()
 
-    # def query_domain(self, domain, typenames, domainquerytype="list", count=False):
-    #     """Query by property domain values"""
-    #     logger.info("called")
-
-    #     return []
-
-    # objects = self._get_repo_filter(Resource.objects)
-
-    # if domainquerytype == 'range':
-    #     return [tuple(objects.aggregate(
-    #     Min(domain), Max(domain)).values())]
-    # else:
-    #     if count:
-    #         return [(d[domain], d['%s__count' % domain]) \
-    #         for d in objects.values(domain).annotate(Count(domain))]
-    #     else:
-    #         return objects.values_list(domain).distinct()
-
     def query_insert(self, direction="max"):
         """Query to get latest (default) or earliest update to repository"""
         if direction == "min":
-            return Dataset.objects.aggregate(Min("last_modified_at"))["last_updated__min"].strftime(
+            return Dataset.objects.aggregate(Min("last_modified_at"))["last_modified_at__min"].strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             )
-        return (
-            self._get_repo_filter(Dataset.objects)
-            .aggregate(Max("last_modified_at"))["last_updated__max"]
-            .strftime("%Y-%m-%dT%H:%M:%SZ")
+        return Dataset.objects.aggregate(Max("last_modified_at"))["last_modified_at__max"].strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
         )
 
     def query_source(self, source):
         """Query by source"""
-        return self._get_repo_filter(Dataset.objects).filter(source=source)
+        return Dataset.objects.filter(source=source)
 
     def query(self, constraint, sortby=None, typenames=None, maxrecords=10, startposition=0):
         """Query records from underlying repository"""
