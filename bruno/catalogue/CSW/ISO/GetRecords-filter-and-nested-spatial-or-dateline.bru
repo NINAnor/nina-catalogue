@@ -1,5 +1,5 @@
 meta {
-  name: GetRecords FILTER BBOX
+  name: GetRecords-filter-and-nested-spatial-or-dateline
   type: http
   seq: 3
 }
@@ -11,23 +11,23 @@ post {
 }
 
 body:xml {
-<csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-xmlns:gml="http://www.opengis.net/gml"
-xmlns:ogc="http://www.opengis.net/ogc" service="CSW" version="2.0.2"
-resultType="results" startPosition="1" maxRecords="9999"
-outputFormat="application/xml"
-outputSchema="http://www.isotc211.org/2005/gmd"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2
-http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
- <csw:Query typeNames="csw:Record">
+  <csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+  xmlns:gml="http://www.opengis.net/gml"
+  xmlns:ogc="http://www.opengis.net/ogc" service="CSW" version="2.0.2"
+  resultType="results" startPosition="1" maxRecords="9999"
+  outputFormat="application/xml"
+  outputSchema="http://www.isotc211.org/2005/gmd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2
+  http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
+   <csw:Query typeNames="csw:Record">
    <csw:ElementSetName>full</csw:ElementSetName>
    <csw:Constraint version="1.1.0">
      <ogc:Filter>
        <ogc:And>
          <ogc:PropertyIsLike wildCard="*" escapeChar="" singleChar="?">
            <ogc:PropertyName>csw:AnyText</ogc:PropertyName>
-           <ogc:Literal>*pacioos*</ogc:Literal>
+           <ogc:Literal>nina</ogc:Literal>
          </ogc:PropertyIsLike>
          <ogc:Or>
            <ogc:BBOX>
@@ -54,8 +54,8 @@ http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
        <ogc:SortOrder>ASC</ogc:SortOrder>
      </ogc:SortProperty>
    </ogc:SortBy>
- </csw:Query>
-</csw:GetRecords>
+   </csw:Query>
+  </csw:GetRecords>
 
 }
 
