@@ -11,7 +11,12 @@ from .. import logger
 
 def set_srid(gml_dict, geom):
     if "@srsName" in gml_dict:
-        geom.srid = pyproj.CRS.from_string(gml_dict["@srsName"]).to_epsg()
+        if "http://www.opengis.net/gml/srs/epsg.xml#" in gml_dict["@srsName"]:
+            # This format seems not to be supported by pyproj, but an official test from the pycsw repository provides this value, so let's try to handle it a naive way
+            _, epsg_code = gml_dict["@srsName"].split("#")
+            geom.srid = pyproj.CRS.from_string(epsg_code).to_epsg()
+        else:
+            geom.srid = pyproj.CRS.from_string(gml_dict["@srsName"]).to_epsg()
     else:
         geom.srid = 4326
 
