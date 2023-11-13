@@ -6,6 +6,7 @@ from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_lifecycle import AFTER_CREATE, AFTER_DELETE, BEFORE_SAVE, LifecycleModel, hook
+from solo.models import SingletonModel
 
 from metadata_catalogue.core.fields import AutoOneToOneField
 
@@ -373,3 +374,17 @@ class Metadata(LifecycleModel):
     @hook(BEFORE_SAVE, when_any=WATCH_FIELDS, has_changed=True)
     def update_xml_anytext(self):
         self._update_xml()
+
+
+class ServiceInfo(SingletonModel):
+    identification_title = models.TextField(null=True, blank=True, default="")
+    identification_abstract = models.TextField(null=True, blank=True, default="")
+    identification_keywords = models.TextField(null=True, blank=True, default="")
+    identification_keywords_type = models.TextField(null=True, blank=True, default="")
+    identification_fees = models.TextField(null=True, blank=True, default="")
+    identification_accessconstraints = models.TextField(null=True, blank=True, default="")
+    contact = models.ForeignKey("datasets.Person", blank=True, null=True, on_delete=models.SET_NULL)
+    contact_hours = models.TextField(null=True, blank=True, default="")
+    contact_instructions = models.TextField(null=True, blank=True, default="")
+    provider = models.ForeignKey("datasets.Organization", blank=True, null=True, on_delete=models.SET_NULL)
+    license = models.ForeignKey("datasets.License", on_delete=models.SET_NULL, null=True, blank=True)
