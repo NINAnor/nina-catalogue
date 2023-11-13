@@ -6,7 +6,7 @@ import pyproj
 from django.contrib.gis.geos import LinearRing, Polygon
 from django.db.models import Q
 
-from .. import logger
+from ... import logger
 
 
 def set_srid(gml_dict, geom):

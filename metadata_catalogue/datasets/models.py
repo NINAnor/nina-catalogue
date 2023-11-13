@@ -9,7 +9,7 @@ from django_lifecycle import AFTER_CREATE, AFTER_DELETE, BEFORE_SAVE, LifecycleM
 
 from metadata_catalogue.core.fields import AutoOneToOneField
 
-from .libs.iso_mapping import ISOMapping
+from .libs.iso.mapping import ISOMapping
 from .managers import DatasetManager
 
 

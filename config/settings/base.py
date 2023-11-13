@@ -93,7 +93,7 @@ LOCAL_APPS = [
     "metadata_catalogue.users",
     "metadata_catalogue.core",
     "metadata_catalogue.datasets",
-    "metadata_catalogue.csw",
+    "metadata_catalogue.datasets.csw",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

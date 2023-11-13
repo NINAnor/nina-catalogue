@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from pycsw import server
 
-from metadata_catalogue.csw.models import CSWConfig
+from .models import CSWConfig
 
 
 @csrf_exempt

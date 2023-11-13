@@ -1,8 +1,8 @@
 from django.contrib.gis.db import models
 
 from . import logger
-from .libs.csw_mapping import CSWMapping
-from .libs.csw_query import Group
+from .libs.csw.mapping import CSWMapping
+from .libs.csw.query import Group
 
 SORT_CONFIG = {"title": "metadata__title", "csw_wkt_geometry": "metadata__bounding_box"}
 

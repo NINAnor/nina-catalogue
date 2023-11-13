@@ -2,7 +2,7 @@ from django.apps import apps
 from pycsw.core.util import get_anytext
 from pygeometa.schemas.iso19139 import ISO19139OutputSchema
 
-from .utils import safe_get
+from ..utils import safe_get
 
 iso_os = ISO19139OutputSchema()
 
