@@ -153,14 +153,15 @@ dependencies = [
     "django-languages-plus",
     "django-postgres-extra",
     "django-q",
-    "OWSLib>=0.29.2",
-    "shapely>=2.0.2",
-    "xmltodict>=0.13.0",
-    "geolinks>=0.2.3",
-    "pycsw>=2.6.1",
-    "django-solo>=2.1.0",
-    "pygeometa>=0.15.3",
-    "django-lifecycle>=1.1.2",
+    "OWSLib",
+    "shapely",
+    "xmltodict",
+    "geolinks",
+    "pycsw",
+    "django-solo",
+    "pygeometa",
+    "django-lifecycle",
+    "gunicorn>=21.2.0",
 ]
 requires-python = ">=3.10"
 name = ""

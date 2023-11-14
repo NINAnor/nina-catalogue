@@ -17,7 +17,7 @@ x-django-prod-env: &django-prod-env
   DJANGO_SECURE_SSL_REDIRECT: False
   WEB_CONCURRENCY: 4
   REDIS_URL: redis://redis:6379/0
-  DJANGO_ALLOWED_HOSTS: "localhost"
+  DJANGO_ALLOWED_HOSTS: "localhost,django"
 
 x-django-dev-env: &django-dev-env
   <<: *django-env
