@@ -52,6 +52,9 @@ jobs:
       - name: Run Django Tests
         run: docker compose --profile dev --env-file secrets/docker run django-dev pytest
 
+      - name: Load fixtures
+        run: docker compose --profile dev --env-file secrets/docker run --rm django-dev python manage.py loaddata datasets.json
+
       - name: Run Bruno Tests
         run: docker compose --profile dev --env-file secrets/docker run bruno
 
