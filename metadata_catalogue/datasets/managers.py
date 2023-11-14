@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from . import logger
 from .libs.csw.mapping import CSWMapping
 from .libs.csw.query import Group
+from .libs.geoapi.mapping import ResourceMapping
 
 SORT_CONFIG = {"title": "metadata__title", "csw_wkt_geometry": "metadata__bounding_box"}
 
@@ -29,6 +30,10 @@ class DatasetQuerySet(models.QuerySet):
         except (AttributeError, KeyError):
             logger.warn(f"Not implemented! {sort}")
         return self
+
+    def as_geoapi_resource(self, *args, warn=True, **kwargs):
+        logger.warn("DANGER: This method consumes the queryset and returns and array of items")
+        return [ResourceMapping(instance).as_resource() for instance in self]
 
 
 class DatasetManager(models.Manager):

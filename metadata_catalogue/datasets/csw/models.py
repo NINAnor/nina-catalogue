@@ -7,7 +7,6 @@ from ..libs.utils import safe_get
 
 
 class CSWConfig(SingletonModel):
-    language = models.CharField(max_length=7, null=True, blank=True)
     max_records = models.IntegerField(default=10)
     profiles = models.TextField(default="apiso", blank=True)
     pretty_print = models.BooleanField(default=False)
@@ -21,7 +20,7 @@ class CSWConfig(SingletonModel):
             "home": ".",
             "mimetype": "application/xml; charset=UTF-8",
             "encoding": "UTF-8",
-            "language": self.language or "en-US",
+            "language": info.language or "en-US",
             "maxrecords": str(self.max_records),
             "pretty_print": "true" if self.pretty_print else "false",
             "url": url,

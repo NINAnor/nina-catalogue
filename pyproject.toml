@@ -162,6 +162,7 @@ dependencies = [
     "pygeometa",
     "django-lifecycle",
     "gunicorn>=21.2.0",
+    "pygeoapi @ git+https://github.com/geopython/pygeoapi.git@de1a7d93eeb492c2b51908e9875a61074b7eab6b",
 ]
 requires-python = ">=3.10"
 name = ""
