@@ -388,3 +388,4 @@ class ServiceInfo(SingletonModel):
     contact_instructions = models.TextField(null=True, blank=True, default="")
     provider = models.ForeignKey("datasets.Organization", blank=True, null=True, on_delete=models.SET_NULL)
     license = models.ForeignKey("datasets.License", on_delete=models.SET_NULL, null=True, blank=True)
+    language = models.CharField(max_length=7, null=True, blank=True)
