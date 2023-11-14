@@ -10,71 +10,77 @@ iso_os = ISO19139OutputSchema()
 class ISOMapping:
     def __init__(self, dataset):
         PersonRole = apps.get_model("datasets", "PersonRole")
-        contact = dataset.metadata.people.filter(role=PersonRole.RoleType.CONTACT).first().person
-        provider = dataset.metadata.people.filter(role=PersonRole.RoleType.PROVIDER).first().person
+        try:
+            contact = dataset.metadata.people.filter(role=PersonRole.RoleType.CONTACT).first().person
+            provider = dataset.metadata.people.filter(role=PersonRole.RoleType.PROVIDER).first().person
 
-        self.data = {
-            "version": "1.0",
-            "metadata": {
-                "identifier": dataset.uuid,
-                "language": dataset.metadata.language.iso_639_1,
-                "charset": "utf8",
-                "hierarchylevel": "dataset",
-                "datestamp": dataset.created_at,
-            },
-            "spatial": {"datatype": "vector", "geomtype": "point"},
-            "identification": {
-                "title": dataset.metadata.title,
-                "abstract": dataset.metadata.abstract,
-                "topiccategory": "",
-                "fees": "None",
-                "accessconstraints": "None",
-                "rights": "",
-                "url": dataset.source,
-                "status": "completed",
-                "maintenancefrequency": "unknown",
-                "dates": {
-                    "creation": dataset.created_at,
+            self.data = {
+                "version": "1.0",
+                "metadata": {
+                    "identifier": dataset.uuid,
+                    "language": dataset.metadata.language.iso_639_1,
+                    "charset": "utf8",
+                    "hierarchylevel": "dataset",
+                    "datestamp": dataset.created_at,
                 },
-                "extents": {
-                    "spatial": [
-                        {
-                            "crs": dataset.metadata.bounding_box.srid,
-                            "bbox": dataset.metadata.bounding_box.extent,
-                            "description": dataset.metadata.geographic_description,
-                        }
-                    ]
+                "spatial": {"datatype": "vector", "geomtype": "point"},
+                "identification": {
+                    "title": dataset.metadata.title,
+                    "abstract": dataset.metadata.abstract,
+                    "topiccategory": "",
+                    "fees": "None",
+                    "accessconstraints": "None",
+                    "rights": "",
+                    "url": dataset.source,
+                    "status": "completed",
+                    "maintenancefrequency": "unknown",
+                    "dates": {
+                        "creation": dataset.created_at,
+                    },
+                    "extents": {
+                        "spatial": [
+                            {
+                                "crs": dataset.metadata.bounding_box.srid,
+                                "bbox": dataset.metadata.bounding_box.extent,
+                                "description": dataset.metadata.geographic_description,
+                            }
+                        ]
+                    },
+                    "keywords": self._keywords(dataset.metadata),
+                    "license": {
+                        "name": dataset.metadata.license.name,
+                        "url": dataset.metadata.license.url,
+                    },
                 },
-                "keywords": self._keywords(dataset.metadata),
-                "license": {
-                    "name": dataset.metadata.license.name,
-                    "url": dataset.metadata.license.url,
+                "content_info": {
+                    "type": "feature_catalogue",
                 },
-            },
-            "content_info": {
-                "type": "feature_catalogue",
-            },
-            "contact": {
-                "pointOfContact": self._person(contact),
-                "distributor": self._person(provider),
-            },
-            "distribution": {
-                "dwca": {
-                    "url": dataset.fetch_url,
-                    "type": "download",
-                    "name": "DarwinCore Archive",
-                    "description": "",
-                    "function": "download",
-                }
-            },
-        }
+                "contact": {
+                    "pointOfContact": self._person(contact),
+                    "distributor": self._person(provider),
+                },
+                "distribution": {
+                    "dwca": {
+                        "url": dataset.fetch_url,
+                        "type": "download",
+                        "name": "DarwinCore Archive",
+                        "description": "",
+                        "function": "download",
+                    }
+                },
+            }
+        except AttributeError:
+            self.data = None
 
     def to_xml_string(self):
-        return iso_os.write(self.data)
+        if self.data:
+            return iso_os.write(self.data)
+
+        return ""
 
     @classmethod
     def to_text(cls, text):
-        return get_anytext(text)
+        return get_anytext(text) if text else text
 
     def _person(self, person):
         """

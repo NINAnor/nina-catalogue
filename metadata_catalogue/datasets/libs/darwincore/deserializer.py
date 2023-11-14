@@ -172,7 +172,7 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
                 if funding := project.find("funding"):
                     for org in funding.find_all("para"):
                         o, _ = Organization.objects.get_or_create(name=org.text)
-                        org_role, _ = OrganizationRole.objects.create(
+                        org_role = OrganizationRole.objects.create(
                             organization=o,
                             metadata=metadata,
                             role=OrganizationRole.RoleType.FUNDING,
