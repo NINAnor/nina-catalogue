@@ -48,7 +48,7 @@ COPY --from=production /app .
 COPY --from=translation /app/locale locale
 COPY --from=source /app .
 COPY entrypoint.sh .
-ENV DJANGO_ENV=production
+ENV DJANGO_COLLECTSTATIC=1
 ENTRYPOINT ["./entrypoint.sh"]
 
 FROM pdm as dev
@@ -58,5 +58,5 @@ RUN --mount=type=cache,target=/root/.cache/pdm \
 COPY --from=django /app/locale locale
 COPY --from=django /app/manage.py .
 COPY --from=django /app/entrypoint.sh .
-ENV DJANGO_ENV=dev
+ENV DJANGO_MIGRATE=1
 ENTRYPOINT ["./entrypoint.sh"]

@@ -12,10 +12,17 @@ else
   python manage.py wait_for_http "$WAIT_FOR_HTTP"
 fi
 
-if [ "$DJANGO_ENV" == "dev" ]
+if [[ -z "${DJANGO_MIGRATE}" ]]
 then
+  echo "Skip migration and setup"
+else
   python manage.py migrate
   python manage.py setup
+fi
+
+if [[ -z "${DJANGO_COLLECTSTATIC}" ]]
+then
+  echo "Skip collectstatic"
 else
   python manage.py collectstatic --noinput
 fi
