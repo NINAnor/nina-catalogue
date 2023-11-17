@@ -2,6 +2,7 @@ from pathlib import Path
 
 from django.apps import apps
 from django.db import models
+from pygeoapi.openapi import get_oas
 from solo.models import SingletonModel
 
 from ..libs.utils import safe_get
@@ -24,7 +25,7 @@ class GeoAPIConfig(SingletonModel):
             id: value for id, value in Dataset.objects.select_related("metadata").all().as_geoapi_resource(url)
         }
 
-        return {
+        conf = {
             "server": {
                 "mimetype": "application/xml; charset=UTF-8",
                 "encoding": "utf-8",
@@ -77,3 +78,6 @@ class GeoAPIConfig(SingletonModel):
             },
             "resources": resources,
         }
+
+        openapi = get_oas(conf)
+        return conf, openapi

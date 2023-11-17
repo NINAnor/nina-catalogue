@@ -453,8 +453,8 @@ def _feed_response(request: HttpRequest, api_definition: str, *args, **kwargs) -
     """Use pygeoapi api to process the input request"""
 
     config = GeoAPIConfig.get_solo()
-    as_dict = config.get_config(req_to_base(request))
-    api_ = API(as_dict, {})
+    geoapi_conf, openapi_def = config.get_config(req_to_base(request))
+    api_ = API(geoapi_conf, openapi_def)
     api = getattr(api_, api_definition)
     return api(request, *args, **kwargs)
 
