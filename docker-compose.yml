@@ -64,6 +64,7 @@ services:
     <<: *django-prod
     environment:
       <<: *django-prod-env
+      DJANGO_COLLECTSTATIC: 1
     ports:
       - "8000:8000"
 
@@ -72,6 +73,9 @@ services:
     tty: true
     stdin_open: true
     hostname: django
+    environment:
+      <<: *django-dev-env
+      DJANGO_MIGRATE: 1
     ports:
       - "8000:8000"
 
