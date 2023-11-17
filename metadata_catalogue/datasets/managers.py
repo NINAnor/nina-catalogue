@@ -33,7 +33,10 @@ class DatasetQuerySet(models.QuerySet):
 
     def as_geoapi_resource(self, base_url, *args, warn=True, **kwargs):
         logger.warn("DANGER: This method consumes the queryset and returns and array of items")
-        return [ResourceMapping(instance, base_url).as_resource() for instance in self]
+        return [
+            ResourceMapping(instance, base_url).as_resource()
+            for instance in self.exclude(metadata=None, metadata__bounding_box=None)
+        ]
 
 
 class DatasetManager(models.Manager):
