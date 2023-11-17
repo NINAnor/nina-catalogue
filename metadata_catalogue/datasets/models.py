@@ -3,6 +3,7 @@ import uuid
 from django.contrib.gis.db import models
 from django.db.models import Value
 from django.db.models.functions import Coalesce
+from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_lifecycle import AFTER_CREATE, AFTER_DELETE, BEFORE_SAVE, LifecycleModel, hook
@@ -20,8 +21,8 @@ class Dataset(models.Model):
 
     name = models.CharField(max_length=250, verbose_name=_("Internal name"))
     uuid = models.UUIDField(default=uuid.uuid4)
-    source = models.URLField(null=True, blank=True)
-    fetch_url = models.URLField(verbose_name=_("URL of the resource to fetch"), null=True, blank=True)
+    source = models.TextField(null=True, blank=True)
+    fetch_url = models.TextField(verbose_name=_("URL of the resource to fetch"), null=True, blank=True)
     fetch_type = models.IntegerField(choices=FetchType.choices, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     last_modified_at = models.DateTimeField(auto_now=True, verbose_name=_("Last modified at"))
@@ -389,3 +390,15 @@ class ServiceInfo(SingletonModel):
     provider = models.ForeignKey("datasets.Organization", blank=True, null=True, on_delete=models.SET_NULL)
     license = models.ForeignKey("datasets.License", on_delete=models.SET_NULL, null=True, blank=True)
     language = models.CharField(max_length=7, null=True, blank=True)
+
+
+class Content(models.Model):
+    dataset = AutoOneToOneField("datasets.Dataset", on_delete=models.CASCADE, related_name="content")
+    gdal_vrt_definition = models.TextField(null=True, blank=True)
+    remote_source = models.TextField(null=True, blank=True)
+
+    def get_gdal_vrt_source(self):
+        if self.dataset.fetch_type == Dataset.FetchType.DARWINCORE:
+            return f"CSV:/vsizip/{{/vsicurl/{self.dataset.fetch_url}}}/{self.remote_source}"
+
+        return ""

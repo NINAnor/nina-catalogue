@@ -40,6 +40,7 @@ from typing import Dict, Optional, Tuple
 from django.http import HttpRequest, HttpResponse
 from pygeoapi.api import API
 
+from ..libs.utils import req_to_base
 from .models import GeoAPIConfig
 
 
@@ -452,8 +453,7 @@ def _feed_response(request: HttpRequest, api_definition: str, *args, **kwargs) -
     """Use pygeoapi api to process the input request"""
 
     config = GeoAPIConfig.get_solo()
-    as_dict = config.get_config(request.scheme + "://" + request.get_host() + "/geoapi/")
-
+    as_dict = config.get_config(req_to_base(request))
     api_ = API(as_dict, {})
     api = getattr(api_, api_definition)
     return api(request, *args, **kwargs)
