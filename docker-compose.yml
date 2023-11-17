@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   pgdata: {}
+  statics: {}
 
 x-django-env: &django-env
   DATABASE_URL: "postgis://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable"
@@ -13,7 +14,7 @@ x-django-prod-env: &django-prod-env
   <<: *django-env
   DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
   DJANGO_SERVER_EMAIL: ""
-  DJANGO_ADMIN_URL: 4IUtBJoFJXIR4p2BMf4FFB7aIa7dpYyY/
+  DJANGO_ADMIN_URL: admin/
   DJANGO_SECURE_SSL_REDIRECT: False
   WEB_CONCURRENCY: 4
   REDIS_URL: redis://redis:6379/0
@@ -65,8 +66,9 @@ services:
     environment:
       <<: *django-prod-env
       DJANGO_COLLECTSTATIC: 1
-    ports:
-      - "8000:8000"
+      DJANGO_MIGRATE: 1
+    volumes:
+      - statics:/app/staticfiles
 
   django-dev:
     <<: *django-dev
@@ -145,3 +147,13 @@ services:
     ports:
       - 8080:8080
       - 8081:8081
+
+  nginx:
+    build:
+      context: ./nginx
+    profiles:
+      - prod
+    volumes:
+      - statics:/statics
+    ports:
+      - "8000:80"

@@ -1,6 +1,7 @@
 import traceback
 
 from countries_plus.models import Country
+from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from languages_plus.models import Language
@@ -23,3 +24,6 @@ class Command(BaseCommand):
 
         if Language.objects.all().first() is None:
             call_command("loaddata", "languages_data.json.gz")
+
+        ServiceInfo = apps.get_model("datasets", "ServiceInfo")
+        ServiceInfo.get_solo()
