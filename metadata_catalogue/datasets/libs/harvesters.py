@@ -24,6 +24,7 @@ def handle_file_as_darwincore_zip(file: NamedTemporaryFile, dataset: Dataset):
             raise Exception("There should be one eml.xml file")
 
         darwincore.to_metadata(eml, dataset)
+        darwincore.to_content(path, dataset)
 
 
 def harvest_dataset(dataset_id: int):

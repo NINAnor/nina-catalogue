@@ -31,9 +31,9 @@ class DatasetQuerySet(models.QuerySet):
             logger.warn(f"Not implemented! {sort}")
         return self
 
-    def as_geoapi_resource(self, *args, warn=True, **kwargs):
+    def as_geoapi_resource(self, base_url, *args, warn=True, **kwargs):
         logger.warn("DANGER: This method consumes the queryset and returns and array of items")
-        return [ResourceMapping(instance).as_resource() for instance in self]
+        return [ResourceMapping(instance, base_url).as_resource() for instance in self]
 
 
 class DatasetManager(models.Manager):

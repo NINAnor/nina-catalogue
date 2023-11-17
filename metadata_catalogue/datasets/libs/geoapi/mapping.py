@@ -1,10 +1,14 @@
+from django.urls import reverse_lazy
+
+
 class ResourceMapping:
-    def __init__(self, dataset) -> None:
+    def __init__(self, dataset, base_name) -> None:
         self.id = dataset.uuid
         self.dataset = dataset
+        self.base_name = base_name
 
     def as_resource(self):
-        return self.id, {
+        return str(self.id), {
             "type": "collection",
             "visibility": "default",
             "title": self.dataset.metadata.title,
@@ -24,8 +28,16 @@ class ResourceMapping:
                 {
                     "type": "feature",
                     "default": True,
-                    "name": "CSV",
+                    "name": "OGR",
                     "editable": False,
+                    "id_field": "id",
+                    "layer": "occurrence",
+                    "data": {
+                        "source_type": "VRT",
+                        "source": "/vsicurl/"
+                        + self.base_name
+                        + reverse_lazy("get-dataset-vrt", kwargs={"dataset_uuid": self.dataset.uuid}),
+                    },
                 }
             ],
         }

@@ -8,6 +8,7 @@ admin.site.register(models.ServiceInfo, SingletonModelAdmin)
 
 
 admin.site.register(models.Dataset)
+admin.site.register(models.Content)
 admin.site.register(models.Person)
 
 

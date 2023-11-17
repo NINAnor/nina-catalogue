@@ -20,7 +20,9 @@ class GeoAPIConfig(SingletonModel):
         Dataset = apps.get_model("datasets", "Dataset")
         info = ServiceInfo.objects.select_related("contact", "license", "provider").get()
 
-        resources = {id: value for id, value in Dataset.objects.select_related("metadata").all().as_geoapi_resource()}
+        resources = {
+            id: value for id, value in Dataset.objects.select_related("metadata").all().as_geoapi_resource(url)
+        }
 
         return {
             "server": {
@@ -29,7 +31,7 @@ class GeoAPIConfig(SingletonModel):
                 "language": info.language or "en-US",
                 "limit": str(self.max_records),
                 "pretty_print": self.pretty_print,
-                "url": url,
+                "url": url + "/geoapi",
                 "templates": {"static": str(Path(__name__).parent / "statics" / "geoapi")},
                 "map": {
                     "url": self.map_url,
