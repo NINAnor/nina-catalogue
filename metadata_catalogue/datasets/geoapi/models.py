@@ -56,7 +56,7 @@ class GeoAPIConfig(SingletonModel):
                     "url": info.license.url if info.license else "",
                 },
                 "provider": {
-                    "name": info.provider,
+                    "name": str(info.provider),
                     "url": "",
                 },
                 "contact": {
@@ -66,7 +66,7 @@ class GeoAPIConfig(SingletonModel):
                     "city": safe_get(info.contact, "city"),
                     "stateorprovince": safe_get(info.contact, "country"),
                     "postalcode": safe_get(info.contact, "postal_code"),
-                    "country": safe_get(info.contact, "country"),
+                    "country": str(safe_get(info.contact, "country")),
                     "phone": safe_get(info.contact, "phone"),
                     "fax": safe_get(info.contact, "phone"),
                     "email": safe_get(info.contact, "email"),
@@ -78,6 +78,8 @@ class GeoAPIConfig(SingletonModel):
             },
             "resources": resources,
         }
+
+        print(conf["metadata"])
 
         openapi = get_oas(conf)
         return conf, openapi
