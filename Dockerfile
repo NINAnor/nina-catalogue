@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/var/cache/zypper \
 COPY --from=production /app/.venv .venv
 COPY --from=source /app .
 COPY locale locale
-RUN DATABASE_URL="" \
+RUN DATABASE_URL="" DJANGO_BASE_SCHEMA_URL="" \
   DJANGO_SETTINGS_MODULE="config.settings.test" \
   pdm run ./manage.py compilemessages
 

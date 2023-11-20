@@ -1,4 +1,6 @@
 from django.apps import apps
+from django.conf import settings
+from django.urls import reverse_lazy
 from pycsw.core.util import get_anytext
 from pygeometa.schemas.iso19139 import ISO19139OutputSchema
 
@@ -62,11 +64,19 @@ class ISOMapping:
                 "distribution": {
                     "dwca": {
                         "url": dataset.fetch_url,
-                        "type": "download",
+                        "type": "WWW:LINK",
                         "name": "DarwinCore Archive",
                         "description": "",
                         "function": "download",
-                    }
+                    },
+                    "OGCFeat": {
+                        "url": settings.BASE_SCHEMA_URL
+                        + reverse_lazy("geoapi:collection-detail", kwargs={"collection_id": str(dataset.uuid)}),
+                        "type": "OGCFeat",
+                        "name": "OGC API Feature",
+                        "description": "OGC REST API to the resource",
+                        "function": "download",
+                    },
                 },
             }
         except AttributeError:

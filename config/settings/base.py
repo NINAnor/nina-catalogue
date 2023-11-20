@@ -315,3 +315,8 @@ GEOAPI = {
     "cors": False,
     "gzip": False,
 }
+
+# Some URLs are generated outside the request/response flow, therefor they cannot access
+# request information such as schema and domain
+# this field should be set as the base URL that other services use to connect to django
+BASE_SCHEMA_URL = env("DJANGO_BASE_SCHEMA_URL")

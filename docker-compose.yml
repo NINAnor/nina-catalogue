@@ -9,6 +9,7 @@ x-django-env: &django-env
   DJANGO_SETTINGS_MODULE: config.settings.production
   DJANGO_ACCOUNT_ALLOW_REGISTRATION: "True"
   USE_DOCKER: "yes"
+  DJANGO_BASE_SCHEMA_URL: "http://django:8000"
 
 x-django-prod-env: &django-prod-env
   <<: *django-env
