@@ -15,7 +15,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("ht/", include("health_check.urls")),
     path("csw/", include("metadata_catalogue.datasets.csw.urls")),
-    path("geoapi/", include("metadata_catalogue.datasets.geoapi.urls")),
+    path("geoapi/", include("metadata_catalogue.datasets.geoapi.urls", namespace="geoapi")),
     path("datasets/", include("metadata_catalogue.datasets.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
