@@ -1,1 +1,15 @@
 {% extends "base.html" %}
+
+{% block content %}
+  <div>
+    <h3>Services Available</h3>
+    <ul>
+      <li>
+        <a href="{% url 'csw' %}">CSW</a>
+      </li>
+      <li>
+        <a href="{% url 'geoapi:landing-page' %}">GeoAPI</a>
+      </li>
+    </ul>
+  </div>
+{% endblock content %}
