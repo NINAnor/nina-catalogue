@@ -157,7 +157,7 @@ dependencies = [
     "shapely",
     "xmltodict",
     "geolinks",
-    "pycsw",
+    "pycsw @ git+https://github.com/geopython/pycsw.git@3.0.0-alpha4",
     "django-solo",
     "pygeometa",
     "django-lifecycle",
