@@ -130,7 +130,7 @@ services:
     environment:
       WAIT_FOR_HTTP: http://django:8000/ht/
     profiles:
-      - dev
+      - test
     depends_on:
       - django-dev
 

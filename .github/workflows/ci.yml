@@ -56,7 +56,7 @@ jobs:
         run: docker compose --profile dev --env-file secrets/docker run --rm django-dev python manage.py loaddata datasets.json
 
       - name: Run Bruno Tests
-        run: docker compose --profile dev --env-file secrets/docker run bruno
+        run: docker compose --profile dev --profile test --env-file secrets/docker run bruno
 
       - name: Tear down the Stack
         run: docker compose --profile dev --env-file secrets/docker down
