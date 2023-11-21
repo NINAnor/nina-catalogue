@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from django_lifecycle import AFTER_CREATE, AFTER_DELETE, BEFORE_SAVE, LifecycleModel, hook
 from solo.models import SingletonModel
 
-from metadata_catalogue.core.fields import AutoOneToOneField
-
 from .libs.iso.mapping import ISOMapping
 from .managers import DatasetManager
 
@@ -67,6 +65,18 @@ class Dataset(models.Model):
             logger_fn(message)
 
         self.save()
+
+    def get_metadata(self):
+        if hasattr(self, "metadata"):
+            return self.metadata
+        else:
+            return Metadata.objects.create(dataset=self)
+
+    def get_content(self):
+        if hasattr(self, "content"):
+            return self.metadata
+        else:
+            return Content.objects.create(dataset=self)
 
     class Meta:
         verbose_name = _("Dataset")

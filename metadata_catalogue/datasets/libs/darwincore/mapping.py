@@ -35,7 +35,7 @@ def to_content(xml_path, dataset):
     with open(str(meta_path)) as meta:
         soup = BeautifulSoup(meta, features="lxml-xml")
         with transaction.atomic():
-            content = dataset.content
+            content = dataset.get_content()
             extensions = []
             core = SourceLayer(soup.find("core"), xml_path)
             for extension in soup.find_all("extension"):

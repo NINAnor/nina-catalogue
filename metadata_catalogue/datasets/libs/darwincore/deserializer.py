@@ -79,7 +79,7 @@ def to_metadata(xml_path: pathlib.Path, dataset: Dataset):
     with open(str(xml_path)) as eml:
         soup = BeautifulSoup(eml, features="lxml-xml")
         with transaction.atomic():
-            metadata = dataset.metadata
+            metadata = dataset.get_metadata()
 
             dataset = soup.find("dataset")
             metadata.title = text_or_null(dataset.find("title"))

@@ -5,7 +5,6 @@ import django.contrib.gis.db.models.fields
 from django.db import migrations, models
 import django.db.models.deletion
 import django.db.models.functions.comparison
-import metadata_catalogue.core.fields
 import uuid
 
 
@@ -237,7 +236,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="metadata",
             name="dataset",
-            field=metadata_catalogue.core.fields.AutoOneToOneField(
+            field=models.OneToOneField(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
@@ -457,7 +456,7 @@ class Migration(migrations.Migration):
                 ("gdal_vrt_definition", models.TextField(blank=True, null=True)),
                 (
                     "dataset",
-                    metadata_catalogue.core.fields.AutoOneToOneField(
+                    models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE, related_name="content", to="datasets.dataset"
                     ),
                 ),
