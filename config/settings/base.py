@@ -326,3 +326,4 @@ GEOAPI_DWCA_LAYER_NAME = "data"
 
 # Minutes that GEOAPI should cache views and settings
 GEOAPI_CACHE_TIMEOUT = env.int("DJANGO_GEOAPI_CACHE_TIMEOUT", default=0)
+APPEND_SLASH = False

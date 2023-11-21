@@ -8,21 +8,21 @@ app_name = "geoapi"
 
 urlpatterns = [
     path("", views.landing_page, name="landing-page"),
-    path("openapi/", views.openapi, name="openapi"),
-    path("conformance/", views.conformance, name="conformance"),
-    path("collections/", views.collections, name="collections"),
+    path("openapi", views.openapi, name="openapi"),
+    path("conformance", views.conformance, name="conformance"),
+    path("collections", views.collections, name="collections"),
     path(
         "collections/<str:collection_id>",
         views.collections,
         name="collection-detail",
     ),
     path(
-        "collections/<str:collection_id>/queryables/",
+        "collections/<str:collection_id>/queryables",
         views.collection_queryables,
         name="collection-queryables",
     ),
     path(
-        "collections/<str:collection_id>/items/",
+        "collections/<str:collection_id>/items",
         views.collection_items,
         name="collection-items",
     ),
@@ -32,17 +32,17 @@ urlpatterns = [
         name="collection-item",
     ),
     path(
-        "collections/<str:collection_id>/coverage/",
+        "collections/<str:collection_id>/coverage",
         views.collection_coverage,
         name="collection-coverage",
     ),
     path(
-        "collections/<str:collection_id>/coverage/domainset/",  # noqa
+        "collections/<str:collection_id>/coverage/domainset",  # noqa
         views.collection_coverage_domainset,
         name="collection-coverage-domainset",
     ),
     path(
-        "collections/<str:collection_id>/coverage/rangetype/",  # noqa
+        "collections/<str:collection_id>/coverage/rangetype",  # noqa
         views.collection_coverage_rangetype,
         name="collection-coverage-rangetype",
     ),
@@ -57,7 +57,7 @@ urlpatterns = [
         name="collection-style-map",
     ),
     path(
-        "collections/<str:collection_id>/tiles/",
+        "collections/<str:collection_id>/tiles",
         views.collection_tiles,
         name="collection-tiles",
     ),
@@ -137,12 +137,12 @@ urlpatterns = [
         views.get_collection_edr_query,
         name="collection-edr-instance-corridor",
     ),
-    path("processes/", views.processes, name="processes"),
+    path("processes", views.processes, name="processes"),
     path("processes/<str:process_id>", views.processes, name="process-detail"),
     path("jobs/", views.jobs, name="jobs"),
     path("jobs/<str:job_id>", views.jobs, name="job"),
     path(
-        "jobs/<str:job_id>/results/",
+        "jobs/<str:job_id>/results",
         views.job_results,
         name="job-results",
     ),
@@ -151,9 +151,9 @@ urlpatterns = [
         views.job_results_resource,
         name="job-results-resource",
     ),
-    path("stac/", views.stac_catalog_root, name="stac-catalog-root"),
+    path("stac", views.stac_catalog_root, name="stac-catalog-root"),
     path("stac/<str:path>", views.stac_catalog_path, name="stac-catalog-path"),
-    path("stac/search/", views.stac_catalog_search, name="stac-catalog-search"),
+    path("stac/search", views.stac_catalog_search, name="stac-catalog-search"),
 ]
 
 # Add static URLs to serve pygeoapi statics
