@@ -22,7 +22,7 @@ class GeoAPIConfig(SingletonModel):
     )
 
     def get_config(self, url=""):
-        if cache.get(CACHE_CONF):
+        if settings.GEOAPI_SETTINGS_CACHE_ENABLED and cache.get(CACHE_CONF):
             conf = cache.get(CACHE_CONF)
         else:
             ServiceInfo = apps.get_model("datasets", "ServiceInfo")
@@ -88,10 +88,10 @@ class GeoAPIConfig(SingletonModel):
             }
             cache.set(CACHE_CONF, conf, timeout=60)
 
-        if openapi := cache.get(CACHE_API):
-            pass
+        if settings.GEOAPI_SETTINGS_CACHE_ENABLED and cache.get(CACHE_API):
+            openapi = cache.get(CACHE_API)
         else:
             openapi = get_oas(conf)
-            cache.set(CACHE_API, openapi, timeout=settings.GEOAPI_CACHE_TIMEOUT)
+            cache.add(CACHE_API, openapi, timeout=settings.GEOAPI_CACHE_TIMEOUT)
 
         return conf, openapi
