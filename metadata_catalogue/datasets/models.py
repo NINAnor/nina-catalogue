@@ -395,10 +395,3 @@ class ServiceInfo(SingletonModel):
 class Content(models.Model):
     dataset = AutoOneToOneField("datasets.Dataset", on_delete=models.CASCADE, related_name="content")
     gdal_vrt_definition = models.TextField(null=True, blank=True)
-    remote_source = models.TextField(null=True, blank=True)
-
-    def get_gdal_vrt_source(self):
-        if self.dataset.fetch_type == Dataset.FetchType.DARWINCORE:
-            return f"CSV:/vsizip/{{/vsicurl/{self.dataset.fetch_url}}}/{self.remote_source}"
-
-        return ""
