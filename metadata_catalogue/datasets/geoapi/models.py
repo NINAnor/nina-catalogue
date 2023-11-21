@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from django.apps import apps
+from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from pygeoapi.openapi import get_oas
@@ -91,6 +92,6 @@ class GeoAPIConfig(SingletonModel):
             pass
         else:
             openapi = get_oas(conf)
-            cache.set(CACHE_API, openapi, timeout=60)
+            cache.set(CACHE_API, openapi, timeout=settings.GEOAPI_CACHE_TIMEOUT)
 
         return conf, openapi

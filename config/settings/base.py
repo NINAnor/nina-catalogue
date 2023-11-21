@@ -323,3 +323,6 @@ BASE_SCHEMA_URL = env("DJANGO_BASE_SCHEMA_URL")
 
 # Name that should be given to the DWCA GDAL layer
 GEOAPI_DWCA_LAYER_NAME = "data"
+
+# Minutes that GEOAPI should cache views and settings
+GEOAPI_CACHE_TIMEOUT = env.int("DJANGO_GEOAPI_CACHE_TIMEOUT", default=0)

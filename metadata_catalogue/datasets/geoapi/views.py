@@ -37,13 +37,16 @@
 from collections.abc import Mapping
 from typing import Dict, Optional, Tuple
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
+from django.views.decorators.cache import cache_page
 from pygeoapi.api import API
 
 from ..libs.utils import req_to_base
 from .models import GeoAPIConfig
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def landing_page(request: HttpRequest) -> HttpResponse:
     """
     OGC API landing page endpoint
@@ -59,6 +62,7 @@ def landing_page(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def openapi(request: HttpRequest) -> HttpResponse:
     """
     OpenAPI endpoint
@@ -74,6 +78,7 @@ def openapi(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def conformance(request: HttpRequest) -> HttpResponse:
     """
     OGC API conformance endpoint
@@ -89,6 +94,7 @@ def conformance(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collections(request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
     """
     OGC API collections endpoint
@@ -105,6 +111,7 @@ def collections(request: HttpRequest, collection_id: str | None = None) -> HttpR
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_queryables(request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
     """
     OGC API collections queryables endpoint
@@ -121,6 +128,7 @@ def collection_queryables(request: HttpRequest, collection_id: str | None = None
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API collections items endpoint
@@ -151,6 +159,7 @@ def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_map(request: HttpRequest, collection_id: str):
     """
     OGC API - Maps map render endpoint
@@ -167,6 +176,7 @@ def collection_map(request: HttpRequest, collection_id: str):
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_style_map(request: HttpRequest, collection_id: str, style_id: str = None):
     """
     OGC API - Maps map render endpoint
@@ -184,6 +194,7 @@ def collection_style_map(request: HttpRequest, collection_id: str, style_id: str
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> HttpResponse:
     """
     OGC API collections items endpoint
@@ -209,6 +220,7 @@ def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> H
     return response
 
 
+@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_coverage(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API - Coverages coverage endpoint
