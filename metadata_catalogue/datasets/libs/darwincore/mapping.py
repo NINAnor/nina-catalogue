@@ -1,43 +1,26 @@
-# import csv
-import xml.etree.ElementTree as ET
-
 from bs4 import BeautifulSoup
 from django.db import transaction
+from django.template.loader import render_to_string
+
+ROW_TYPES = {"http://rs.tdwg.org/dwc/terms/Event": "event", "http://rs.tdwg.org/dwc/terms/Occurrence": "occurrence"}
 
 
-def to_vrt(layername):
-    root = ET.Element("OGRVRTDataSource")
-    layer = ET.Element("OGRVRTLayer", attrib={"name": layername})
-    root.append(layer)
+class SourceLayer:
+    def __init__(self, node, base_path) -> None:
+        if node["rowType"] not in ROW_TYPES:
+            raise Exception(f"File implements a non supported row type: {node['rowType']}")
 
-    src_data_source = ET.Element("SrcDataSource")
-    src_data_source.text = "{{SOURCE}}"
-    layer.append(src_data_source)
+        self.type = ROW_TYPES[node["rowType"]]
 
-    # field = ET.Element("Field", attrib={
-    #     "src": "",
-    #     "name": ""
-    # })
-    # layer.append(field)
+        self.path = base_path / node.find("location").text
+        if not self.path.is_file():
+            raise Exception(f"Missing file {self.path} declared in meta.xml")
 
-    srs = ET.Element("LayerSRS")
-    srs.text = "WGS84"
-    layer.append(srs)
+    def name(self):
+        return self.path.name
 
-    geo_field = ET.Element(
-        "GeometryField",
-        attrib={
-            "encoding": "PointFromColumns",
-            "x": "decimalLongitude",
-            "y": "decimalLatitude",
-        },
-    )
-    layer.append(geo_field)
-    geo_type = ET.Element("GeometryType")
-    geo_type.text = "wkbPoint"
-    geo_field.append(geo_type)
-
-    return ET.tostring(root, encoding="utf-8").decode("utf-8")
+    def __repr__(self) -> str:
+        return f"{self.type} - {self.path.name}"
 
 
 def to_content(xml_path, dataset):
@@ -48,10 +31,12 @@ def to_content(xml_path, dataset):
         soup = BeautifulSoup(meta, features="lxml-xml")
         with transaction.atomic():
             content = dataset.content
+            extensions = []
+            core = SourceLayer(soup.find("core"), xml_path)
+            for extension in soup.find_all("extension"):
+                extensions.append(SourceLayer(extension, xml_path))
 
-            data_file_path = xml_path / soup.find("location").text
-            if not data_file_path.is_file():
-                raise Exception(f"Missing file {data_file_path} declared in meta.xml")
+            # TODO: field mapping
             # with open(str(data_file_path)) as data_file:
             #     reader = csv.reader(data_file, delimiter='\t')
             #     for row in reader:
@@ -60,6 +45,11 @@ def to_content(xml_path, dataset):
 
             #     fields = {f['index']: f['term'].split('/')[-1] for f in soup.find_all('field')}
             #     fields[soup.find('id')['index']] = "id"
-            content.gdal_vrt_definition = to_vrt(data_file_path.stem)
-            content.remote_source = data_file_path.name
+
+            ctx = {
+                "core": core,
+                "extensions": extensions,
+                "source": dataset.fetch_url,
+            }
+            content.gdal_vrt_definition = render_to_string("vrt/occurrence.xml", ctx)
             content.save()
