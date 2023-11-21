@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse_lazy
 
 
@@ -31,7 +32,7 @@ class ResourceMapping:
                     "name": "OGR",
                     "editable": False,
                     "id_field": "id",
-                    "layer": "occurrence",
+                    "layer": settings.GEOAPI_DWCA_LAYER_NAME,
                     "data": {
                         "source_type": "VRT",
                         "source": "/vsicurl/"

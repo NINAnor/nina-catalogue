@@ -1,0 +1,20 @@
+<OGRVRTDataSource>
+    <OGRVRTLayer name="{{ layer_name }}">
+      <SrcDataSource><![CDATA[
+        <OGRVRTDataSource>
+          <OGRVRTLayer name="{{ core }}">
+            <SrcDataSource>CSV:/vsizip/{/vsicurl/{{ source }}}/{{ core.path.name }}</SrcDataSource>
+            <LayerSRS>WGS84</LayerSRS>
+          </OGRVRTLayer>
+          {% for ext in extensions %}<OGRVRTLayer name="{{ ext }}">
+              <SrcDataSource>CSV:/vsizip/{/vsicurl/{{ source }}}/{{ ext.path.name }}</SrcDataSource>
+              <LayerSRS>WGS84</LayerSRS>
+            </OGRVRTLayer>{% endfor %}
+        </OGRVRTDataSource>]]>
+      </SrcDataSource>
+      <SrcSQL>select * from {{ core }}{% for ext in extensions %} join {{ ext }} on {{ ext }}.{{ ext.id }}={{ core }}.{{ core.id }}{% endfor %}</SrcSQL>
+      <GeometryField encoding="PointFromColumns" x="decimalLongitude" y="decimalLatitude">
+        <GeometryType>wkbPoint</GeometryType>
+      </GeometryField>
+    </OGRVRTLayer>
+  </OGRVRTDataSource>

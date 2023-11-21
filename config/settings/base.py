@@ -320,3 +320,6 @@ GEOAPI = {
 # request information such as schema and domain
 # this field should be set as the base URL that other services use to connect to django
 BASE_SCHEMA_URL = env("DJANGO_BASE_SCHEMA_URL")
+
+# Name that should be given to the DWCA GDAL layer
+GEOAPI_DWCA_LAYER_NAME = "data"
