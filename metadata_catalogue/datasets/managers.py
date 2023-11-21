@@ -35,7 +35,9 @@ class DatasetQuerySet(models.QuerySet):
         logger.warn("DANGER: This method consumes the queryset and returns and array of items")
         return [
             ResourceMapping(instance, base_url).as_resource()
-            for instance in self.exclude(metadata=None, metadata__bounding_box=None)
+            for instance in self.select_related("metadata", "content").exclude(
+                metadata=None, metadata__bounding_box=None, content=None
+            )
         ]
 
 
