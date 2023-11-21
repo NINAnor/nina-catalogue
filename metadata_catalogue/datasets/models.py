@@ -50,7 +50,7 @@ class Dataset(models.Model):
     objects = DatasetManager()
 
     def __str__(self):
-        return self.name
+        return f"{self.id} - {self.name}"
 
     def set_fetch_message(self, message, *args, append=False, success=None, logger_fn=None):
         text = ""
@@ -138,6 +138,7 @@ class Person(models.Model):
     postal_code = models.IntegerField(null=True, blank=True)
 
     class Meta:
+        verbose_name_plural = "people"
         constraints = [
             models.UniqueConstraint(
                 Coalesce("first_name", Value("")),
@@ -191,6 +192,7 @@ class PersonRole(LifecycleModel):
         self.metadata._update_xml(save=True)
 
     class Meta:
+        verbose_name_plural = "people roles"
         constraints = [
             models.UniqueConstraint(
                 "person_id",
@@ -311,7 +313,7 @@ class MetadataIdentifier(models.Model):
 
 
 class Metadata(LifecycleModel):
-    dataset = AutoOneToOneField(
+    dataset = models.OneToOneField(
         "datasets.Dataset", related_name="metadata", on_delete=models.CASCADE, null=True, blank=True
     )
     title = models.CharField(max_length=500, null=True, blank=True)
@@ -376,6 +378,9 @@ class Metadata(LifecycleModel):
     def update_xml_anytext(self):
         self._update_xml()
 
+    def __str__(self):
+        return str(self.dataset)
+
 
 class ServiceInfo(SingletonModel):
     identification_title = models.TextField(null=True, blank=True, default="")
@@ -393,5 +398,8 @@ class ServiceInfo(SingletonModel):
 
 
 class Content(models.Model):
-    dataset = AutoOneToOneField("datasets.Dataset", on_delete=models.CASCADE, related_name="content")
+    dataset = models.OneToOneField("datasets.Dataset", on_delete=models.CASCADE, related_name="content")
     gdal_vrt_definition = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.dataset)
