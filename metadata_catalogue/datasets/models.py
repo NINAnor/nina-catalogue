@@ -134,6 +134,9 @@ class PersonIdentifier(models.Model):
             )
         ]
 
+    def __str__(self) -> str:
+        return f"{self.person} - {self.type} {self.value}"
+
 
 class Person(models.Model):
     first_name = models.CharField(max_length=150, null=True, blank=True)
@@ -149,21 +152,6 @@ class Person(models.Model):
 
     class Meta:
         verbose_name_plural = "people"
-        constraints = [
-            models.UniqueConstraint(
-                Coalesce("first_name", Value("")),
-                Coalesce("last_name", Value("")),
-                Coalesce("position", Value("")),
-                Coalesce("country", Value("")),
-                Coalesce("email", Value("")),
-                Coalesce("belongs_to", Value(-1)),
-                Coalesce("phone", Value("")),
-                Coalesce("city", Value("")),
-                Coalesce("delivery_point", Value("")),
-                Coalesce("postal_code", Value(-1)),
-                name="unique_person",
-            )
-        ]
 
     def __str__(self):
         return f"{self.last_name}, {self.first_name}"
