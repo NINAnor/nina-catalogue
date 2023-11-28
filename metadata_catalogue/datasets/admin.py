@@ -111,3 +111,43 @@ class LicenseAdmin(admin.ModelAdmin):
         "name",
         "url",
     ]
+
+
+@admin.register(models.PersonIdentifier)
+class PersonIdentifierAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.OrganizationRole)
+class OrganizationRoleAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Keyword)
+class KeywordAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Taxonomy)
+class TaxonomyAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.TaxonomyType)
+class TaxonomyTypeAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.MetadataIdentifier)
+class MetadataIdentifierAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Citation)
+class CitationAdmin(admin.ModelAdmin):
+    pass
