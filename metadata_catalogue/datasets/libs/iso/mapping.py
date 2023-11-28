@@ -44,7 +44,7 @@ class ISOMapping:
                             {
                                 "crs": dataset.metadata.bounding_box.srid,
                                 "bbox": dataset.metadata.bounding_box.extent,
-                                "description": dataset.metadata.geographic_description,
+                                # "description": dataset.metadata.geographic_description,
                             }
                         ]
                     },
@@ -72,7 +72,7 @@ class ISOMapping:
                     "OGCFeat": {
                         "url": settings.BASE_SCHEMA_URL
                         + reverse_lazy("geoapi:collection-detail", kwargs={"collection_id": str(dataset.uuid)}),
-                        "type": "OGCFeat",
+                        "type": "OGC:OAPIF",
                         "name": "OGC API Feature",
                         "description": "OGC REST API to the resource",
                         "function": "download",
