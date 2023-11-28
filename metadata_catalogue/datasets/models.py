@@ -6,7 +6,7 @@ from django.db.models.functions import Coalesce
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-from django_lifecycle import AFTER_CREATE, AFTER_DELETE, BEFORE_SAVE, LifecycleModel, hook
+from django_lifecycle import AFTER_CREATE, AFTER_DELETE, AFTER_SAVE, LifecycleModel, hook
 from solo.models import SingletonModel
 
 from .libs.iso.mapping import ISOMapping
@@ -193,8 +193,8 @@ class PersonRole(LifecycleModel):
         verbose_name_plural = "people roles"
         constraints = [
             models.UniqueConstraint(
-                "person_id",
-                "metadata_id",
+                "person",
+                "metadata",
                 "role",
                 name="unique_role_per_person_in_metadata",
             )
@@ -372,9 +372,9 @@ class Metadata(LifecycleModel):
         if save:
             self.save(update_fields=["xml", "fts"])
 
-    @hook(BEFORE_SAVE, when_any=WATCH_FIELDS, has_changed=True)
+    @hook(AFTER_SAVE, when_any=WATCH_FIELDS, has_changed=True)
     def update_xml_anytext(self):
-        self._update_xml()
+        self._update_xml(save=True)
 
     def __str__(self):
         return str(self.dataset)
