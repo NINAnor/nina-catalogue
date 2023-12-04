@@ -37,7 +37,7 @@ class ContentAdmin(admin.ModelAdmin):
     search_fields = [
         "id",
         "dataset__uuid",
-        "dataset__title",
+        "dataset__name",
         "gdal_vrt_definition",
     ]
 
