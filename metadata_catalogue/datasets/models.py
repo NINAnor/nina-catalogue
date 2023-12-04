@@ -44,6 +44,7 @@ class Dataset(models.Model):
     fetch_success = models.BooleanField(default=False)
     fetch_message = models.TextField(null=True, blank=True)
     last_fetch_at = models.DateTimeField(null=True, blank=True)
+    public = models.BooleanField(default=True)
 
     objects = DatasetManager()
 

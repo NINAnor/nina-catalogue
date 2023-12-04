@@ -1,4 +1,5 @@
 from django.contrib.gis.db import models
+from django.db.models import Q
 
 from . import logger
 from .libs.csw.mapping import CSWMapping
@@ -36,7 +37,7 @@ class DatasetQuerySet(models.QuerySet):
         return [
             ResourceMapping(instance, base_url).as_resource()
             for instance in self.select_related("metadata", "content").exclude(
-                metadata=None, metadata__bounding_box=None, content=None
+                Q(metadata=None) | Q(metadata__bounding_box=None) | Q(content=None) | Q(public=False)
             )
         ]
 
