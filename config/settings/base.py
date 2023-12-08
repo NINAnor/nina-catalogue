@@ -89,15 +89,33 @@ THIRD_PARTY_APPS = [
     "solo",
 ]
 
+WAGTAIL = [
+    "wagtail.contrib.forms",
+    "wagtail.contrib.redirects",
+    "wagtail.embeds",
+    "wagtail.sites",
+    "wagtail.users",
+    "wagtail.snippets",
+    "wagtail.documents",
+    "wagtail.images",
+    "wagtail.search",
+    "wagtail.admin",
+    "wagtail",
+    "taggit",
+    "modelcluster",
+]
+
 LOCAL_APPS = [
     "metadata_catalogue.users",
     "metadata_catalogue.core",
     "metadata_catalogue.datasets",
     "metadata_catalogue.datasets.csw",
     "metadata_catalogue.datasets.geoapi",
+    "metadata_catalogue.cms",
+    "metadata_catalogue.reports",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + WAGTAIL + LOCAL_APPS
 
 # MIGRATIONS
 # ------------------------------------------------------------------------------
@@ -149,6 +167,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
 # STATIC
@@ -327,3 +346,6 @@ GEOAPI_DWCA_LAYER_NAME = "data"
 # Minutes that GEOAPI should cache views and settings
 GEOAPI_CACHE_TIMEOUT = env.int("DJANGO_GEOAPI_CACHE_TIMEOUT", default=0)
 GEOAPI_SETTINGS_CACHE_ENABLED = env.bool("GEOAPI_SETTINGS_CACHE_ENABLED", default=False)
+
+WAGTAIL_SITE_NAME = env("WAGTAIL_SITE_NAME", default="NINA Catalogue")
+WAGTAIL_ADMIN_BASEURL = env("WAGTAIL_ADMIN_BASEURL", default="cms/")
