@@ -44,8 +44,11 @@ class ContentAdmin(admin.ModelAdmin):
     list_display = [
         "dataset_id",
         "dataset",
+        "valid",
         "gdal_vrt_definition",
     ]
+
+    list_filter = ["valid"]
 
 
 @admin.register(models.Person)

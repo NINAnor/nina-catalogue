@@ -37,7 +37,11 @@ class DatasetQuerySet(models.QuerySet):
         return [
             ResourceMapping(instance, base_url).as_resource()
             for instance in self.select_related("metadata", "content").exclude(
-                Q(metadata=None) | Q(metadata__bounding_box=None) | Q(content=None) | Q(public=False)
+                Q(metadata=None)
+                | Q(metadata__bounding_box=None)
+                | Q(content=None)
+                | Q(public=False)
+                | Q(content__valid=False)
             )
         ]
 
