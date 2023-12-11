@@ -40,12 +40,14 @@ from typing import Dict, Optional, Tuple
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.cache import cache_page
+from django.views.decorators.common import no_append_slash
 from pygeoapi.api import API
 
 from ..libs.utils import req_to_base
 from .models import GeoAPIConfig
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def landing_page(request: HttpRequest) -> HttpResponse:
     """
@@ -62,6 +64,7 @@ def landing_page(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def openapi(request: HttpRequest) -> HttpResponse:
     """
@@ -78,6 +81,7 @@ def openapi(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def conformance(request: HttpRequest) -> HttpResponse:
     """
@@ -94,6 +98,7 @@ def conformance(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collections(request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
     """
@@ -111,6 +116,7 @@ def collections(request: HttpRequest, collection_id: str | None = None) -> HttpR
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_queryables(request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
     """
@@ -128,6 +134,7 @@ def collection_queryables(request: HttpRequest, collection_id: str | None = None
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
@@ -159,6 +166,7 @@ def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_map(request: HttpRequest, collection_id: str):
     """
@@ -176,6 +184,7 @@ def collection_map(request: HttpRequest, collection_id: str):
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_style_map(request: HttpRequest, collection_id: str, style_id: str = None):
     """
@@ -194,6 +203,7 @@ def collection_style_map(request: HttpRequest, collection_id: str, style_id: str
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> HttpResponse:
     """
@@ -220,6 +230,7 @@ def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> H
     return response
 
 
+@no_append_slash
 @cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_coverage(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
@@ -237,6 +248,7 @@ def collection_coverage(request: HttpRequest, collection_id: str) -> HttpRespons
     return response
 
 
+@no_append_slash
 def collection_coverage_domainset(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API - Coverages coverage domainset endpoint
@@ -253,6 +265,7 @@ def collection_coverage_domainset(request: HttpRequest, collection_id: str) -> H
     return response
 
 
+@no_append_slash
 def collection_coverage_rangetype(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API - Coverages coverage rangetype endpoint
@@ -269,6 +282,7 @@ def collection_coverage_rangetype(request: HttpRequest, collection_id: str) -> H
     return response
 
 
+@no_append_slash
 def collection_tiles(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API - Tiles collection tiles endpoint
@@ -285,6 +299,7 @@ def collection_tiles(request: HttpRequest, collection_id: str) -> HttpResponse:
     return response
 
 
+@no_append_slash
 def collection_tiles_metadata(request: HttpRequest, collection_id: str, tileMatrixSetId: str) -> HttpResponse:
     """
     OGC API - Tiles collection tiles metadata endpoint
@@ -307,6 +322,7 @@ def collection_tiles_metadata(request: HttpRequest, collection_id: str, tileMatr
     return response
 
 
+@no_append_slash
 def collection_item_tiles(
     request: HttpRequest,
     collection_id: str,
@@ -342,6 +358,7 @@ def collection_item_tiles(
     return response
 
 
+@no_append_slash
 def processes(request: HttpRequest, process_id: str | None = None) -> HttpResponse:
     """
     OGC API - Processes description endpoint
@@ -358,6 +375,7 @@ def processes(request: HttpRequest, process_id: str | None = None) -> HttpRespon
     return response
 
 
+@no_append_slash
 def jobs(request: HttpRequest, job_id: str | None = None) -> HttpResponse:
     """
     OGC API - Jobs endpoint
@@ -375,6 +393,7 @@ def jobs(request: HttpRequest, job_id: str | None = None) -> HttpResponse:
     return response
 
 
+@no_append_slash
 def job_results(request: HttpRequest, job_id: str | None = None) -> HttpResponse:
     """
     OGC API - Job result endpoint
@@ -391,6 +410,7 @@ def job_results(request: HttpRequest, job_id: str | None = None) -> HttpResponse
     return response
 
 
+@no_append_slash
 def job_results_resource(request: HttpRequest, process_id: str, job_id: str, resource: str) -> HttpResponse:
     """
     OGC API - Job result resource endpoint
@@ -408,6 +428,7 @@ def job_results_resource(request: HttpRequest, process_id: str, job_id: str, res
     return response
 
 
+@no_append_slash
 def get_collection_edr_query(request: HttpRequest, collection_id: str, instance_id: str) -> HttpResponse:
     """
     OGC API - EDR endpoint
@@ -426,6 +447,7 @@ def get_collection_edr_query(request: HttpRequest, collection_id: str, instance_
     return response
 
 
+@no_append_slash
 def stac_catalog_root(request: HttpRequest) -> HttpResponse:
     """
     STAC root endpoint
@@ -441,6 +463,7 @@ def stac_catalog_root(request: HttpRequest) -> HttpResponse:
     return response
 
 
+@no_append_slash
 def stac_catalog_path(request: HttpRequest, path: str) -> HttpResponse:
     """
     STAC path endpoint
