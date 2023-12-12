@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load wagtailimages_tags wagtailcore_tags %}
+
+{% block content %}
+  <div>
+    <div class="container streamfield">
+      <h1>{{ page.title }}</h1>
+      <h2>{{ page.subtitle }}</h2>
+      <p>{{ page.authors }}</p>
+      <p>{{ page.place }}, {{ page.date }}</p>
+      <h3>Metadata Introduction</h3>
+      <div>{{ page.metadata_introduction|richtext }}</div>
+      <h3>Metadata Datastructure</h3>
+      <div>{{ page.metadata_datastructure|richtext }}</div>
+    </div>
+  </div>
+{% endblock content %}
