@@ -8,6 +8,10 @@ from wagtail.models import Page
 class DataReportPage(Page):
     subtitle = models.TextField(blank=True)
     authors = models.TextField(blank=True)
+    number = models.TextField(blank=True, null=True, verbose_name="Report number")
+    isbn = models.TextField(blank=True, null=True)
+
+    summary = RichTextField(blank=True, null=True, max_length=4000)
 
     place = models.CharField(max_length=500, blank=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -33,10 +37,13 @@ class DataReportPage(Page):
     content_panels = Page.content_panels + [
         FieldPanel("title"),
         FieldPanel("subtitle"),
+        FieldPanel("number", permission="reports.change_publishing_fields"),
+        FieldPanel("isbn", permission="reports.change_publishing_fields"),
         FieldPanel("authors"),
         FieldPanel("date"),
         FieldPanel("place"),
         FieldPanel("keywords"),
+        FieldPanel("summary"),
         FieldPanel("metadata_introduction"),
         FieldPanel("metadata_datastructure"),
         FieldPanel("metadata_geografic_definition"),
@@ -55,6 +62,11 @@ class DataReportPage(Page):
 
     parent_page_types = ["DataReportsIndexPage"]
     subpage_types = []
+
+    class Meta:
+        permissions = [
+            ("change_publishing_fields", "Can change the fields related to publishing"),
+        ]
 
 
 class DataReportsIndexPage(Page):
