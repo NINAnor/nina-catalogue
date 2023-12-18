@@ -5,6 +5,8 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+from .api import api
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
@@ -17,6 +19,7 @@ urlpatterns = [
     path("csw/", include("metadata_catalogue.datasets.csw.urls")),
     path("geoapi", include("metadata_catalogue.datasets.geoapi.urls", namespace="geoapi")),
     path("datasets/", include("metadata_catalogue.datasets.urls")),
+    path("api/", api.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

@@ -128,7 +128,7 @@ dev = [
 # PEP 621 project metadata
 # See https://www.python.org/dev/peps/pep-0621/
 dependencies = [
-    "python-slugify",
+    "python-slugify>=8.0.1",
     "Pillow==10.1.0",
     "rcssmin",
     "argon2-cffi",
@@ -163,6 +163,10 @@ dependencies = [
     "django-lifecycle",
     "gunicorn>=21.2.0",
     "pygeoapi @ git+https://github.com/geopython/pygeoapi.git@de1a7d93eeb492c2b51908e9875a61074b7eab6b",
+    "django-treebeard>=4.7",
+    "django-polymorphic>=3.1.0",
+    "django-ninja>=1.1.0",
+    "django-appconf>=1.0.6",
 ]
 requires-python = ">=3.10"
 name = ""

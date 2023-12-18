@@ -73,6 +73,7 @@ DJANGO_APPS = [
     "django.forms",
     "django.contrib.gis",
 ]
+
 THIRD_PARTY_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
@@ -87,6 +88,8 @@ THIRD_PARTY_APPS = [
     "languages_plus",
     "psqlextra",
     "solo",
+    "polymorphic",
+    "treebeard",
 ]
 
 LOCAL_APPS = [
@@ -95,6 +98,7 @@ LOCAL_APPS = [
     "metadata_catalogue.datasets",
     "metadata_catalogue.datasets.csw",
     "metadata_catalogue.datasets.geoapi",
+    "metadata_catalogue.maps",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
