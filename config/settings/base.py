@@ -90,6 +90,7 @@ THIRD_PARTY_APPS = [
     "solo",
     "polymorphic",
     "treebeard",
+    "corsheaders",
 ]
 
 LOCAL_APPS = [
@@ -144,6 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -331,3 +333,5 @@ GEOAPI_DWCA_LAYER_NAME = "data"
 # Minutes that GEOAPI should cache views and settings
 GEOAPI_CACHE_TIMEOUT = env.int("DJANGO_GEOAPI_CACHE_TIMEOUT", default=0)
 GEOAPI_SETTINGS_CACHE_ENABLED = env.bool("GEOAPI_SETTINGS_CACHE_ENABLED", default=False)
+
+CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS", default=[])
