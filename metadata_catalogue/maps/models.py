@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 from django.urls import reverse
 from polymorphic.models import PolymorphicModel
@@ -19,18 +17,15 @@ def empty_json():
 
 class LayerSource(PolymorphicModel):
     name = models.CharField(max_length=250)
-    slug = models.SlugField(null=True)
+    slug = models.SlugField()
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
     style = models.JSONField(default=empty_json, blank=True)
 
-    def get_slug(self):
-        if self.slug:
-            return self.slug
-        else:
-            self.slug = slugify(self.name)
-            self.save(update_fields=["slug"])
-            return self.slug
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     @property
     def type(self):
@@ -103,19 +98,24 @@ class LayerStyle(models.Model):
 
 class Map(models.Model):
     title = models.CharField(max_length=150)
+    slug = models.SlugField()
     subtitle = models.CharField(max_length=250, null=True, blank=True)
     description = models.TextField(blank=True)
-    uuid = models.UUIDField(default=uuid.uuid4)
     # center =
     zoom = models.IntegerField(null=True, blank=True)
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
     class Meta:
-        constraints = [models.UniqueConstraint("uuid", name="map unique uuid")]
+        constraints = [models.UniqueConstraint("slug", name="map unique slug")]
 
     def get_metadata(self, request):
         layers = []
@@ -124,7 +124,7 @@ class Map(models.Model):
 
         return {
             "style": request.build_absolute_uri(
-                reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_uuid": self.uuid})
+                reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
             ),
             "subtitle": self.subtitle,
             "description": self.description,
@@ -138,7 +138,7 @@ class Map(models.Model):
         for style in self.layers_style.order_by("order"):
             source = LayerSource.objects.filter(id=style.source_id).get_real_instances()[0] if style.source else None
             if source and source.type:
-                sources[source.get_slug()] = {
+                sources[source.slug] = {
                     "type": source.type,
                     "url": source.get_source_url(request),
                     "attribution": source.attribution,
@@ -147,12 +147,10 @@ class Map(models.Model):
 
             layers.append(
                 {
-                    "id": source.get_slug(),
+                    "id": source.slug,
                     "type": source.type,
-                    "source": None if not source or not source.type else source.get_slug(),
-                    "source-layer": None
-                    if not source or not source.type or source.type != "vector"
-                    else source.get_slug(),
+                    "source": None if not source or not source.type else source.slug,
+                    "source-layer": None if not source or not source.type or source.type != "vector" else source.slug,
                     **source.style,
                     **style.style,
                 }
@@ -194,7 +192,7 @@ class LayerGroup(MP_Node):
         for layer_item in self.layer_items.select_related("layer").order_by("-order", "-layer__name"):
             current_group["children"].append(
                 {
-                    "id": layer_item.layer.get_slug(),
+                    "id": layer_item.layer.slug,
                     "name": str(layer_item.layer.name),
                     "download": None,
                 }
