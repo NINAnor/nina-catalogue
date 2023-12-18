@@ -79,8 +79,6 @@ services:
     environment:
       <<: *django-dev-env
       DJANGO_MIGRATE: 1
-    ports:
-      - "8000:8000"
 
   queue:
     <<: *django-prod
@@ -157,4 +155,14 @@ services:
     volumes:
       - statics:/statics
     ports:
-      - "8000:80"
+      - 8000:80
+
+  nginx-dev:
+    profiles:
+      - dev
+    build:
+      context: ./nginx
+    volumes:
+      - ./metadata_catalogue/media:/media_files
+    ports:
+      - 8000:80
