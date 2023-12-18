@@ -15,7 +15,7 @@ class MapSource(Schema):
     minzoom: str | None = None
     promoteId: str | dict[str, str] | None = None
     scheme: str | None = None
-    volatile: bool | None = False
+    volatile: bool | None = None
     tileSize: int | None = None
 
 
@@ -45,7 +45,7 @@ class MapStyle(Schema):
     name: str | None = None
     zoom: int | None = None
     center: list[float] | None = None
-    sources: dict[str, MapSource] = {}
+    sources: dict[str, MapSource] = None
     layers: list[MapLayer] = None
     pitch: int | None = None
 
