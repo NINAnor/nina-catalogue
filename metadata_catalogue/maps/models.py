@@ -45,10 +45,10 @@ class LayerSource(PolymorphicModel):
             models.UniqueConstraint("slug", name="layer with unique slug"),
         ]
 
-    def get_download_url(self):
+    def get_download_url(self, request):
         return None
 
-    def get_source_url(self):
+    def get_source_url(self, request):
         return None
 
 
@@ -59,11 +59,12 @@ class RasterLayer(LayerSource):
     url = models.URLField(null=True, blank=True)
     attribution = models.CharField(null=True, blank=True, max_length=250)
 
-    def get_download_url(self):
-        return self.original_data.url if self.original_data else self.url
+    def get_download_url(self, request):
+        return request.build_absolute_uri(self.original_data.url) if self.original_data else self.url
 
-    def get_source_url(self):
-        return self.source.url if self.source else self.url
+    def get_source_url(self, request):
+        url = request.build_absolute_uri(self.source.url) if self.source else self.url
+        return f"{self.protocol}{url}" if self.protocol and url else url
 
     @property
     def type(self):
@@ -77,11 +78,12 @@ class VectorLayer(LayerSource):
     url = models.URLField(null=True, blank=True)
     attribution = models.CharField(null=True, blank=True, max_length=250)
 
-    def get_download_url(self):
-        return self.original_data.url if self.original_data else self.url
+    def get_download_url(self, request):
+        return request.build_absolute_uri(self.original_data.url) if self.original_data else self.url
 
-    def get_source_url(self):
-        return self.source.url if self.source else self.url
+    def get_source_url(self, request):
+        url = request.build_absolute_uri(self.source.url) if self.source else self.url
+        return self.protocol + url if self.protocol and url else url
 
     @property
     def type(self):
@@ -121,7 +123,9 @@ class Map(models.Model):
             layers.append(root.as_layer_tree())
 
         return {
-            "style": reverse(f"{settings.MAPS_API_PREFIX}:map_metadata", kwargs={"map_uuid": self.uuid}),
+            "style": request.build_absolute_uri(
+                reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_uuid": self.uuid})
+            ),
             "subtitle": self.subtitle,
             "description": self.description,
             "layers": layers,
@@ -136,7 +140,7 @@ class Map(models.Model):
             if source and source.type:
                 sources[source.get_slug()] = {
                     "type": source.type,
-                    "url": source.get_source_url(),
+                    "url": source.get_source_url(request),
                     "attribution": source.attribution,
                     **source.extra,
                 }
