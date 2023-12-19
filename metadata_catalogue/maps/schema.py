@@ -63,3 +63,7 @@ class MapMetadata(Schema):
     subtitle: str | None = None
     description: str | None = None
     layers: list[LayerGroup] = None
+
+
+class StatusMessage(Schema):
+    message: str
