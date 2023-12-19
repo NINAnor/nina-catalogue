@@ -8,16 +8,16 @@ from .conf import settings
 
 
 def layers_folder(instance, filename):
-    return f"maps/layers/{instance.id}/{filename}"
+    return f"maps/sources/{instance.id}/{filename}"
 
 
 def empty_json():
     return {}
 
 
-class LayerSource(PolymorphicModel):
+class Source(PolymorphicModel):
     name = models.CharField(max_length=250)
-    slug = models.SlugField()
+    slug = models.SlugField(null=True, blank=True)
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
     style = models.JSONField(default=empty_json, blank=True)
@@ -36,8 +36,8 @@ class LayerSource(PolymorphicModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint("name", name="layer with unique name"),
-            models.UniqueConstraint("slug", name="layer with unique slug"),
+            models.UniqueConstraint("name", name="source with unique name"),
+            models.UniqueConstraint("slug", name="source with unique slug"),
         ]
 
     def get_download_url(self, request):
@@ -47,7 +47,7 @@ class LayerSource(PolymorphicModel):
         return None
 
 
-class RasterLayer(LayerSource):
+class RasterSource(Source):
     source = models.FileField(upload_to=layers_folder, null=True, blank=True)
     original_data = models.FileField(upload_to=layers_folder, null=True, blank=True)
     protocol = models.CharField(null=True, blank=True)
@@ -66,12 +66,14 @@ class RasterLayer(LayerSource):
         return "raster"
 
 
-class VectorLayer(LayerSource):
+class VectorSource(Source):
     source = models.FileField(upload_to=layers_folder, null=True, blank=True)
     original_data = models.FileField(upload_to=layers_folder, null=True, blank=True)
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
     attribution = models.CharField(null=True, blank=True, max_length=250)
+
+    default_layer = models.CharField(null=True, blank=True)
 
     def get_download_url(self, request):
         return request.build_absolute_uri(self.original_data.url) if self.original_data else self.url
@@ -85,15 +87,46 @@ class VectorLayer(LayerSource):
         return "vector"
 
 
-class LayerStyle(models.Model):
-    name = models.CharField(null=True, blank=True, max_length=150)
-    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="layers_style")
-    source = models.ForeignKey("maps.LayerSource", on_delete=models.CASCADE, null=True, blank=True)
+class Layer(models.Model):
+    name = models.CharField(max_length=250, null=True, blank=True)
+    slug = models.SlugField(null=True, blank=True)
+    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="layers")
+    source = models.ForeignKey("maps.Source", on_delete=models.CASCADE, null=True, blank=True)
+    source_layer = models.CharField(blank=True, null=True)
     style = models.JSONField(default=empty_json, blank=True)
-    order = models.IntegerField(default=0)
+    map_order = models.IntegerField(default=0)
+    group = models.ForeignKey(
+        "maps.LayerGroup", on_delete=models.SET_NULL, related_name="layers", null=True, blank=True
+    )
+    group_order = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} @ {self.map}" if self.name else f"{self.source} @ {self.map}"
+        return f"{self.slug} @ {self.map}"
+
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            if self.source:
+                self.slug = self.source.slug
+            else:
+                self.slug = "baselayer"
+
+        if self.name is None:
+            if self.source:
+                self.name = self.source.name
+            else:
+                self.name = "Unnamed"
+
+        if self.source and not self.source_layer:
+            source = self.source.get_real_instance()
+            if source.type == "vector":
+                self.source_layer = source.default_layer
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["slug", "map"], name="layer with unique slug"),
+        ]
 
 
 class Map(models.Model):
@@ -122,10 +155,12 @@ class Map(models.Model):
         for root in self.groups.order_by("-order").all():
             layers.append(root.as_layer_tree())
 
+        style_url = request.build_absolute_uri(
+            reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
+        )
+
         return {
-            "style": request.build_absolute_uri(
-                reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
-            ),
+            "style": style_url,
             "subtitle": self.subtitle,
             "description": self.description,
             "layers": layers,
@@ -135,8 +170,8 @@ class Map(models.Model):
         sources = {}
         layers = []
 
-        for style in self.layers_style.order_by("order"):
-            source = LayerSource.objects.filter(id=style.source_id).get_real_instances()[0] if style.source else None
+        for layer in self.layers.order_by("map_order"):
+            source = layer.source.get_real_instance() if layer.source else None
             if source and source.type:
                 sources[source.slug] = {
                     "type": source.type,
@@ -147,12 +182,14 @@ class Map(models.Model):
 
             layers.append(
                 {
-                    "id": source.slug,
+                    "id": layer.slug,
                     "type": source.type,
                     "source": None if not source or not source.type else source.slug,
-                    "source-layer": None if not source or not source.type or source.type != "vector" else source.slug,
+                    "source-layer": None
+                    if not source or not source.type or source.type != "vector"
+                    else layer.source_layer,
                     **source.style,
-                    **style.style,
+                    **layer.style,
                 }
             )
 
@@ -166,34 +203,27 @@ class Map(models.Model):
         }
 
 
-class LayerGroupItem(models.Model):
-    layer = models.ForeignKey("maps.LayerSource", on_delete=models.CASCADE)
-    group = models.ForeignKey("maps.LayerGroup", on_delete=models.CASCADE, related_name="layer_items")
-    order = models.IntegerField(default=0, blank=True)
-
-
 class LayerGroup(MP_Node):
     name = models.CharField(max_length=150)
     order = models.IntegerField(default=0, blank=True)
     map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, null=True, blank=True, related_name="groups")
     download_url = models.URLField(null=True, blank=True)
-    layers = models.ManyToManyField("maps.LayerSource", through="maps.LayerGroupItem", related_name="layers")
 
     node_order_by = ["order", "name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} @ {self.map}"
 
     def as_layer_tree(self):
         current_group = {"id": f"group-{self.id}", "name": self.name, "children": [], "download": self.download_url}
         for sub_group in self.get_children():
             current_group["children"].append(sub_group.as_layer_tree())
 
-        for layer_item in self.layer_items.select_related("layer").order_by("-order", "-layer__name"):
+        for layer in self.layers.select_related("source").order_by("group_order", "source__name"):
             current_group["children"].append(
                 {
-                    "id": layer_item.layer.slug,
-                    "name": str(layer_item.layer.name),
+                    "id": layer.slug,
+                    "name": str(layer.name),
                     "download": None,
                 }
             )

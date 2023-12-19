@@ -5,7 +5,7 @@ from pydantic import Field, JsonValue
 
 
 # Maplibre Sources - https://maplibre.org/maplibre-style-spec/sources/
-class MapSource(Schema):
+class Source(Schema):
     type: str
     tiles: list[str] | None = None
     url: str | None = None
@@ -23,7 +23,7 @@ class MapSource(Schema):
 
 
 # https://github.com/vitalik/django-ninja/issues/803 - populate_by_name is needed for dashed properties
-class MapLayer(Schema):
+class Layer(Schema):
     class Config:
         populate_by_name = True
 
@@ -45,8 +45,8 @@ class MapStyle(Schema):
     name: str | None = None
     zoom: int | None = None
     center: list[float] | None = None
-    sources: dict[str, MapSource] = None
-    layers: list[MapLayer] = None
+    sources: dict[str, Source] = None
+    layers: list[Layer] = None
     pitch: int | None = None
 
 

@@ -3,19 +3,11 @@ from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicChildModelF
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import LayerGroup, LayerGroupItem, LayerSource, LayerStyle, Map, RasterLayer, VectorLayer
+from .models import Layer, LayerGroup, Map, RasterSource, Source, VectorSource
 
 
-class LayerStyleInline(admin.TabularInline):
-    model = LayerStyle
-
-
-class LayerGroupsInline(admin.TabularInline):
-    model = LayerGroup
-
-
-class LayerGroupItemsInline(admin.TabularInline):
-    model = LayerGroupItem
+class LayerInline(admin.TabularInline):
+    model = Layer
 
 
 @admin.register(LayerGroup)
@@ -28,8 +20,7 @@ class LayerGroupAdmin(TreeAdmin):
     ]
 
     list_filter = ["map"]
-
-    inlines = [LayerGroupItemsInline]
+    inlines = [LayerInline]
 
 
 @admin.register(Map)
@@ -39,34 +30,37 @@ class MapAdmin(admin.ModelAdmin):
         "subtitle",
     ]
 
-    inlines = [LayerStyleInline, LayerGroupsInline]
+    inlines = [LayerInline]
 
 
-@admin.register(LayerSource)
-class LayerSourceAdmin(PolymorphicParentModelAdmin):
-    base_model = LayerSource
-    child_models = (RasterLayer, VectorLayer, LayerSource)
+@admin.register(Source)
+class SourceAdmin(PolymorphicParentModelAdmin):
+    base_model = Source
+    child_models = (RasterSource, VectorSource, Source)
     list_filter = (PolymorphicChildModelFilter,)
 
 
-class LayerSourceBaseAdmin(PolymorphicChildModelAdmin):
-    base_model = LayerSource
+class SourceBaseAdmin(PolymorphicChildModelAdmin):
+    base_model = Source
 
 
-@admin.register(VectorLayer)
-class VectorLayerAdmin(LayerSourceBaseAdmin):
-    base_model = VectorLayer
+@admin.register(VectorSource)
+class VectorSourceAdmin(SourceBaseAdmin):
+    base_model = VectorSource
 
 
-@admin.register(RasterLayer)
-class RasterLayerAdmin(LayerSourceBaseAdmin):
-    base_model = RasterLayer
+@admin.register(RasterSource)
+class RasterSourceAdmin(SourceBaseAdmin):
+    base_model = RasterSource
 
 
-@admin.register(LayerStyle)
-class LayerStyleAdmin(admin.ModelAdmin):
+@admin.register(Layer)
+class LayerAdmin(admin.ModelAdmin):
     list_display = [
-        "name",
+        "slug",
         "map",
         "source",
+        "map_order",
+        "group",
+        "group_order",
     ]
