@@ -58,6 +58,8 @@ x-django-dev: &django-dev
     - ./config:/app/config
     - ./metadata_catalogue:/app/metadata_catalogue
     - ./locale:/app/locale
+    - ./media:/app/media
+    - ./shared:/app/shared
   command: python manage.py runserver 0.0.0.0:8000
   #command: python -m pdb -c continue manage.py runserver 0.0.0.0:8000 --nothreading --noreload
 
@@ -163,6 +165,6 @@ services:
     build:
       context: ./nginx
     volumes:
-      - ./metadata_catalogue/media:/media_files
+      - ./media:/media_files
     ports:
       - 8000:80

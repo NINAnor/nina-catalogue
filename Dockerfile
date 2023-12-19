@@ -48,6 +48,7 @@ FROM base as django
 COPY --from=production /app .
 COPY --from=translation /app/locale locale
 COPY --from=source /app .
+RUN mkdir media
 COPY entrypoint.sh .
 ENTRYPOINT ["./entrypoint.sh"]
 
