@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from polymorphic.models import PolymorphicModel
@@ -19,7 +20,7 @@ class Source(PolymorphicModel):
     name = models.CharField(max_length=250)
     slug = models.SlugField(null=True, blank=True, max_length=250)
     extra = models.JSONField(default=empty_json, blank=True)
-    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     style = models.JSONField(default=empty_json, blank=True)
 
     def save(self, *args, **kwargs):
