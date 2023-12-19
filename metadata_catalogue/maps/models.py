@@ -17,7 +17,7 @@ def empty_json():
 
 class Source(PolymorphicModel):
     name = models.CharField(max_length=250)
-    slug = models.SlugField(null=True, blank=True)
+    slug = models.SlugField(null=True, blank=True, max_length=250)
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
     style = models.JSONField(default=empty_json, blank=True)
@@ -89,7 +89,7 @@ class VectorSource(Source):
 
 class Layer(models.Model):
     name = models.CharField(max_length=250, null=True, blank=True)
-    slug = models.SlugField(null=True, blank=True)
+    slug = models.SlugField(null=True, blank=True, max_length=250)
     map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="layers")
     source = models.ForeignKey("maps.Source", on_delete=models.CASCADE, null=True, blank=True)
     source_layer = models.CharField(blank=True, null=True)
@@ -131,7 +131,7 @@ class Layer(models.Model):
 
 class Map(models.Model):
     title = models.CharField(max_length=150)
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=150)
     subtitle = models.CharField(max_length=250, null=True, blank=True)
     description = models.TextField(blank=True)
     # center =
@@ -152,7 +152,7 @@ class Map(models.Model):
 
     def get_metadata(self, request):
         layers = []
-        for root in self.groups.order_by("-order").all():
+        for root in self.groups.order_by("order").all():
             layers.append(root.as_layer_tree())
 
         style_url = request.build_absolute_uri(
