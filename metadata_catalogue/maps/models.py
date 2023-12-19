@@ -6,6 +6,7 @@ from slugify import slugify
 from treebeard.mp_tree import MP_Node
 
 from .conf import settings
+from .enums import Visibility
 
 
 def layers_folder(instance, filename):
@@ -139,6 +140,7 @@ class Map(models.Model):
     zoom = models.IntegerField(null=True, blank=True)
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
+    visibility = models.CharField(default=Visibility.PRIVATE, max_length=10, choices=Visibility.choices)
 
     def save(self, *args, **kwargs):
         if self.slug is None:

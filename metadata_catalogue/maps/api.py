@@ -20,6 +20,8 @@ maps_router = Router()
 def get_map_metadata(request, map_slug: str):
     try:
         m = models.Map.objects.get(slug=map_slug)
+        if not request.user.has_perm("maps.map_view", m):
+            return 404, {"message": "Not found"}
         return 200, m.get_metadata(request)
     except models.Map.DoesNotExist:
         return 404, {"message": "Not found"}
@@ -35,6 +37,8 @@ def get_map_metadata(request, map_slug: str):
 def get_map_style(request, map_slug: str):
     try:
         m = models.Map.objects.get(slug=map_slug)
+        if not request.user.has_perm("maps.map_view", m):
+            return 404, {"message": "Not found"}
         return 200, m.get_style(request)
     except models.Map.DoesNotExist:
         return 404, {"message": "Not found"}

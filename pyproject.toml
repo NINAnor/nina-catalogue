@@ -168,6 +168,7 @@ dependencies = [
     "django-ninja>=1.1.0",
     "django-appconf>=1.0.6",
     "django-cors-headers>=4.3.1",
+    "rules>=3.3",
 ]
 requires-python = ">=3.10"
 name = ""
