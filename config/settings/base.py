@@ -91,6 +91,7 @@ THIRD_PARTY_APPS = [
     "polymorphic",
     "treebeard",
     "corsheaders",
+    "rules.apps.AutodiscoverRulesConfig",
 ]
 
 LOCAL_APPS = [
@@ -113,6 +114,7 @@ MIGRATION_MODULES = {"sites": "metadata_catalogue.contrib.sites.migrations"}
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
+    "rules.permissions.ObjectPermissionBackend",
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
@@ -268,6 +270,13 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         }
+    },
+    "loggers": {
+        "rules": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
