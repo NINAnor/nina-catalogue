@@ -271,7 +271,6 @@ tags
 dump.rdb
 
 ### Project template
-metadata_catalogue/media/
 
 .pytest_cache/
 .ipython/
