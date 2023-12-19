@@ -50,7 +50,7 @@ def map_from_maplibre_style_spec(map_name: str, style: dict):
             else:
                 entities[key] = Source.objects.create(**source_attrs)
 
-        group = LayerGroup.objects.create(name="Layers", order=0, map=map, download_url=None)
+        group = LayerGroup.objects.create(name="Layers", order=0, map=map, download_url=None, depth=1)
 
         for i, layer in enumerate(style.get("layers")):
             layer_attrs = {
@@ -71,7 +71,11 @@ def map_from_maplibre_style_spec(map_name: str, style: dict):
                 layer_attrs["style"]["layout"] = layer["layout"]
 
             if "source" in layer:
-                layer_attrs["source"] = entities[layer["source"]]
+                if layer["source"] in entities:
+                    source = entities[layer["source"]]
+                else:
+                    source = Source.objects.filter(slug=slugify(layer["source"])).first()
+                layer_attrs["source"] = source
                 layer_attrs["group"] = group
                 layer_attrs["group_order"] = i
 
