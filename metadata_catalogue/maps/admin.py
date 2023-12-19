@@ -39,6 +39,12 @@ class SourceAdmin(PolymorphicParentModelAdmin):
     child_models = (RasterSource, VectorSource, Source)
     list_filter = (PolymorphicChildModelFilter,)
 
+    list_display = [
+        "id",
+        "name",
+        "slug",
+    ]
+
 
 class SourceBaseAdmin(PolymorphicChildModelAdmin):
     base_model = Source
@@ -48,10 +54,24 @@ class SourceBaseAdmin(PolymorphicChildModelAdmin):
 class VectorSourceAdmin(SourceBaseAdmin):
     base_model = VectorSource
 
+    list_display = [
+        "id",
+        "name",
+        "slug",
+        "protocol",
+    ]
+
 
 @admin.register(RasterSource)
 class RasterSourceAdmin(SourceBaseAdmin):
     base_model = RasterSource
+
+    list_display = [
+        "id",
+        "name",
+        "slug",
+        "protocol",
+    ]
 
 
 @admin.register(Layer)
