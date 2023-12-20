@@ -41,11 +41,17 @@ def to_content(xml_path, dataset):
             for extension in soup.find_all("extension"):
                 extensions.append(SourceLayer(extension, xml_path, extension=True))
 
+            geometry_field = None
+            for _wkt in soup.findAll("field", {"term": "http://rs.tdwg.org/dwc/terms/footprintWKT"}):
+                geometry_field = "footprintWKT"
+                break
+
             ctx = {
                 "core": core,
                 "extensions": extensions,
                 "source": dataset.fetch_url,
                 "layer_name": settings.GEOAPI_DWCA_LAYER_NAME,
+                "geometry_field": geometry_field,
             }
             content.gdal_vrt_definition = render_to_string("vrt/definition.xml", ctx)
             content.save()

@@ -76,7 +76,7 @@ class Dataset(models.Model):
 
     def get_content(self):
         if hasattr(self, "content"):
-            return self.metadata
+            return self.content
         else:
             return Content.objects.create(dataset=self)
 
