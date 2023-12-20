@@ -7,10 +7,9 @@ from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_lifecycle import AFTER_CREATE, AFTER_DELETE, AFTER_SAVE, LifecycleModel, hook
+from django_q.tasks import async_task
 from solo.models import SingletonModel
 
-from . import logger
-from .libs.checks import check_definition
 from .libs.iso.mapping import ISOMapping
 from .managers import DatasetManager
 
@@ -405,13 +404,7 @@ class Content(LifecycleModel):
 
     @hook(AFTER_SAVE, when_any=["gdal_vrt_definition"], has_changed=True)
     def check_is_valid(self):
-        try:
-            check_definition(self)
-            self.valid = True
-        except:
-            logger.error(f"VRT ERROR: {self.dataset_id} - {traceback.format_exc()}")
-            self.valid = False
-        self.save(update_fields=["valid"])
+        async_task("metadata_catalogue.datasets.libs.checks.validate_vrt", self.id)
 
     def __str__(self):
         return str(self.dataset)

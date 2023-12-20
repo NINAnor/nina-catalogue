@@ -25,3 +25,15 @@ def vrt():
             check_definition(dt.content)
         except:
             logging.warn(f"{dt.fetch_url}{traceback.format_exception()}")
+
+
+def validate_vrt(content_id):
+    Content = apps.get_model("datasets", "Content")
+    content = Content.objects.get(id=content_id)
+    try:
+        check_definition(content)
+        content.valid = True
+    except:
+        logging.error(f"VRT ERROR: {content.dataset_id} - {traceback.format_exc()}")
+        content.valid = False
+    content.save(update_fields=["valid"])
