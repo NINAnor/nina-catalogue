@@ -1,3 +1,4 @@
+import uuid
 from typing import Dict, List, Optional
 
 from ninja import Schema
@@ -67,3 +68,16 @@ class MapMetadata(Schema):
 
 class StatusMessage(Schema):
     message: str
+
+
+class PortalMaps(Schema):
+    slug: str = Field(None, alias="map.slug")
+    title: str = Field(None, alias="map.title")
+    description: str = Field(None, alias="map.description")
+    extra: JsonValue
+
+
+class Portal(Schema):
+    title: str
+    uuid: uuid.UUID
+    extra: JsonValue

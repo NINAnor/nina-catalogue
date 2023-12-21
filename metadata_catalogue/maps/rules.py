@@ -17,3 +17,9 @@ rules.add_perm("maps.map_view", is_public | is_owner | rules.is_staff)
 rules.add_perm("maps.map_edit", is_owner | rules.is_staff)
 rules.add_perm("maps.map_add", is_owner | rules.is_staff)
 rules.add_perm("maps.map_delete", is_owner | rules.is_staff)
+
+
+rules.add_perm("maps.portal_view", is_public | is_owner | rules.is_staff)
+rules.add_perm("maps.portal_edit", is_owner | rules.is_staff)
+rules.add_perm("maps.portal_add", is_owner | rules.is_staff)
+rules.add_perm("maps.portal_delete", is_owner | rules.is_staff)

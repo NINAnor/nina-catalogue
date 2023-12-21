@@ -3,11 +3,15 @@ from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicChildModelF
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Layer, LayerGroup, Map, RasterSource, Source, VectorSource
+from .models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 
 
 class LayerInline(admin.TabularInline):
     model = Layer
+
+
+class PortalMapInline(admin.TabularInline):
+    model = PortalMap
 
 
 @admin.register(LayerGroup)
@@ -83,4 +87,37 @@ class LayerAdmin(admin.ModelAdmin):
         "map_order",
         "group",
         "group_order",
+    ]
+
+
+@admin.register(Portal)
+class PortalAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "title",
+        "visibility",
+        "uuid",
+    ]
+
+    search_fields = [
+        "title",
+        "uuid",
+    ]
+
+    list_filter = [
+        "visibility",
+    ]
+
+    inlines = [
+        PortalMapInline,
+    ]
+
+
+@admin.register(PortalMap)
+class PortalMapAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "portal",
+        "map",
+        "order",
     ]

@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -232,3 +234,29 @@ class LayerGroup(MP_Node):
             )
 
         return current_group
+
+
+class Portal(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4)
+    title = models.CharField(max_length=250)
+    visibility = models.CharField(max_length=10, choices=Visibility.choices, default=Visibility.PRIVATE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    extra = models.JSONField(default=empty_json, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint("uuid", name="portal_unique_uuid"),
+        ]
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class PortalMap(models.Model):
+    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="portals")
+    portal = models.ForeignKey("maps.Portal", on_delete=models.CASCADE, related_name="maps")
+    order = models.IntegerField(default=0, blank=True)
+    extra = models.JSONField(default=empty_json, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.map} @ {self.portal}"
