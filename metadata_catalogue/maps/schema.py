@@ -1,6 +1,8 @@
 import uuid
 from typing import Dict, List, Optional
 
+from django.conf import settings
+from django.urls import reverse
 from ninja import Schema
 from pydantic import Field, JsonValue
 
@@ -46,8 +48,8 @@ class MapStyle(Schema):
     name: str | None = None
     zoom: int | None = None
     center: list[float] | None = None
-    sources: dict[str, Source] = None
-    layers: list[Layer] = None
+    sources: dict[str, Source] | None = None
+    layers: list[Layer] | None = None
     pitch: int | None = None
 
 
@@ -63,7 +65,7 @@ class MapMetadata(Schema):
     style: str
     subtitle: str | None = None
     description: str | None = None
-    layers: list[LayerGroup] = None
+    layers: list[LayerGroup] | None = None
 
 
 class StatusMessage(Schema):
@@ -71,10 +73,18 @@ class StatusMessage(Schema):
 
 
 class PortalMaps(Schema):
-    slug: str = Field(None, alias="map.slug")
-    title: str = Field(None, alias="map.title")
-    description: str = Field(None, alias="map.description")
+    slug: str = Field(alias="map.slug")
+    title: str = Field(alias="map.title")
+    description: str | None = Field(None, alias="map.description")
     extra: JsonValue
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        request = context.get("request")
+        return request.build_absolute_uri(
+            reverse(f"{settings.MAPS_API_PREFIX}:map_metadata", kwargs={"map_slug": obj.map.slug})
+        )
 
 
 class Portal(Schema):
