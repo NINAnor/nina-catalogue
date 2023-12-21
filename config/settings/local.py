@@ -54,4 +54,6 @@ INSTALLED_APPS += ["django_extensions"]  # noqa: F405
 
 # Your stuff...
 # ------------------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost\:\d{4}$",
+]
