@@ -62,6 +62,7 @@ class LayerGroup(Schema):
 
 
 class MapMetadata(Schema):
+    title: str
     style: str
     subtitle: str | None = None
     description: str | None = None
@@ -76,6 +77,7 @@ class PortalMaps(Schema):
     slug: str = Field(alias="map.slug")
     title: str = Field(alias="map.title")
     description: str | None = Field(None, alias="map.description")
+    visibility: str = Field("public", alias="map.visibility")
     extra: JsonValue
     url: str
 

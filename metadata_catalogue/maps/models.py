@@ -167,6 +167,7 @@ class Map(models.Model):
         return {
             "style": style_url,
             "subtitle": self.subtitle,
+            "title": self.title,
             "description": self.description,
             "layers": layers,
         }
