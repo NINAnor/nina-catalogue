@@ -5,7 +5,7 @@ from languages_plus.models import Language
 
 from metadata_catalogue.datasets.models import Content, Dataset, Keyword, Metadata
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 class TestDatasetModel:
