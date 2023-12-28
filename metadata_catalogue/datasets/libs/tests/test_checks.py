@@ -45,5 +45,6 @@ def test_vrt_validation():
 
     </OGRVRTLayer>
 </OGRVRTDataSource>
-
     """
+    c.save()
+    vrt()
