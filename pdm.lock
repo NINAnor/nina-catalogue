@@ -5,7 +5,7 @@
 groups = ["default", "dev", "docs"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:11ec9621125dd8bdf83452788d6ec6163bd83ae527cc5d1f472f85fb70ec1a97"
+content_hash = "sha256:4f9a5eddc268b2693257d6b8fdf8d4f78708879b0dccad3ac27c5ef886d07dfb"
 
 [[package]]
 name = "affine"
@@ -836,6 +836,14 @@ dependencies = [
 files = [
     {file = "django-model-utils-4.3.1.tar.gz", hash = "sha256:2e2e4f13e4f14613134a9777db7ad4265f59a1d8f1384107bcaa3028fe3c87c1"},
     {file = "django_model_utils-4.3.1-py3-none-any.whl", hash = "sha256:8c0b0177bab909a8635b602d960daa67e80607aa5469217857271a60726d7a4b"},
+]
+
+[[package]]
+name = "django-models2puml"
+version = "0.2"
+summary = "A Django app to generate PlantUML class diagrams of installed apps models."
+files = [
+    {file = "django-models2puml-0.2.tar.gz", hash = "sha256:a96f345a709890a501dba2aa9bb272a5929bc81f1d38c0bade481650c0b3c1f4"},
 ]
 
 [[package]]

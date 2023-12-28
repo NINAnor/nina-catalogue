@@ -106,21 +106,20 @@ services:
       - 5432:5432
 
   # documentation
-  docs:
+  docs-dev:
     image: metadata_catalogue_docs
+    stdin_open: true
+    tty: true
     build:
-      context: .
+      context: ./docs
       dockerfile: ./Dockerfile
-      target: docs
-    environment:
-      <<: *django-env
-      DJANGO_SETTINGS_MODULE: config.settings.local
+      target: dev
     volumes:
-      - ./docs:/app/docs
-      - ./config:/app/config
-      - ./metadata_catalogue:/app/metadata_catalogue
+      - ./docs:/book
     ports:
-      - '9000:9000'
+      - '3000:3000'
+      - '3001:3001'
+    command: serve --hostname 0.0.0.0
     profiles:
       - dev
 

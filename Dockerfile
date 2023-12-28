@@ -34,16 +34,6 @@ RUN DATABASE_URL="" DJANGO_BASE_SCHEMA_URL="" \
   DJANGO_SETTINGS_MODULE="config.settings.test" \
   pdm run ./manage.py compilemessages
 
-FROM pdm as docs
-RUN --mount=type=cache,target=/var/cache/zypper \
-    zypper install --no-recommends -y make
-RUN --mount=type=cache,target=/root/.cache/pdm \
-    pdm install -G docs
-COPY --from=source /app .
-COPY docs docs
-WORKDIR /app/docs
-CMD [ "make", "livehtml" ]
-
 FROM base as django
 COPY --from=production /app .
 COPY --from=translation /app/locale locale

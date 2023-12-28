@@ -1,0 +1,164 @@
+@startuml
+entity Citation {
+    cited_by_dataset ManyToOneRel
+    in_dataset_bibliography ManyToManyRel
+    id BigAutoField
+    identifier CharField
+    text TextField
+}
+
+entity Dataset {
+    metadata OneToOneRel
+    content OneToOneRel
+    id BigAutoField
+    name CharField
+    uuid UUIDField
+    source TextField
+    fetch_url TextField
+    fetch_type IntegerField
+    created_at DateTimeField
+    last_modified_at DateTimeField
+    owner ForeignKey
+    validated_at DateTimeField
+    validated_by ForeignKey
+    fetch_success BooleanField
+    fetch_message TextField
+    last_fetch_at DateTimeField
+    public BooleanField
+}
+
+entity Keyword {
+    metadatas ManyToManyRel
+    id BigAutoField
+    name CharField
+    definition URLField
+    description TextField
+}
+
+entity License {
+    metadata ManyToOneRel
+    id BigAutoField
+    name CharField
+    url URLField
+}
+
+entity Metadata {
+    people ManyToOneRel
+    organizations ManyToOneRel
+    metadataidentifier ManyToOneRel
+    id BigAutoField
+    dataset OneToOneField
+    title CharField
+    date_created DateTimeField
+    logo_url URLField
+    date_publication DateField
+    language ForeignKey
+    abstract TextField
+    license ForeignKey
+    maintenance_update_frequency TextField
+    maintenance_update_description TextField
+    geographic_description TextField
+    bounding_box GeometryField
+    citation ForeignKey
+    formation_period_start DateField
+    formation_period_end DateField
+    formation_period_description TextField
+    project_id CharField
+    project_title CharField
+    project_abstract TextField
+    project_study_area_description TextField
+    project_design_description TextField
+    xml TextField
+    fts TextField
+    keywords ManyToManyField
+    taxonomies ManyToManyField
+    bibliography ManyToManyField
+}
+
+entity MetadataIdentifier {
+    id BigAutoField
+    identifier CharField
+    metadata ForeignKey
+    source CharField
+}
+
+entity MethodStep {
+    id BigAutoField
+    order IntegerField
+    description TextField
+}
+
+entity Organization {
+    person ManyToOneRel
+    roles ManyToOneRel
+    id BigAutoField
+    name TextField
+}
+
+entity OrganizationRole {
+    id BigAutoField
+    organization ForeignKey
+    metadata ForeignKey
+    role CharField
+}
+
+entity Person {
+    personidentifier ManyToOneRel
+    roles ManyToOneRel
+    id BigAutoField
+    first_name CharField
+    last_name CharField
+    belongs_to ForeignKey
+    position CharField
+    country ForeignKey
+    email EmailField
+    phone CharField
+    city TextField
+    delivery_point TextField
+    postal_code IntegerField
+}
+
+entity PersonIdentifier {
+    id BigAutoField
+    person ForeignKey
+    type CharField
+    value CharField
+}
+
+entity PersonRole {
+    id BigAutoField
+    person ForeignKey
+    metadata ForeignKey
+    role CharField
+    description CharField
+}
+
+entity Taxonomy {
+    metadata ManyToManyRel
+    id BigAutoField
+    type ForeignKey
+    name CharField
+    common CharField
+}
+
+entity TaxonomyType {
+    taxonomy ManyToOneRel
+    name CharField
+}
+
+
+Dataset |o--|| Metadata
+Taxonomy }o--o| TaxonomyType
+Taxonomy }o--o{ Metadata
+PersonRole }o--o{ Metadata
+Person }|--o{ PersonRole
+Person }o--|| PersonIdentifier
+Person }o--o| Organization
+License |o--o{ Metadata
+OrganizationRole }o--o| Metadata
+OrganizationRole }o--o| Organization
+MetadataIdentifier ||--o{ Metadata
+MethodStep ||--o{ Metadata
+Citation ||--o{ Metadata
+Keyword }o--o{ Metadata
+@enduml

@@ -1,0 +1,12 @@
+[book]
+authors = []
+language = "en"
+multilingual = false
+src = "src"
+
+[preprocessor.kroki-preprocessor]
+
+[output.html]
+git-repository-url = "https://github.com/NINAnor/nina-catalogue/"
+edit-url-template = "https://github.com/NINAnor/nina-catalogue/edit/main/docs/{path}"
+additional-css = ["theme/css/kroki.css"]

@@ -121,7 +121,8 @@ dev = [
     "django-debug-toolbar",
     "django-extensions",
     "django-coverage-plugin",
-    "pytest-django"
+    "pytest-django",
+    "django-models2puml>=0.2",
 ]
 
 [project]

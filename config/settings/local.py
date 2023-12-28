@@ -57,3 +57,6 @@ INSTALLED_APPS += ["django_extensions"]  # noqa: F405
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^http://localhost\:\d{4}$",
 ]
+
+
+INSTALLED_APPS += ["models2puml"]
