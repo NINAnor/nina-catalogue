@@ -16,7 +16,6 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y \
     musl-tools libssl-dev pkg-config
 RUN cargo install mdbook-kroki-preprocessor
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 COPY --from=builder /usr/local/cargo/bin/mdbook /usr/local/bin/mdbook
 WORKDIR /book
 ENTRYPOINT [ "/usr/local/bin/mdbook" ]
@@ -33,3 +32,4 @@ RUN mdbook build
 
 FROM nginx as prod
 COPY --from=build /book/book/ /var/www/
+COPY default.conf.template /etc/nginx/templates/

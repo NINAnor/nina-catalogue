@@ -108,8 +108,6 @@ services:
   # documentation
   docs-dev:
     image: metadata_catalogue_docs
-    stdin_open: true
-    tty: true
     build:
       context: ./docs
       dockerfile: ./Dockerfile
@@ -122,6 +120,17 @@ services:
     command: serve --hostname 0.0.0.0
     profiles:
       - dev
+
+  docs:
+    image: metadata_catalogue_docs
+    build:
+      context: ./docs
+      dockerfile: ./Dockerfile
+      target: prod
+    ports:
+      - '3000:80'
+    profiles:
+      - prod
 
   bruno:
     build:
