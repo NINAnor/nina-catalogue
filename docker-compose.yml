@@ -115,8 +115,7 @@ services:
     volumes:
       - ./docs:/book
     ports:
-      - '3000:3000'
-      - '3001:3001'
+      - '3001:3000'
     command: serve --hostname 0.0.0.0
     profiles:
       - dev
@@ -173,8 +172,6 @@ services:
       context: ./nginx
     volumes:
       - ./media:/media_files
-    ports:
-      - 8000:80
 
   varnish:
     build:
