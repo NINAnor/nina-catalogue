@@ -1,0 +1,30 @@
+@startuml
+
+actor user
+
+package django {
+    usecase "Serve PyGeoAPI" as u4
+    usecase "Serve VRT definition from db" as u1
+}
+
+package gdal {
+    usecase "Resource source is a remote vrt \n /vsicurl/http://django/dataset/<id>/definition.vrt" as u5
+    usecase "Vrt points to the actual source \n and describes how to open it" as u6
+    usecase "Convert to geojson" as u7
+}
+
+package pygeoapi {
+    usecase "Read resource" as u2
+    usecase "Send response" as u8
+}
+
+user ---> u4
+u4 ---> u2
+u2 ---> u5
+u5 ---> u1
+u1 ---> u6
+u6 ---> u7
+u7 ---> u8
+u8 ---> user
+
+@enduml
