@@ -155,15 +155,20 @@ services:
       - prod
     volumes:
       - statics:/statics
-    ports:
-      - 8000:80
 
   nginx-dev:
+    hostname: nginx
     profiles:
       - dev
     build:
       context: ./nginx
     volumes:
       - ./media:/media_files
+    ports:
+      - 8000:80
+
+  varnish:
+    build:
+      context: ./varnish
     ports:
       - 8000:80

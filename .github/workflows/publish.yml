@@ -20,6 +20,8 @@ jobs:
             image: ghcr.io/ninanor/nina-catalogue-django
           - context: ./nginx
             image: ghcr.io/ninanor/nina-catalogue-nginx
+          - context: ./varnish
+            image: ghcr.io/ninanor/nina-catalogue-varnish
 
     permissions:
       contents: read
