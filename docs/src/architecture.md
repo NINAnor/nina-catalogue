@@ -6,6 +6,7 @@ The software is made of different parts:
 - Queue, provides long running tasks, scheduled tasks and asyncronous executions
 - PostgreSQL, is the database server, it stores the data
 - NGINX, is the webserver, it shares user-uploaded files and static assets
+- Varnish, provides a caching layer
 
 Features inside the catalogue are organized as modules, each module aims to be as much independent as possible:
 - [Datasets](./datasets/index.md)

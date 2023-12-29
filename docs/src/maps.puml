@@ -1,0 +1,101 @@
+@startuml
+left to right direction
+
+entity Layer {
+    id BigAutoField
+    name CharField
+    slug SlugField
+    map ForeignKey
+    source ForeignKey
+    source_layer CharField
+    style JSONField
+    map_order IntegerField
+    "group" ForeignKey
+    group_order IntegerField
+}
+
+entity LayerGroup {
+    id BigAutoField
+    name CharField
+    order IntegerField
+    map ForeignKey
+    download_url URLField
+}
+
+entity Map {
+    id BigAutoField
+    title CharField
+    slug SlugField
+    subtitle CharField
+    description TextField
+    zoom IntegerField
+    extra JSONField
+    owner ForeignKey
+    visibility CharField
+}
+
+entity Portal {
+    id BigAutoField
+    uuid UUIDField
+    title CharField
+    visibility CharField
+    owner ForeignKey
+    extra JSONField
+}
+
+entity PortalMap {
+    id BigAutoField
+    map ForeignKey
+    portal ForeignKey
+    order IntegerField
+    extra JSONField
+}
+
+entity RasterSource {
+    id BigAutoField
+    name CharField
+    slug SlugField
+    extra JSONField
+    owner ForeignKey
+    style JSONField
+    source FileField
+    original_data FileField
+    protocol CharField
+    url URLField
+    attribution CharField
+}
+
+entity Source {
+    id BigAutoField
+    name CharField
+    slug SlugField
+    extra JSONField
+    owner ForeignKey
+    style JSONField
+}
+
+entity VectorSource {
+    id BigAutoField
+    name CharField
+    slug SlugField
+    extra JSONField
+    owner ForeignKey
+    style JSONField
+    source FileField
+    original_data FileField
+    protocol CharField
+    url URLField
+    attribution CharField
+    default_layer CharField
+}
+
+Portal ||--o{ PortalMap
+PortalMap ||--o{ Map
+Map ||--o{ Layer
+LayerGroup |o--o{ Layer
+Map |o--o{ LayerGroup
+Layer }o--o| Source
+Source ||--o| RasterSource
+Source ||--o| VectorSource
+
+@enduml
