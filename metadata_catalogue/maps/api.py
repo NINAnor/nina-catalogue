@@ -62,7 +62,7 @@ def get_portal(request, portal_uuid: uuid.UUID):
         if not request.user.has_perm("maps.portal_view", portal):
             return 404, {"message": "Not found"}
         return 200, portal
-    except models.Map.DoesNotExist:
+    except models.Portal.DoesNotExist:
         return 404, {"message": "Not found"}
 
 
@@ -85,5 +85,5 @@ def get_portal_maps(request, portal_uuid: uuid.UUID):
         else:
             expression = Q(map__visibility=Visibility.PUBLIC)
         return 200, portal.maps.filter(expression).select_related("map")
-    except models.Map.DoesNotExist:
+    except models.Portal.DoesNotExist:
         return 404, {"message": "Not found"}
