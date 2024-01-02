@@ -28,7 +28,7 @@ class Source(PolymorphicModel):
 
     def save(self, *args, **kwargs):
         if self.slug is None:
-            self.slug = slugify(self.title)
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     @property
@@ -135,7 +135,7 @@ class Layer(models.Model):
 
 class Map(models.Model):
     title = models.CharField(max_length=150)
-    slug = models.SlugField(max_length=150)
+    slug = models.SlugField(null=True, blank=True, max_length=150)
     subtitle = models.CharField(max_length=250, null=True, blank=True)
     description = models.TextField(blank=True)
     # center =
