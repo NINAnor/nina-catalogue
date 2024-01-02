@@ -11,7 +11,7 @@ sub vcl_recv {
     set req.backend_hint = d.backend("nginx");
 }
 
-sub vcl_backend_response {
-    # Provides Content-Lenght header, needed by GDAL vsicurl
-    set beresp.do_stream = false;
-}
+# sub vcl_backend_response {
+#    # Provides Content-Lenght header, needed by GDAL vsicurl
+#    set beresp.do_stream = false;
+#}
