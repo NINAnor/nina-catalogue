@@ -178,3 +178,10 @@ services:
       context: ./varnish
     ports:
       - 8000:80
+
+  skosmos:
+    image: ghcr.io/nicokant/skosmos:master
+    ports:
+      - 8050:80
+    volumes:
+      - ./skosmos.ttl:/var/www/html/config.ttl
