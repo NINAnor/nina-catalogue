@@ -1,6 +1,8 @@
 from appconf import AppConf
 from django.conf import settings
 
+from .rdf_functions import custom_concat
+
 
 class DictionariesConf(AppConf):
     DEFAULT_TITLE: str = "SPARQL endpoint for RDFLib graph"
@@ -41,7 +43,6 @@ class DictionariesConf(AppConf):
             ]
         ] .
     """.rstrip()
-    DEFAULT_CONTENT_TYPE = "application/xml"
 
     #: This is default for federated queries
     DEFAULT_CONTENT_TYPE = "application/xml"
@@ -66,7 +67,9 @@ class DictionariesConf(AppConf):
     }
 
     CUSTOM_EVAL = None
-    FUNCTIONS = {}
+    FUNCTIONS = {
+        "https://w3id.org/um/sparql-functions/custom_concat": custom_concat,
+    }
     EXAMPLE_QUERIES = None
     ENABLE_UPDATE = False
     PROCESSOR = "sparql"

@@ -5,7 +5,7 @@
 
 import logging
 import re
-from typing import Any, Optional
+from typing import Any
 from urllib import parse
 
 import rdflib
@@ -20,15 +20,15 @@ from rdflib_django.utils import get_conjunctive_graph
 from .conf import settings
 from .utils import eval_custom_functions, parse_accept_header
 
-if settings.DICTIONARIES_CUSTOM_EVAL:
-    rdflib.plugins.sparql.CUSTOM_EVALS["evalCustomFunctions"] = settings.DICTIONARIES_CUSTOM_EVAL
-elif len(settings.DICTIONARIES_FUNCTIONS) > 0:
-    rdflib.plugins.sparql.CUSTOM_EVALS["evalCustomFunctions"] = eval_custom_functions
-
 
 class SPARQLView(View):
     @csrf_exempt
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if settings.DICTIONARIES_CUSTOM_EVAL:
+            rdflib.plugins.sparql.CUSTOM_EVALS["evalCustomFunctions"] = settings.DICTIONARIES_CUSTOM_EVAL
+        elif len(settings.DICTIONARIES_FUNCTIONS) > 0:
+            rdflib.plugins.sparql.CUSTOM_EVALS["evalCustomFunctions"] = eval_custom_functions
+
         self.graph = get_conjunctive_graph()
         return super().dispatch(request, *args, **kwargs)
 
@@ -43,7 +43,8 @@ class SPARQLView(View):
             )
 
         if not query and not update:
-            if str(request.headers["accept"]).startswith("text/html"):
+            accept = str(request.headers.get("accept", ""))
+            if accept.startswith("text/html"):
                 return render(
                     request,
                     template_name="dictionaries/yasgui.html",
@@ -59,15 +60,15 @@ class SPARQLView(View):
             service_graph = self._get_service_graph()
 
             # Return the service description RDF as turtle or XML
-            if request.headers["accept"] == "text/turtle":
+            if accept == "text/turtle":
                 return HttpResponse(
                     service_graph.serialize(format="turtle"),
-                    headers={"Media-type": "text/turtle"},
+                    headers={"content-type": "text/turtle"},
                 )
             else:
                 return HttpResponse(
                     service_graph.serialize(format="xml"),
-                    headers={"Media-type": "application/xml"},
+                    headers={"content-type": "application/xml"},
                 )
 
         # Pretty print the query object
@@ -112,7 +113,7 @@ class SPARQLView(View):
 
                 try:
                     rdflib_format = settings.DICTIONARIES_CONTENT_TYPE_TO_RDFLIB_FORMAT[output_mime_type]
-                    headers = {"media-type": output_mime_type}
+                    headers = {"content-type": output_mime_type}
                     response = HttpResponse(
                         query_results.serialize(format=rdflib_format),
                         headers=headers,
@@ -156,7 +157,7 @@ class SPARQLView(View):
     def _get_service_graph(self) -> rdflib.Graph:
         # Service description returned when no query provided
         service_description_ttl = settings.DICTIONARIES_SERVICE_DESCRIPTION_TTL_FMT.format(
-            public_url=self.request.get_full_path(),
+            public_url=self.request.build_absolute_uri(),
             title=settings.DICTIONARIES_DEFAULT_TITLE,
             description=settings.DICTIONARIES_DEFAULT_DESCRIPTION.replace("\n", ""),
         )
@@ -175,7 +176,7 @@ class SPARQLView(View):
             )
             graph.add(
                 (
-                    URIRef(self.public_url),
+                    URIRef(self.request.build_absolute_uri()),
                     URIRef("http://www.w3.org/ns/sparql-service-description#extensionFunction"),
                     URIRef(custom_function_uri),
                 )
@@ -212,4 +213,5 @@ class SPARQLView(View):
             # Response with the service description
             query = None
             update = None
+
         return self._handle_sparql_request(request, query, update)
