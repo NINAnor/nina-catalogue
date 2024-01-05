@@ -5,7 +5,7 @@
 groups = ["default", "dev", "docs"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:ec83f3360c363b40ae4c3986d81e837cca1481aff6471562b888fffccbb0d197"
+content_hash = "sha256:7ca2b3503bdc7f3cbd1693495c1b46b38ed7332aa7c32d1e70a1030559ce6182"
 
 [[package]]
 name = "affine"
@@ -1011,6 +1011,19 @@ dependencies = [
 files = [
     {file = "django-stubs-4.2.7.tar.gz", hash = "sha256:8ccd2ff4ee5adf22b9e3b7b1a516d2e1c2191e9d94e672c35cc2bc3dd61e0f6b"},
     {file = "django_stubs-4.2.7-py3-none-any.whl", hash = "sha256:4cf4de258fa71adc6f2799e983091b9d46cfc67c6eebc68fe111218c9a62b3b8"},
+]
+
+[[package]]
+name = "django-taggit"
+version = "5.0.1"
+requires_python = ">=3.8"
+summary = "django-taggit is a reusable Django application for simple tagging."
+dependencies = [
+    "Django>=4.1",
+]
+files = [
+    {file = "django-taggit-5.0.1.tar.gz", hash = "sha256:edcd7db1e0f35c304e082a2f631ddac2e16ef5296029524eb792af7430cab4cc"},
+    {file = "django_taggit-5.0.1-py3-none-any.whl", hash = "sha256:a0ca8a28b03c4b26c2630fd762cb76ec39b5e41abf727a7b66f897a625c5e647"},
 ]
 
 [[package]]
