@@ -5,7 +5,7 @@
 groups = ["default", "dev", "docs"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:4f9a5eddc268b2693257d6b8fdf8d4f78708879b0dccad3ac27c5ef886d07dfb"
+content_hash = "sha256:ec83f3360c363b40ae4c3986d81e837cca1481aff6471562b888fffccbb0d197"
 
 [[package]]
 name = "affine"
@@ -858,6 +858,20 @@ dependencies = [
 files = [
     {file = "django_ninja-1.1.0-py3-none-any.whl", hash = "sha256:6330c3497061d9fd1f43c1200f85c13aab7687110e2899f8304e5aa476c10b44"},
     {file = "django_ninja-1.1.0.tar.gz", hash = "sha256:87bff046416a2653ed2fbef1408e101292bf8170684821bac82accfd73bef059"},
+]
+
+[[package]]
+name = "django-organizations"
+version = "2.3.1"
+requires_python = ">=3.8"
+summary = "Group accounts for Django"
+dependencies = [
+    "Django>=3.2.0",
+    "django-extensions>=2.0.8",
+]
+files = [
+    {file = "django-organizations-2.3.1.tar.gz", hash = "sha256:e692177ddf1a9fb55a66e97ed8a51778569d28af013cde4952b8101ce25004b9"},
+    {file = "django_organizations-2.3.1-py2.py3-none-any.whl", hash = "sha256:14c44905bdec5b928f80c1686306fe6909cced84eae22ea4a16130f9236af49d"},
 ]
 
 [[package]]
@@ -3033,6 +3047,15 @@ dependencies = [
 files = [
     {file = "stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695"},
     {file = "stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9"},
+]
+
+[[package]]
+name = "swapper"
+version = "1.3.0"
+summary = "The unofficial Django swappable models API."
+files = [
+    {file = "swapper-1.3.0-py2.py3-none-any.whl", hash = "sha256:5d7667c0bfcd2f27e10c77d8096925eb547764d7b9ff4824430aa9b3c63b7aa0"},
+    {file = "swapper-1.3.0.tar.gz", hash = "sha256:48a814f67be1abefe6c1495013808d1ff8e6b294f78384c88f5a93b81f7015fd"},
 ]
 
 [[package]]
