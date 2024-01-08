@@ -60,3 +60,19 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 
 
 INSTALLED_APPS += ["models2puml"]
+
+DICTIONARIES_EXAMPLE_QUERIES = {
+    "Bio2RDF query": {
+        "endpoint": "https://bio2rdf.org/sparql",
+        "query": """SELECT DISTINCT * WHERE {
+    ?s a ?o .
+} LIMIT 10""",
+    },
+    "Custom function": {
+        "query": """PREFIX myfunctions: <https://w3id.org/um/sparql-functions/>
+SELECT ?concat ?concatLength WHERE {
+    BIND("First" AS ?first)
+    BIND(myfunctions:custom_concat(?first, "last") AS ?concat)
+}""",
+    },
+}

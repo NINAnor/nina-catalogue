@@ -92,6 +92,7 @@ THIRD_PARTY_APPS = [
     "treebeard",
     "corsheaders",
     "rules.apps.AutodiscoverRulesConfig",
+    "rdflib_django",
 ]
 
 LOCAL_APPS = [
@@ -101,6 +102,7 @@ LOCAL_APPS = [
     "metadata_catalogue.datasets.csw",
     "metadata_catalogue.datasets.geoapi",
     "metadata_catalogue.maps",
+    "metadata_catalogue.dictionaries",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

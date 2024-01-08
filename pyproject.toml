@@ -170,6 +170,7 @@ dependencies = [
     "django-appconf>=1.0.6",
     "django-cors-headers>=4.3.1",
     "rules>=3.3",
+    "rdflib-django3>=0.4.1",
 ]
 requires-python = ">=3.10"
 name = ""

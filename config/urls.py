@@ -23,6 +23,7 @@ urlpatterns = [
     path("geoapi/", include("metadata_catalogue.datasets.geoapi.urls", namespace="geoapi")),
     path("datasets/", include("metadata_catalogue.datasets.urls")),
     path("api/", api.urls),
+    path("", include("metadata_catalogue.dictionaries.urls")),
 ]
 
 
