@@ -24,7 +24,7 @@ def vrt():
         try:
             check_definition(dt.content)
         except:
-            logging.warn(f"{dt.fetch_url}{traceback.format_exception()}")
+            logging.warn(f"{dt.fetch_url}{traceback.format_exc()}")
 
 
 def validate_vrt(content_id):
