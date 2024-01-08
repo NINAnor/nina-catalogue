@@ -17,7 +17,7 @@ class ProjectDeleteView(DeleteView):
     model = Project
 
     def get_success_url(self) -> str:
-        return reverse("projects:list")
+        return reverse("projects-list")
 
 
 class ProjectCreateView(CreateView):

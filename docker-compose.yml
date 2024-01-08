@@ -163,6 +163,8 @@ services:
       - prod
     volumes:
       - statics:/statics
+    ports:
+      - 8000:80
 
   nginx-dev:
     hostname: nginx
@@ -172,9 +174,15 @@ services:
       context: ./nginx
     volumes:
       - ./media:/media_files
+    ports:
+      - 8000:80
 
   varnish:
     build:
       context: ./varnish
+
+
+  prosjektapi:
+    image: registry.gitlab.com/nina-data/prosjekt-oversikt/main/prosjektapi
     ports:
-      - 8000:80
+      - 8040:80

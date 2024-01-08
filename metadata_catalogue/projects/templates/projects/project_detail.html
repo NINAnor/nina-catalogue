@@ -4,13 +4,13 @@
   <h2>{{ object.name }}</h2>
   <ul>
     <li>
-      <a href="{% url 'projects:edit' slug=object.slug %}">Edit</a>
+      <a href="{% url 'projects-edit' slug=object.slug %}">Edit</a>
     </li>
     <li>
-      <a href="{% url 'projects:delete' slug=object.slug %}">Delete</a>
+      <a href="{% url 'projects-delete' slug=object.slug %}">Delete</a>
     </li>
     <li>
-      <a href="{% url 'projects:list' %}">Back</a>
+      <a href="{% url 'projects-list' %}">Back</a>
     </li>
   </ul>
 {% endblock content %}

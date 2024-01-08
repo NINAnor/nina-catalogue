@@ -5,13 +5,13 @@
   <ul>
     {% for project in object_list %}
       <li>
-        <a href="{% url 'projects:detail' slug=project.slug %}">{{ project.name }}</a>
+        <a href="{% url 'projects-detail' slug=project.slug %}">{{ project.name }}</a>
       </li>
     {% endfor %}
   </ul>
   <ul>
     <li>
-      <a href="{% url 'projects:create' %}">Create</a>
+      <a href="{% url 'projects-create' %}">Create</a>
     </li>
   </ul>
 {% endblock content %}
