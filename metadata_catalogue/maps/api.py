@@ -1,12 +1,10 @@
 import uuid
 from typing import List
 
-from django.db.models import Q
 from ninja import Router
 from ninja.responses import codes_4xx
 
 from . import models, schema
-from .enums import Visibility
 
 maps_router = Router()
 
@@ -77,13 +75,6 @@ def get_portal_maps(request, portal_uuid: uuid.UUID):
         portal = models.Portal.objects.get(uuid=portal_uuid)
         if not request.user.has_perm("maps.portal_view", portal):
             return 404, {"message": "Not found"}
-
-        expression = Q()
-        if request.user.is_authenticated:
-            if not request.user.is_staff:
-                expression = Q(map__visibility=Visibility.PUBLIC) | Q(map__owner=request.user)
-        else:
-            expression = Q(map__visibility=Visibility.PUBLIC)
-        return 200, portal.maps.filter(expression).select_related("map")
+        return 200, portal.get_visible_maps(request=request)
     except models.Portal.DoesNotExist:
         return 404, {"message": "Not found"}
