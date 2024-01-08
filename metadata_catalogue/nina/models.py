@@ -1,4 +1,5 @@
 from django.db import models
+from organizations.models import Organization
 from taggit.managers import TaggableManager
 
 from metadata_catalogue.projects.models import BaseProject
@@ -13,6 +14,9 @@ class Project(BaseProject):
     status = models.CharField(max_length=50, null=True, blank=True)
     category = models.ForeignKey("nina.Category", null=True, blank=True, on_delete=models.SET_NULL)
     topics = models.ManyToManyField("nina.Topic", blank=True)
+    department_group = models.ForeignKey(
+        "nina.Department", null=True, blank=True, on_delete=models.SET_NULL, related_name="projects"
+    )
 
     tags = TaggableManager()
 
@@ -32,3 +36,7 @@ class Category(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint("name", name="unique category name")]
+
+
+class Department(Organization):
+    pass
