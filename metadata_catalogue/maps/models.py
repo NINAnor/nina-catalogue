@@ -103,9 +103,15 @@ class Layer(models.Model):
         "maps.LayerGroup", on_delete=models.SET_NULL, related_name="layers", null=True, blank=True
     )
     group_order = models.IntegerField(default=0)
+    downloadable = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.slug} @ {self.map}"
+
+    def get_download_url(self, request):
+        if self.source and self.downloadable:
+            return self.source.get_download_url(request)
+        return None
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -158,7 +164,7 @@ class Map(models.Model):
     def get_metadata(self, request):
         layers = []
         for root in self.groups.order_by("order").all():
-            layers.append(root.as_layer_tree())
+            layers.append(root.as_layer_tree(request))
 
         style_url = request.build_absolute_uri(
             reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
@@ -220,7 +226,7 @@ class LayerGroup(MP_Node):
     def __str__(self):
         return f"{self.name} @ {self.map}"
 
-    def as_layer_tree(self):
+    def as_layer_tree(self, request):
         current_group = {"id": f"group-{self.id}", "name": self.name, "children": [], "download": self.download_url}
         for sub_group in self.get_children():
             current_group["children"].append(sub_group.as_layer_tree())
@@ -230,7 +236,7 @@ class LayerGroup(MP_Node):
                 {
                     "id": layer.slug,
                     "name": str(layer.name),
-                    "download": None,
+                    "download": layer.get_download_url(request),
                 }
             )
 
