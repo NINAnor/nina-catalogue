@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.http import HttpRequest
 from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 from slugify import slugify
@@ -257,6 +258,15 @@ class Portal(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    def get_visible_maps(self, request: HttpRequest):
+        expression = models.Q()
+        if request.user.is_authenticated:
+            if not request.user.is_staff:
+                expression = models.Q(map__visibility=Visibility.PUBLIC) | models.Q(map__owner=request.user)
+        else:
+            expression = models.Q(map__visibility=Visibility.PUBLIC)
+        return self.maps.filter(expression).select_related("map")
 
 
 class PortalMap(models.Model):
