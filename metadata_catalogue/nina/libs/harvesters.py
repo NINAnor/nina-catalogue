@@ -1,10 +1,13 @@
 from typing import Dict
 
 import requests
+from django.contrib.auth import get_user_model
 
 from metadata_catalogue.datasets.models import Organization
 
 from ..models import Category, Department, Project
+
+User = get_user_model()
 
 
 def _fetch_paginated_project(url: str, limit=50):
@@ -66,6 +69,14 @@ def _process_project(project: dict):
         p.departments.add(d)
 
     p.save()
+
+    if project.get("maintainer_email"):
+        u, created = User.objects.get_or_create(email=project.get("maintainer_email"))
+        if created:
+            u.set_unusable_password()
+            u.save()
+
+        p.get_or_add_user(u)
 
 
 def prosjektoversikt(url: str, limit=50):
