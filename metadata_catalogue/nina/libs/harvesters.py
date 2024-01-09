@@ -30,31 +30,39 @@ def _fetch_paginated_project(url: str, limit=50):
 
 
 def _process_project(project: dict):
-    p, _ = Project.objects.update_or_create(
+    p, created = Project.objects.get_or_create(
         extid=project.get("id"),
         defaults={
-            "slug": project.get("id"),
+            "extid": project.get("id"),
             "name": project.get("title"),
             "description": project.get("notes"),
-            "status": project.get("project_state"),
-            "budget": project.get("budget"),
-            "start_date": project.get("startdate"),
-            "end_date": project.get("enddate"),
         },
     )
+    if created:
+        slug = f'prj-{project.get("id")}'
+        p.slug = slug
+
+    p.status = project.get("project_state")
+    p.budget = project.get("budget")
+    p.start_date = project.get("startdate")
+    p.end_date = project.get("enddate")
 
     p.category, _ = Category.objects.get_or_create(name=project.get("category"))
     p.customer, _ = Organization.objects.get_or_create(name=project.get("customer"))
 
     for group in project.get("groups"):
-        d, _ = Department.objects.get_or_create(
+        slug = f'dpt-{project.get("id")}'
+        d, created = Department.objects.get_or_create(
             extid=group.get("id"),
             defaults={
                 "name": group.get("title"),
-                "slug": project.get("id"),
                 "description": group.get("description"),
             },
         )
+        if created:
+            d.slug = slug
+            d.save()
+
         p.departments.add(d)
 
     p.save()

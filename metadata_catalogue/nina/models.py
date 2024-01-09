@@ -6,6 +6,12 @@ from metadata_catalogue.projects.models import BaseProject
 
 
 class Project(BaseProject):
+    organization_ptr = models.OneToOneField(
+        "organizations.Organization",
+        on_delete=models.CASCADE,
+        parent_link=True,
+        primary_key=True,
+    )
     extid = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
@@ -47,6 +53,12 @@ class Category(models.Model):
 
 
 class Department(Organization):
+    organization_ptr = models.OneToOneField(
+        "organizations.Organization",
+        on_delete=models.CASCADE,
+        parent_link=True,
+        primary_key=True,
+    )
     extid = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
