@@ -94,6 +94,7 @@ THIRD_PARTY_APPS = [
     "rules.apps.AutodiscoverRulesConfig",
     "organizations",
     "taggit",
+    "django_filters",
 ]
 
 LOCAL_APPS = [
