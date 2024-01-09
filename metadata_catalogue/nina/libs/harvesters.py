@@ -47,7 +47,7 @@ def _process_project(project: dict):
     p.customer, _ = Organization.objects.get_or_create(name=project.get("customer"))
 
     for group in project.get("groups"):
-        p.department_group, _ = Department.objects.get_or_create(
+        d, _ = Department.objects.get_or_create(
             extid=group.get("id"),
             defaults={
                 "name": group.get("title"),
@@ -55,8 +55,7 @@ def _process_project(project: dict):
                 "description": group.get("description"),
             },
         )
-        # We expect only one department for project
-        break
+        p.departments.add(d)
 
     p.save()
 

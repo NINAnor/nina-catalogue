@@ -14,9 +14,7 @@ class Project(BaseProject):
     status = models.CharField(max_length=50, null=True, blank=True)
     category = models.ForeignKey("nina.Category", null=True, blank=True, on_delete=models.SET_NULL)
     topics = models.ManyToManyField("nina.Topic", blank=True)
-    department_group = models.ForeignKey(
-        "nina.Department", null=True, blank=True, on_delete=models.SET_NULL, related_name="projects"
-    )
+    departments = models.ManyToManyField("nina.Department", blank=True, related_name="projects")
     customer = models.ForeignKey("datasets.Organization", blank=True, on_delete=models.SET_NULL, null=True)
 
     tags = TaggableManager()
