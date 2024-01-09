@@ -33,6 +33,7 @@ def _process_project(project: dict):
     p, _ = Project.objects.update_or_create(
         extid=project.get("id"),
         defaults={
+            "slug": project.get("id"),
             "name": project.get("title"),
             "description": project.get("notes"),
             "status": project.get("project_state"),
@@ -50,6 +51,7 @@ def _process_project(project: dict):
             extid=group.get("id"),
             defaults={
                 "name": group.get("title"),
+                "slug": project.get("id"),
                 "description": group.get("description"),
             },
         )
