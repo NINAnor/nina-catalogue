@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <h2>{{ object.name }}</h2>
+  <div>
+    {% crispy form %}
+    <div>
+      <a class="btn btn-secondary"
+         href="{% url 'projects-detail' pk=object.pk %}">Back</a>
+    </div>
+  </div>
+{% endblock content %}

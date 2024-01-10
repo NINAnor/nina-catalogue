@@ -1,0 +1,16 @@
+{% extends 'projects/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <h2>{{ object.name }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Confirm</button>
+  </form>
+  <ul>
+    <li>
+      <a href="{% url 'projects-detail' slug=object.slug %}">Back</a>
+    </li>
+  </ul>
+{% endblock content %}

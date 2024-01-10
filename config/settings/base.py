@@ -92,6 +92,8 @@ THIRD_PARTY_APPS = [
     "treebeard",
     "corsheaders",
     "rules.apps.AutodiscoverRulesConfig",
+    "taggit",
+    "django_filters",
 ]
 
 LOCAL_APPS = [
@@ -101,6 +103,8 @@ LOCAL_APPS = [
     "metadata_catalogue.datasets.csw",
     "metadata_catalogue.datasets.geoapi",
     "metadata_catalogue.maps",
+    "metadata_catalogue.projects",
+    "metadata_catalogue.nina",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -345,3 +349,7 @@ GEOAPI_SETTINGS_CACHE_ENABLED = env.bool("GEOAPI_SETTINGS_CACHE_ENABLED", defaul
 
 CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_CREDENTIALS = True
+
+
+PROJECTS_PROJECT_MODEL = "nina.Project"
+PROJECTS_PROJECTMEMBERSHIP_MODEL = "nina.ProjectMembership"

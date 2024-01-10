@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ object.name }}</h2>
+  <p>{{ object.description|default_if_none:"No description" }}</p>
+  <div class="d-flex">
+    <a class="btn btn-secondary mx-1" href="{% url 'departments-list' %}">Back</a>
+  </div>
+{% endblock content %}
