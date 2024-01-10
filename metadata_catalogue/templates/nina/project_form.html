@@ -5,14 +5,10 @@
 {% block content %}
   <h2>{{ object.name }}</h2>
   <div>
-    <form method="post">
-      {{ form|crispy }}
-      {% csrf_token %}
-      <div>
-        <button class="btn btn-primary" type="submit">Edit</button>
-        <a class="btn btn-secondary"
-           href="{% url 'projects-detail' pk=object.pk %}">Back</a>
-      </div>
-    </form>
+    {% crispy form %}
+    <div>
+      <a class="btn btn-secondary"
+         href="{% url 'projects-detail' pk=object.pk %}">Back</a>
+    </div>
   </div>
 {% endblock content %}

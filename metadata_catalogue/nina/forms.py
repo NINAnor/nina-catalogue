@@ -16,3 +16,20 @@ class ProjectSearchForm(forms.ModelForm):
         self.helper.form_method = "get"
 
         self.helper.add_input(Submit("submit", "Search"))
+
+
+class ProjectEditForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = [
+            "description",
+            "tags",
+            "topics",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+
+        self.helper.add_input(Submit("submit", "Edit"))

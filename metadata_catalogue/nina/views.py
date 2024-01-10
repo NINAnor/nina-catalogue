@@ -7,6 +7,7 @@ from rules.contrib.views import PermissionRequiredMixin
 from metadata_catalogue.projects import views
 
 from .filters import ProjectFilter
+from .forms import ProjectEditForm
 from .models import Department, Project
 
 
@@ -17,7 +18,7 @@ class ProjectListView(FilterView):
 
 
 class ProjectUpdateView(PermissionRequiredMixin, UpdateView):
-    fields = ["description", "tags", "topics"]
+    form_class = ProjectEditForm
     model = Project
     permission_required = "nina.project_edit"
 
