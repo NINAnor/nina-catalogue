@@ -92,7 +92,6 @@ THIRD_PARTY_APPS = [
     "treebeard",
     "corsheaders",
     "rules.apps.AutodiscoverRulesConfig",
-    "organizations",
     "taggit",
     "django_filters",
 ]
@@ -353,3 +352,4 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 PROJECTS_PROJECT_MODEL = "nina.Project"
+PROJECTS_PROJECTMEMBERSHIP_MODEL = "nina.ProjectMembership"

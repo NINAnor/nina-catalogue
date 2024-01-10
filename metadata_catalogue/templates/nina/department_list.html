@@ -7,7 +7,7 @@
       {% for project in object_list %}
         <li class="list-group-item">
           <h5>
-            <a href="{% url 'departments-detail' slug=project.slug %}">{{ project.name }}</a>
+            <a href="{% url 'departments-detail' pk=project.id %}">{{ project.name }}</a>
           </h5>
           <p>{{ project.description|default_if_none:'No description' }}</p>
         </li>

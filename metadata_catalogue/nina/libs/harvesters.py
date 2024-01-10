@@ -34,16 +34,13 @@ def _fetch_paginated_project(url: str, limit=50):
 
 def _process_project(project: dict):
     p, created = Project.objects.get_or_create(
-        extid=project.get("id"),
+        id=project.get("id"),
         defaults={
-            "extid": project.get("id"),
             "name": project.get("title"),
             "description": project.get("notes"),
+            "slug": f'prj-{project.get("id")}',
         },
     )
-    if created:
-        slug = f'prj-{project.get("id")}'
-        p.slug = slug
 
     p.status = project.get("project_state")
     p.budget = project.get("budget")
@@ -54,17 +51,14 @@ def _process_project(project: dict):
     p.customer, _ = Organization.objects.get_or_create(name=project.get("customer"))
 
     for group in project.get("groups"):
-        slug = f'dpt-{project.get("id")}'
         d, created = Department.objects.get_or_create(
-            extid=group.get("id"),
+            id=group.get("id"),
             defaults={
                 "name": group.get("title"),
                 "description": group.get("description"),
+                "slug": f'dpt-{project.get("id")}',
             },
         )
-        if created:
-            d.slug = slug
-            d.save()
 
         p.departments.add(d)
 
@@ -76,7 +70,7 @@ def _process_project(project: dict):
             u.set_unusable_password()
             u.save()
 
-        p.get_or_add_user(u)
+        p.members.add(u)
 
 
 def prosjektoversikt(url: str, limit=50):

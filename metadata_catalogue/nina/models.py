@@ -1,18 +1,14 @@
 from django.db import models
-from organizations.models import Organization
+from django_extensions.db.fields import AutoSlugField
 from taggit.managers import TaggableManager
 
-from metadata_catalogue.projects.models import BaseProject
+from metadata_catalogue.projects.models import BaseProject, BaseProjectMembership
+
+from .conf import settings
 
 
 class Project(BaseProject):
-    organization_ptr = models.OneToOneField(
-        "organizations.Organization",
-        on_delete=models.CASCADE,
-        parent_link=True,
-        primary_key=True,
-    )
-    extid = models.CharField(max_length=100)
+    id = models.CharField(max_length=50, primary_key=True)
     description = models.TextField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
@@ -25,11 +21,12 @@ class Project(BaseProject):
 
     tags = TaggableManager()
 
-    class Meta:
-        constraints = [models.UniqueConstraint("extid", name="unique project code")]
-
     def __str__(self) -> str:
         return self.name
+
+
+class ProjectMembership(BaseProjectMembership):
+    pass
 
 
 class Topic(models.Model):
@@ -52,18 +49,19 @@ class Category(models.Model):
         return self.name
 
 
-class Department(Organization):
-    organization_ptr = models.OneToOneField(
-        "organizations.Organization",
-        on_delete=models.CASCADE,
-        parent_link=True,
-        primary_key=True,
-    )
-    extid = models.CharField(max_length=100)
+class Department(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=250)
+    slug = AutoSlugField(populate_from=["name"])
     description = models.TextField(blank=True, null=True)
-
-    class Meta:
-        constraints = [models.UniqueConstraint("extid", name="unique departemt extid")]
+    members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, through="nina.DepartmentMembership", related_name="members"
+    )
 
     def __str__(self) -> str:
         return self.name
+
+
+class DepartmentMembership(models.Model):
+    department = models.ForeignKey("nina.Department", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
