@@ -1,7 +1,8 @@
 from typing import Any
 
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, UpdateView
 from django_filters.views import FilterView
+from rules.contrib.views import PermissionRequiredMixin
 
 from metadata_catalogue.projects import views
 
@@ -15,8 +16,10 @@ class ProjectListView(FilterView):
     filterset_class = ProjectFilter
 
 
-class ProjectUpdateView(views.ProjectUpdateView):
+class ProjectUpdateView(PermissionRequiredMixin, UpdateView):
     fields = ["description", "tags", "topics"]
+    model = Project
+    permission_required = "nina.project_edit"
 
 
 class ProjectDetailView(views.ProjectDetailView):

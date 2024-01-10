@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% load rules %}
+
+{% has_perm 'nina.edit_project' request.user object as can_edit %}
 {% block content %}
   <h2>{{ object.name }}</h2>
   <p>{{ object.description|default_if_none:"No description" }}</p>
@@ -43,8 +46,10 @@
     </tbody>
   </table>
   <div class="d-flex">
-    <a class="btn btn-primary mx-1"
-       href="{% url 'projects-edit' slug=object.slug %}">Edit</a>
+    {% if can_edit %}
+      <a class="btn btn-primary mx-1"
+         href="{% url 'projects-edit' pk=object.pk %}">Edit</a>
+    {% endif %}
     <a class="btn btn-secondary mx-1" href="{% url 'projects-list' %}">Back</a>
   </div>
 {% endblock content %}
