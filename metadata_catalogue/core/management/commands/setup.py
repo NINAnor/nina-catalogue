@@ -25,5 +25,17 @@ class Command(BaseCommand):
         if Language.objects.all().first() is None:
             call_command("loaddata", "languages_data.json.gz")
 
-        ServiceInfo = apps.get_model("datasets", "ServiceInfo")
-        ServiceInfo.get_solo()
+        try:
+            Topic = apps.get_model("nina", "Topic")
+            if Topic.objects.all().first() is None:
+                call_command("loaddata", "topics.json")
+        except:
+            print(traceback.format_exc())
+            print("Topics not loaded")
+
+        try:
+            ServiceInfo = apps.get_model("datasets", "ServiceInfo")
+            ServiceInfo.get_solo()
+        except:
+            print(traceback.format_exc())
+            print("Service info not created")
