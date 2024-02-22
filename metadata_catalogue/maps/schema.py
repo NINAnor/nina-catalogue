@@ -59,6 +59,8 @@ class LayerGroup(Schema):
     name: str
     download: str | None = None
     children: list["LayerGroup"] | None = None
+    link: str | None = None
+    description: str | None = None
 
 
 class MapMetadata(Schema):
@@ -67,6 +69,7 @@ class MapMetadata(Schema):
     subtitle: str | None = None
     description: str | None = None
     layers: list[LayerGroup] | None = None
+    logo: str | None = None
 
 
 class StatusMessage(Schema):

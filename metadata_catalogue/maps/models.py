@@ -15,6 +15,10 @@ def layers_folder(instance, filename):
     return f"maps/sources/{instance.id}/{filename}"
 
 
+def logo_folder(instance, filename):
+    return f"maps/logo/{instance.slug}/{filename}"
+
+
 def empty_json():
     return {}
 
@@ -104,6 +108,8 @@ class Layer(models.Model):
     )
     group_order = models.IntegerField(default=0)
     downloadable = models.BooleanField(default=False)
+    description = models.TextField(blank=True, null=True)
+    link = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.slug} @ {self.map}"
@@ -149,6 +155,7 @@ class Map(models.Model):
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
     visibility = models.CharField(default=Visibility.PRIVATE, max_length=10, choices=Visibility.choices)
+    logo = models.ImageField(blank=True, null=True, upload_to=logo_folder)
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -174,6 +181,7 @@ class Map(models.Model):
             "style": style_url,
             "subtitle": self.subtitle,
             "title": self.title,
+            "logo": request.build_absolute_uri(self.logo.url) if self.logo else None,
             "description": self.description,
             "layers": layers,
         }
@@ -220,6 +228,8 @@ class LayerGroup(MP_Node):
     order = models.IntegerField(default=0, blank=True)
     map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, null=True, blank=True, related_name="groups")
     download_url = models.URLField(null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
+    link = models.URLField(null=True, blank=True)
 
     node_order_by = ["order", "name"]
 
@@ -227,7 +237,14 @@ class LayerGroup(MP_Node):
         return f"{self.name} @ {self.map}"
 
     def as_layer_tree(self, request):
-        current_group = {"id": f"group-{self.id}", "name": self.name, "children": [], "download": self.download_url}
+        current_group = {
+            "id": f"group-{self.id}",
+            "name": self.name,
+            "children": [],
+            "download": self.download_url,
+            "link": self.link,
+            "description": self.description,
+        }
         for sub_group in self.get_children():
             current_group["children"].append(sub_group.as_layer_tree())
 
@@ -237,6 +254,8 @@ class LayerGroup(MP_Node):
                     "id": layer.slug,
                     "name": str(layer.name),
                     "download": layer.get_download_url(request),
+                    "link": layer.link,
+                    "description": layer.description,
                 }
             )
 
