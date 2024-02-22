@@ -246,7 +246,7 @@ class LayerGroup(MP_Node):
             "description": self.description,
         }
         for sub_group in self.get_children():
-            current_group["children"].append(sub_group.as_layer_tree())
+            current_group["children"].append(sub_group.as_layer_tree(request))
 
         for layer in self.layers.select_related("source").order_by("group_order", "source__name"):
             current_group["children"].append(
