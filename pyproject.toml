@@ -182,7 +182,10 @@ readme = "README.md"
 license = {text = "GPLv3"}
 
 [project.optional-dependencies]
-prod = ["gunicorn"]
+prod = [
+    "gunicorn",
+    "sentry-sdk>=1.40.5",
+]
 docs = [
     "sphinx>=7.2.6",
     "sphinx-autobuild>=2021.3.14",

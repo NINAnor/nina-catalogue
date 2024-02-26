@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "dev", "docs"]
+groups = ["default", "dev", "docs", "prod"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:4f9a5eddc268b2693257d6b8fdf8d4f78708879b0dccad3ac27c5ef886d07dfb"
+content_hash = "sha256:ab01f9d188205f2ad53e9de33cbf3aa93e49377f63d6874c230def48be80f43d"
 
 [[package]]
 name = "affine"
@@ -2795,6 +2795,19 @@ summary = "Awesome Django authorization, without the database"
 files = [
     {file = "rules-3.3-py2.py3-none-any.whl", hash = "sha256:12c8bbab5f54560e68528fcca7abc0e162c35ac882e3cc0daed40ac49c963070"},
     {file = "rules-3.3.tar.gz", hash = "sha256:bf7bea8b724b73c36a622714c1b3557620c187a2ee05321a2ac8ab7472dc4464"},
+]
+
+[[package]]
+name = "sentry-sdk"
+version = "1.40.5"
+summary = "Python client for Sentry (https://sentry.io)"
+dependencies = [
+    "certifi",
+    "urllib3>=1.26.11; python_version >= \"3.6\"",
+]
+files = [
+    {file = "sentry-sdk-1.40.5.tar.gz", hash = "sha256:d2dca2392cc5c9a2cc9bb874dd7978ebb759682fe4fe889ee7e970ee8dd1c61e"},
+    {file = "sentry_sdk-1.40.5-py2.py3-none-any.whl", hash = "sha256:d188b407c9bacbe2a50a824e1f8fb99ee1aeb309133310488c570cb6d7056643"},
 ]
 
 [[package]]
