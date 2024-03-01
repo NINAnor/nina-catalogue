@@ -110,6 +110,8 @@ class Layer(models.Model):
     downloadable = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)
     link = models.URLField(null=True, blank=True)
+    legend = models.JSONField(null=True, blank=True)
+    is_basemap = models.BooleanField(default=False, verbose_name="Is basemap")
 
     def __str__(self):
         return f"{self.slug} @ {self.map}"
@@ -170,12 +172,45 @@ class Map(models.Model):
 
     def get_metadata(self, request):
         layers = []
+        lazy_layers = {}
         for root in self.groups.order_by("order").all():
             layers.append(root.as_layer_tree(request))
 
         style_url = request.build_absolute_uri(
             reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
         )
+
+        for layer in self.layers.filter(is_basemap=False).order_by("map_order"):
+            source = layer.source.get_real_instance() if layer.source else None
+
+            lazy_layers[layer.slug] = {
+                "id": layer.slug,
+                "type": source.type,
+                "metadata": {
+                    "legend": layer.legend,
+                    "name": layer.name,
+                    "description": layer.description,
+                },
+            }
+
+            if source and source.type:
+                lazy_layers[layer.slug]["source"] = {
+                    "type": source.type,
+                    "url": source.get_source_url(request),
+                }
+            if source.attribution is not None:
+                lazy_layers[layer.slug]["attribution"] = source.attribution
+
+            if source and source.type and source.type == "vector" and layer.source_layer:
+                lazy_layers[layer.slug]["source-layer"] = layer.source_layer
+
+            for k, v in source.style.items():
+                if v is not None:
+                    lazy_layers[layer.slug][k] = v
+
+            for k, v in layer.style.items():
+                if v is not None:
+                    lazy_layers[layer.slug][k] = v
 
         return {
             "style": style_url,
@@ -184,13 +219,14 @@ class Map(models.Model):
             "logo": request.build_absolute_uri(self.logo.url) if self.logo else None,
             "description": self.description,
             "layers": layers,
+            "lazy": {"layers": lazy_layers},
         }
 
     def get_style(self, request):
         sources = {}
         layers = []
 
-        for layer in self.layers.order_by("map_order"):
+        for layer in self.layers.filter(is_basemap=True).order_by("map_order"):
             source = layer.source.get_real_instance() if layer.source else None
             if source and source.type:
                 sources[source.slug] = {
@@ -205,6 +241,11 @@ class Map(models.Model):
                     "id": layer.slug,
                     "type": source.type,
                     "source": None if not source or not source.type else source.slug,
+                    "metadata": {
+                        "legend": layer.legend,
+                        "name": layer.name,
+                        "description": layer.description,
+                    },
                     "source-layer": None
                     if not source or not source.type or source.type != "vector"
                     else layer.source_layer,

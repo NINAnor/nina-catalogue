@@ -70,6 +70,7 @@ class MapMetadata(Schema):
     description: str | None = None
     layers: list[LayerGroup] | None = None
     logo: str | None = None
+    lazy: JsonValue
 
 
 class StatusMessage(Schema):
