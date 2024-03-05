@@ -51,6 +51,7 @@ class MapStyle(Schema):
     sources: dict[str, Source] | None = None
     layers: list[Layer] | None = None
     pitch: int | None = None
+    metadata: JsonValue
 
 
 # Custom

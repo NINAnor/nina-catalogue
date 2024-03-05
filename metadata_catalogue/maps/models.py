@@ -158,6 +158,7 @@ class Map(models.Model):
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
     visibility = models.CharField(default=Visibility.PRIVATE, max_length=10, choices=Visibility.choices)
     logo = models.ImageField(blank=True, null=True, upload_to=logo_folder)
+    legend_config = models.JSONField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -260,6 +261,13 @@ class Map(models.Model):
             "zoom": self.zoom,
             "layers": layers,
             "sources": sources,
+            "metadata": {
+                "legend": self.legend_config,
+                "subtitle": self.subtitle,
+                "title": self.title,
+                "logo": request.build_absolute_uri(self.logo.url) if self.logo else None,
+                "description": self.description,
+            },
             **self.extra,
         }
 
