@@ -160,6 +160,7 @@ class Map(models.Model):
     logo = models.ImageField(blank=True, null=True, upload_to=logo_folder)
     legend_config = models.JSONField(null=True, blank=True)
     basemap_config = models.JSONField(null=True, blank=True)
+    config = models.JSONField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -272,6 +273,7 @@ class Map(models.Model):
                 "basemaps": {
                     "config": self.basemap_config,
                 },
+                "config": self.config,
             },
             **self.extra,
         }
