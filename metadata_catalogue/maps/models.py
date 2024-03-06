@@ -159,6 +159,7 @@ class Map(models.Model):
     visibility = models.CharField(default=Visibility.PRIVATE, max_length=10, choices=Visibility.choices)
     logo = models.ImageField(blank=True, null=True, upload_to=logo_folder)
     legend_config = models.JSONField(null=True, blank=True)
+    basemap_config = models.JSONField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -246,6 +247,7 @@ class Map(models.Model):
                         "legend": layer.legend,
                         "name": layer.name,
                         "description": layer.description,
+                        "is_basemap": True,
                     },
                     "source-layer": None
                     if not source or not source.type or source.type != "vector"
@@ -267,6 +269,9 @@ class Map(models.Model):
                 "title": self.title,
                 "logo": request.build_absolute_uri(self.logo.url) if self.logo else None,
                 "description": self.description,
+                "basemaps": {
+                    "config": self.basemap_config,
+                },
             },
             **self.extra,
         }
