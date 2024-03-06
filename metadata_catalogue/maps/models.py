@@ -112,6 +112,8 @@ class Layer(models.Model):
     link = models.URLField(null=True, blank=True)
     legend = models.JSONField(null=True, blank=True)
     is_basemap = models.BooleanField(default=False, verbose_name="Is basemap")
+    is_lazy = models.BooleanField(default=True, verbose_name="Is lazy")
+    hidden = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.slug} @ {self.map}"
@@ -183,7 +185,7 @@ class Map(models.Model):
             reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
         )
 
-        for layer in self.layers.filter(is_basemap=False).order_by("map_order"):
+        for layer in self.layers.filter(is_basemap=False, is_lazy=True).order_by("map_order"):
             source = layer.source.get_real_instance() if layer.source else None
 
             lazy_layers[layer.slug] = {
@@ -229,7 +231,7 @@ class Map(models.Model):
         sources = {}
         layers = []
 
-        for layer in self.layers.filter(is_basemap=True).order_by("map_order"):
+        for layer in self.layers.filter(models.Q(is_basemap=True) | models.Q(is_lazy=False)).order_by("map_order"):
             source = layer.source.get_real_instance() if layer.source else None
             if source and source.type:
                 sources[source.slug] = {
@@ -248,11 +250,14 @@ class Map(models.Model):
                         "legend": layer.legend,
                         "name": layer.name,
                         "description": layer.description,
-                        "is_basemap": True,
+                        "is_basemap": layer.is_basemap,
                     },
                     "source-layer": None
                     if not source or not source.type or source.type != "vector"
                     else layer.source_layer,
+                    "layout": {
+                        "visibility": "none" if layer.hidden else "visible",
+                    },
                     **source.style,
                     **layer.style,
                 }
