@@ -142,3 +142,10 @@ class LayerSchema(ModelSchema):
     class Meta:
         model = models.Layer
         fields = "__all__"
+
+
+class CreateLayerSchema(Schema):
+    map_id: int
+    source_id: int
+    name: str
+    slug: str

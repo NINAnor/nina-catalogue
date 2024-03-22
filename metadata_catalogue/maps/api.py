@@ -187,8 +187,8 @@ def get_layer_list(request):
 
 @maps_router.get(
     "/layers/{layer_slug}/",
-    response={200: schema.RasterSourceSchema, codes_4xx: schema.StatusMessage},
-    url_name="sources_raster_detail",
+    response={200: schema.LayerSchema, codes_4xx: schema.StatusMessage},
+    url_name="layers_detail",
     auth=auth,
 )
 def get_layer_detail(request, layer_slug: str):
@@ -200,9 +200,9 @@ def get_layer_detail(request, layer_slug: str):
 
 @maps_router.post(
     "/layers/",
-    response={201: schema.RasterSourceSchema, codes_4xx: schema.StatusMessage},
+    response={201: schema.LayerSchema, codes_4xx: schema.StatusMessage},
     url_name="layers_create",
     auth=auth,
 )
-def create_layer(request, data: schema.LayerSchema):
+def create_layer(request, data: schema.CreateLayerSchema):
     return 201, models.Layer.objects.create(**data.dict())
