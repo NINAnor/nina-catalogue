@@ -3,8 +3,10 @@ from typing import Dict, List, Optional
 
 from django.conf import settings
 from django.urls import reverse
-from ninja import Schema
+from ninja import ModelSchema, Schema
 from pydantic import Field, JsonValue
+
+from . import models
 
 
 # Maplibre Sources - https://maplibre.org/maplibre-style-spec/sources/
@@ -81,6 +83,8 @@ class StatusMessage(Schema):
 class PortalMaps(Schema):
     slug: str = Field(alias="map.slug")
     title: str = Field(alias="map.title")
+    subtitle: str = Field(alias="map.subtitle")
+    logo: str | None
     description: str | None = Field(None, alias="map.description")
     visibility: str = Field("public", alias="map.visibility")
     extra: JsonValue
@@ -93,8 +97,48 @@ class PortalMaps(Schema):
             reverse(f"{settings.MAPS_API_PREFIX}:map_metadata", kwargs={"map_slug": obj.map.slug})
         )
 
+    @staticmethod
+    def resolve_logo(obj, context):
+        request = context.get("request")
+        return request.build_absolute_uri(obj.map.logo.url) if obj.map.logo else None
+
 
 class Portal(Schema):
     title: str
     uuid: uuid.UUID
     extra: JsonValue
+
+
+class RasterSourceSchema(ModelSchema):
+    class Meta:
+        model = models.RasterSource
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "protocol",
+            "url",
+            "attribution",
+            "style",
+            "extra",
+            "original_data",
+            "source",
+        ]
+
+
+class SourceSchema(ModelSchema):
+    class Meta:
+        model = models.Source
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "style",
+            "extra",
+        ]
+
+
+class LayerSchema(ModelSchema):
+    class Meta:
+        model = models.Layer
+        fields = "__all__"
