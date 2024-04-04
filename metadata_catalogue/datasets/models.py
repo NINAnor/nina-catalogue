@@ -397,10 +397,17 @@ class ServiceInfo(SingletonModel):
     language = models.CharField(max_length=7, null=True, blank=True)
 
 
+def empty_json():
+    return {}
+
+
 class Content(LifecycleModel):
     dataset = models.OneToOneField("datasets.Dataset", on_delete=models.CASCADE, related_name="content")
     gdal_vrt_definition = models.TextField(null=True, blank=True)
     valid = models.BooleanField(default=False)
+    pagination = models.BooleanField(default=False)
+    provider_override = models.JSONField(default=empty_json, blank=True)
+    data_override = models.JSONField(default=empty_json, blank=True)
 
     @hook(AFTER_SAVE, when_any=["gdal_vrt_definition"], has_changed=True)
     def check_is_valid(self):

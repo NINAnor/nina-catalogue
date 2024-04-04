@@ -35,10 +35,13 @@ class ResourceMapping:
                     "layer": settings.GEOAPI_DWCA_LAYER_NAME,
                     "data": {
                         "source_type": "VRT",
+                        "source_capabilities": {"paging": self.dataset.content.pagination},
                         "source": "/vsicurl/"
                         + self.base_name
                         + reverse_lazy("get-dataset-vrt", kwargs={"dataset_uuid": self.dataset.uuid}),
+                        **self.dataset.content.data_override,
                     },
+                    **self.dataset.content.provider_override,
                 }
             ],
         }
