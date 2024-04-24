@@ -1,6 +1,6 @@
 from ninja import NinjaAPI
 
-from metadata_catalogue.maps.api import maps_router
+from metadata_catalogue.maps.apis import maps_router
 
 api = NinjaAPI()
 

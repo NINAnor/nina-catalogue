@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django_lifecycle import BEFORE_CREATE, LifecycleModel, hook
 from polymorphic.models import PolymorphicModel
 from slugify import slugify
 from treebeard.mp_tree import MP_Node
@@ -149,7 +150,7 @@ class Layer(models.Model):
         ]
 
 
-class Map(models.Model):
+class Map(LifecycleModel):
     title = models.CharField(max_length=150)
     slug = models.SlugField(null=True, blank=True, max_length=150)
     subtitle = models.CharField(max_length=250, null=True, blank=True)
@@ -164,10 +165,10 @@ class Map(models.Model):
     basemap_config = models.JSONField(null=True, blank=True)
     config = models.JSONField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
+    @hook(BEFORE_CREATE)
+    def generate_slug(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -286,6 +287,7 @@ class Map(models.Model):
 
 class LayerGroup(MP_Node):
     name = models.CharField(max_length=150)
+    slug = models.SlugField(null=True, blank=True, max_length=250)
     order = models.IntegerField(default=0, blank=True)
     map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, null=True, blank=True, related_name="groups")
     download_url = models.URLField(null=True, blank=True)
@@ -293,6 +295,9 @@ class LayerGroup(MP_Node):
     link = models.URLField(null=True, blank=True)
 
     node_order_by = ["order", "name"]
+
+    class Meta:
+        constraints = [models.UniqueConstraint("slug", name="group unique slug")]
 
     def __str__(self):
         return f"{self.name} @ {self.map}"

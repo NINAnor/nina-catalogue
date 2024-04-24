@@ -169,6 +169,8 @@ dependencies = [
     "django-appconf>=1.0.6",
     "django-cors-headers>=4.3.1",
     "rules>=3.3",
+    "django-rest-framework>=0.1.0",
+    "drf-spectacular>=0.27.2",
 ]
 requires-python = ">=3.10"
 name = ""
