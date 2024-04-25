@@ -172,9 +172,5 @@ services:
       context: ./nginx
     volumes:
       - ./media:/media_files
-
-  varnish:
-    build:
-      context: ./varnish
     ports:
       - 8000:80
