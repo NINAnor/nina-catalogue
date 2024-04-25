@@ -365,3 +365,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 50,
 }
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "NINA Catalogue",
+    "DESCRIPTION": "APIs for the NINA catalogue and NINA maps",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
