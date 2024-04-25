@@ -14,7 +14,7 @@ from .libs.iso.mapping import ISOMapping
 from .managers import DatasetManager
 
 
-class Dataset(models.Model):
+class Dataset(LifecycleModel):
     class FetchType(models.IntegerChoices):
         DARWINCORE = 1, "DarwinCore Archive"
 
@@ -67,6 +67,11 @@ class Dataset(models.Model):
             logger_fn(message)
 
         self.save()
+
+    @hook(AFTER_CREATE)
+    def create_metadata_content(self):
+        Metadata.objects.create(dataset=self)
+        Content.objects.create(dataset=self)
 
     def get_metadata(self):
         if hasattr(self, "metadata"):

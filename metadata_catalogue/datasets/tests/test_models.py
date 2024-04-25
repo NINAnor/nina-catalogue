@@ -9,14 +9,10 @@ pytestmark = pytest.mark.django_db(transaction=True)
 
 
 class TestDatasetModel:
-    def test_dataset_related_object_access_raise_exception(self):
+    def test_dataset_related_object_access_no_raise_exception(self):
         d = Dataset.objects.create(name="test")
-
-        with pytest.raises(Dataset.metadata.RelatedObjectDoesNotExist):
-            d.metadata
-
-        with pytest.raises(Dataset.content.RelatedObjectDoesNotExist):
-            d.content
+        d.metadata
+        d.content
 
     def test_dataset_no_raise_exception(self):
         d = Dataset.objects.create(name="test")

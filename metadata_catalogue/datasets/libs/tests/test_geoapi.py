@@ -59,6 +59,7 @@ class TestPyGeoAPIResourceMapping:
                     "layer": "data",
                     "data": {
                         "source_type": "VRT",
+                        "source_capabilities": {"paging": False},
                         "source": "/vsicurl/"
                         + "http://testserver"
                         + reverse_lazy("get-dataset-vrt", kwargs={"dataset_uuid": self.dataset.uuid}),
