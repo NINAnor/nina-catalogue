@@ -30,6 +30,7 @@ class Source(PolymorphicModel):
     extra = models.JSONField(default=empty_json, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     style = models.JSONField(default=empty_json, blank=True)
+    metadata = models.JSONField(default=empty_json, blank=True)
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -115,6 +116,7 @@ class Layer(models.Model):
     is_basemap = models.BooleanField(default=False, verbose_name="Is basemap")
     is_lazy = models.BooleanField(default=True, verbose_name="Is lazy")
     hidden = models.BooleanField(default=True)
+    metadata = models.JSONField(default=empty_json, blank=True)
 
     def __str__(self):
         return f"{self.slug} @ {self.map}"

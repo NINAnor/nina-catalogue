@@ -68,6 +68,9 @@ class LayerViewSet(viewsets.ModelViewSet):
     serializer_class = LayerSerializer
     lookup_field = "slug"
 
+    def get_queryset(self):
+        return Layer.objects.select_related("map").filter(map__slug=self.kwargs["map_slug"])
+
 
 class LayerGroupViewSet(viewsets.ModelViewSet):
     queryset = LayerGroup.objects.all()
