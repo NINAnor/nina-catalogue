@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
 
 from ..models import Layer, LayerGroup, Map, RasterSource, VectorSource
 from .serializers import (
@@ -29,16 +30,16 @@ UPLOAD_REQUEST_SCHEMA = {
 
 
 class UploadableMixin:
-    @action(detail=True, methods=["post"], parser_classes=(MultiPartParser,), serializer_class=FileUploadSerializer)
-    def upload(self, request):
+    @action(detail=True, methods=["post"], parser_classes=(MultiPartParser,))
+    def upload(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(data=request.data)
+        serializer = FileUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = request.FILES.get("file")
         field = serializer.validated_data.get("field")
         setattr(instance, field, file)
         instance.save()
-        return instance
+        return Response(self.get_serializer_class()(instance).data)
 
 
 class RasterSourceViewSet(UploadableMixin, viewsets.ModelViewSet):
@@ -47,9 +48,9 @@ class RasterSourceViewSet(UploadableMixin, viewsets.ModelViewSet):
     serializer_class = RasterSourceSerializer
 
     @extend_schema(request=UPLOAD_REQUEST_SCHEMA, responses={"200": RasterSourceSerializer})
-    @action(detail=True, methods=["post"], parser_classes=(MultiPartParser,), serializer_class=FileUploadSerializer)
-    def upload(self, request):
-        return super().upload(request)
+    @action(detail=True, methods=["post"], parser_classes=(MultiPartParser,))
+    def upload(self, request, *args, **kwargs):
+        return super().upload(request, *args, **kwargs)
 
 
 class VectorSourceViewSet(UploadableMixin, viewsets.ModelViewSet):
@@ -58,9 +59,9 @@ class VectorSourceViewSet(UploadableMixin, viewsets.ModelViewSet):
     lookup_field = "slug"
 
     @extend_schema(request=UPLOAD_REQUEST_SCHEMA, responses={"200": RasterSourceSerializer})
-    @action(detail=True, methods=["post"], parser_classes=(MultiPartParser,), serializer_class=FileUploadSerializer)
-    def upload(self, request):
-        return super().upload(request)
+    @action(detail=True, methods=["post"], parser_classes=(MultiPartParser,))
+    def upload(self, request, *args, **kwargs):
+        return super().upload(request, *args, **kwargs)
 
 
 class LayerViewSet(viewsets.ModelViewSet):
