@@ -77,6 +77,7 @@ class LayerSerializer(serializers.ModelSerializer):
             "slug",
             "map",
             "source",
+            "source_layer",
             "style",
             "group",
             "group_order",
