@@ -31,6 +31,7 @@ class Source(PolymorphicModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     style = models.JSONField(default=empty_json, blank=True)
     metadata = models.JSONField(default=empty_json, blank=True)
+    attribution = models.CharField(null=True, blank=True, max_length=250)
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -62,7 +63,6 @@ class RasterSource(Source):
     original_data = models.FileField(upload_to=layers_folder, null=True, blank=True)
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
-    attribution = models.CharField(null=True, blank=True, max_length=250)
 
     def get_download_url(self, request):
         return request.build_absolute_uri(self.original_data.url) if self.original_data else self.url
@@ -81,7 +81,6 @@ class VectorSource(Source):
     original_data = models.FileField(upload_to=layers_folder, null=True, blank=True)
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
-    attribution = models.CharField(null=True, blank=True, max_length=250)
 
     default_layer = models.CharField(null=True, blank=True)
 
