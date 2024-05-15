@@ -4,13 +4,14 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from ..models import Layer, LayerGroup, Map, RasterSource, VectorSource
+from ..models import Layer, LayerGroup, Map, RasterSource, Source, VectorSource
 from .serializers import (
     FileUploadSerializer,
     LayerGroupSerializer,
     LayerSerializer,
     MapSerializer,
     RasterSourceSerializer,
+    SourceSerializer,
     VectorSourceSerializer,
 )
 
@@ -27,6 +28,12 @@ UPLOAD_REQUEST_SCHEMA = {
         "properties": {"field": {"type": "string"}, "file": {"type": "string", "format": "binary"}},
     }
 }
+
+
+class SourceViewSet(viewsets.ModelViewSet):
+    queryset = Source.objects.all()
+    lookup_field = "slug"
+    serializer_class = SourceSerializer
 
 
 class UploadableMixin:

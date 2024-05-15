@@ -6,6 +6,7 @@ from metadata_catalogue.maps.api import views
 
 router = routers.DefaultRouter()
 router.register(r"maps", views.MapViewSet, basename="maps")
+router.register(r"sources", views.SourceViewSet, basename="sources")
 router.register(r"raster-sources", views.RasterSourceViewSet, basename="raster-sources")
 router.register(r"vector-sources", views.VectorSourceViewSet, basename="vector-sources")
 router.register(r"layer-groups", views.LayerGroupViewSet, basename="layer-groups")

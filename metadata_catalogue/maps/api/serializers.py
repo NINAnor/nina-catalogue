@@ -25,6 +25,19 @@ class MapSerializer(serializers.ModelSerializer):
         ]
 
 
+class SourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Source
+        fields = [
+            "name",
+            "slug",
+            "extra",
+            "style",
+            "attribution",
+            "metadata",
+        ]
+
+
 class RasterSourceBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = RasterSource
