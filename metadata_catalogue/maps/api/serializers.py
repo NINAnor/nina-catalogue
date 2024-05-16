@@ -106,8 +106,10 @@ class LayerSerializer(serializers.ModelSerializer):
 
 
 class LayerGroupSerializer(serializers.ModelSerializer):
-    map = serializers.SlugRelatedField(slug_field="slug", queryset=Map.objects.all(), allow_null=True)
-    parent = serializers.SlugRelatedField(slug_field="slug", queryset=LayerGroup.objects.all(), allow_null=True)
+    map = serializers.SlugRelatedField(slug_field="slug", queryset=Map.objects.all(), allow_null=True, required=False)
+    parent = serializers.SlugRelatedField(
+        slug_field="slug", queryset=LayerGroup.objects.all(), allow_null=True, required=False
+    )
 
     class Meta:
         model = LayerGroup
