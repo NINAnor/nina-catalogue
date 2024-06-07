@@ -123,7 +123,8 @@ class Layer(models.Model):
 
     def get_download_url(self, request):
         if self.source and self.downloadable:
-            return self.source.get_download_url(request)
+            s = self.source.get_real_instance()
+            return s.get_download_url(request)
         return None
 
     def save(self, *args, **kwargs):
@@ -207,6 +208,9 @@ class Map(LifecycleModel):
                 if source.type:
                     s["url"] = source.get_source_url(request)
                     s["type"] = source.type
+
+                    if layer.downloadable:
+                        lazy_layers[layer.slug]["metadata"]["download"] = source.get_download_url(request)
 
                 if source.extra and len(source.extra):
                     lazy_layers[layer.slug]["source"] = {**s, **source.extra}
