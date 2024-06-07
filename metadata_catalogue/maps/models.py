@@ -201,11 +201,16 @@ class Map(LifecycleModel):
                 },
             }
 
-            if source and source.type:
-                lazy_layers[layer.slug]["source"] = {
-                    "type": source.type,
-                    "url": source.get_source_url(request),
-                }
+            if source:
+                lazy_layers[layer.slug]["source"] = {}
+                s = lazy_layers[layer.slug]["source"]
+                if source.type:
+                    s["url"] = source.get_source_url(request)
+                    s["type"] = source.type
+
+                if source.extra and len(source.extra):
+                    lazy_layers[layer.slug]["source"] = {**s, **source.extra}
+
             if source.attribution is not None:
                 lazy_layers[layer.slug]["attribution"] = source.attribution
 
