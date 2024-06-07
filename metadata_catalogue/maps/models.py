@@ -10,6 +10,7 @@ from treebeard.mp_tree import MP_Node
 
 from .conf import settings
 from .enums import Visibility
+from .storage import OverwriteStorage
 
 
 def layers_folder(instance, filename):
@@ -59,8 +60,8 @@ class Source(PolymorphicModel):
 
 
 class RasterSource(Source):
-    source = models.FileField(upload_to=layers_folder, null=True, blank=True)
-    original_data = models.FileField(upload_to=layers_folder, null=True, blank=True)
+    source = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
+    original_data = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
 
@@ -77,8 +78,8 @@ class RasterSource(Source):
 
 
 class VectorSource(Source):
-    source = models.FileField(upload_to=layers_folder, null=True, blank=True)
-    original_data = models.FileField(upload_to=layers_folder, null=True, blank=True)
+    source = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
+    original_data = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
 
