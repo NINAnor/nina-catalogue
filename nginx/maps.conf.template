@@ -14,7 +14,7 @@ upstream maps {
 }
 
 upstream titiler {
-    server titiler:8000;
+    server titiler:8080;
     keepalive 64;
 }
 

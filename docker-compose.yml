@@ -196,9 +196,9 @@ services:
       - maps
     image: ghcr.io/ninanor/experimental-bbox-colorscale-map-titiler:master
     environment:
-      - TITILER_API_CORS_ORIGINS=http://localhost:3000,http://$HOSTNAME:3000
       - TITILER_API_CACHECONTROL=no-cache
       - FORWARDED_ALLOW_IPS=*
+      - TITILER_API_ROOT_PATH=/titiler
     ports:
       - "8989:8080"
 
