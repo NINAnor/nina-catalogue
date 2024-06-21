@@ -171,9 +171,21 @@ services:
     hostname: nginx
     profiles:
       - dev
+    build:
+      context: ./nginx
+    volumes:
+      - ./media:/media_files
+    ports:
+      - 8000:80
+
+  nginx-maps:
+    hostname: nginx
+    profiles:
       - maps
     build:
       context: ./nginx
+      args:
+        - TEMPLATE_NAME=maps
     volumes:
       - ./media:/media_files
     ports:

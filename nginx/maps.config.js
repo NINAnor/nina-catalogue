@@ -1,7 +1,6 @@
-// const BASE_URL = "http://localhost:8000
-const BASE_URL = `http://${window.location.hostname}:8000`
+const BASE_URL = window.location.origin
 
-window.API_URL = `${BASE_URL}/api/maps/`;
+window.API_URL = `/api/maps/`;
 window.PORTAL_KEY = "34005d2a-5d57-470b-98d9-9ed119a265b9"
 
 window.TRANSFORM_REQUEST = (url, resourceType) => {
