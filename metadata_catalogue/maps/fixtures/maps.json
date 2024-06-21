@@ -1,0 +1,90 @@
+[
+    {
+        "model": "maps.source",
+        "pk": 1,
+        "fields": {
+            "name": "OSM",
+            "slug": "data",
+            "extra": {
+                "tiles": [
+                    "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+                ],
+                "maxZoom": 20,
+                "tileSize": 256
+            },
+            "owner": null,
+            "style": {},
+            "metadata": {},
+            "attribution": null
+        }
+    },
+    {
+        "model": "maps.layer",
+        "pk": 1,
+        "fields": {
+            "name": "OSM",
+            "slug": "osm",
+            "map": 1,
+            "source": 1,
+            "source_layer": null,
+            "style": {
+                "type": "raster"
+            },
+            "map_order": 0,
+            "group": null,
+            "group_order": 0,
+            "downloadable": false,
+            "description": "",
+            "link": null,
+            "legend": null,
+            "is_basemap": false,
+            "is_lazy": true,
+            "hidden": true,
+            "metadata": {}
+        }
+    },
+    {
+        "model": "maps.map",
+        "pk": 1,
+        "fields": {
+            "title": "test",
+            "slug": "test",
+            "subtitle": "test",
+            "description": "test",
+            "zoom": 4,
+            "extra": {
+                "center": [
+                    17.8,
+                    65.6
+                ]
+            },
+            "owner": null,
+            "visibility": "public",
+            "logo": "",
+            "legend_config": null,
+            "basemap_config": null,
+            "config": null
+        }
+    },
+    {
+        "model": "maps.portal",
+        "pk": 1,
+        "fields": {
+            "uuid": "34005d2a-5d57-470b-98d9-9ed119a265b9",
+            "title": "Test Maps",
+            "visibility": "public",
+            "owner": null,
+            "extra": {}
+        }
+    },
+    {
+        "model": "maps.portalmap",
+        "pk": 1,
+        "fields": {
+            "map": 1,
+            "portal": 1,
+            "order": 0,
+            "extra": {}
+        }
+    }
+]

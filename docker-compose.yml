@@ -54,6 +54,7 @@ x-django-dev: &django-dev
     target: dev
   profiles:
     - dev
+    - maps
   environment:
     <<: *django-dev-env
   volumes:
@@ -170,6 +171,7 @@ services:
     hostname: nginx
     profiles:
       - dev
+      - maps
     build:
       context: ./nginx
     volumes:
@@ -178,6 +180,8 @@ services:
       - 8000:80
 
   titiler:
+    profiles:
+      - maps
     image: ghcr.io/ninanor/experimental-bbox-colorscale-map-titiler:master
     environment:
       - TITILER_API_CORS_ORIGINS=http://localhost:3000,http://$HOSTNAME:3000
@@ -185,3 +189,21 @@ services:
       - FORWARDED_ALLOW_IPS=*
     ports:
       - "8989:8080"
+
+  maps:
+    profiles:
+      - maps
+    image: ghcr.io/ninanor/nina-map-explorer:main
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx/maps.config.js:/var/www/config.js
+
+  maps-setup:
+    <<: *django-dev
+    profiles:
+      - maps
+    environment:
+      <<: *django-dev-env
+      WAIT_FOR_HTTP: http://django:8000/ht/
+    command: python manage.py test_map_setup
