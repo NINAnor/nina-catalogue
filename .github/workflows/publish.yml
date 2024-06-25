@@ -20,8 +20,9 @@ jobs:
             image: ghcr.io/ninanor/nina-catalogue-django
           - context: ./nginx
             image: ghcr.io/ninanor/nina-catalogue-nginx
-          - context: ./varnish
-            image: ghcr.io/ninanor/nina-catalogue-varnish
+          - context: ./nginx
+            args: TEMPLATE_NAME=maps
+            image: ghcr.io/ninanor/nina-catalogue-maps-proxy
           - context: ./docs
             image: ghcr.io/ninanor/nina-catalogue-docs
             target: prod
@@ -55,6 +56,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           target: ${{ matrix.target }}
+          build-args: ${{ matrix.args }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
