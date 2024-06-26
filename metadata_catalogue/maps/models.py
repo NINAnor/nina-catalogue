@@ -183,7 +183,7 @@ class Map(LifecycleModel):
         layers = []
         lazy_layers = {}
         for root in self.groups.order_by("order").all():
-            layers.append(root.as_layer_tree(request))
+            layers.append(root.as_layer_tree(request, self))
 
         style_url = request.build_absolute_uri(
             reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
@@ -313,7 +313,7 @@ class LayerGroup(MP_Node):
     def __str__(self):
         return f"{self.name} @ {self.map}"
 
-    def as_layer_tree(self, request):
+    def as_layer_tree(self, request, map_instance: Map):
         current_group = {
             "id": f"group-{self.id}",
             "name": self.name,
@@ -323,9 +323,11 @@ class LayerGroup(MP_Node):
             "description": self.description,
         }
         for sub_group in self.get_children():
-            current_group["children"].append(sub_group.as_layer_tree(request))
+            current_group["children"].append(sub_group.as_layer_tree(request, map_instance))
 
-        for layer in self.layers.select_related("source").order_by("group_order", "source__name"):
+        for layer in (
+            self.layers.filter(map=map_instance).select_related("source").order_by("group_order", "source__name")
+        ):
             current_group["children"].append(
                 {
                     "id": layer.slug,
