@@ -123,7 +123,9 @@ class LayerGroupSerializer(serializers.ModelSerializer):
             return LayerGroup.add_root(**validated_data)
 
 
-class MapMetadataSerializer(serializers.ModelSerializer):
+class MapMetadataSerializer(serializers.HyperlinkedModelSerializer):
+    style = serializers.HyperlinkedIdentityField(view_name="maps-style", lookup_field="slug")
+
     class Meta:
         model = Map
         fields = [
@@ -131,6 +133,7 @@ class MapMetadataSerializer(serializers.ModelSerializer):
             "title",
             "subtitle",
             "logo",
+            "style",
         ]
 
 

@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
+from ..libs.maplibre import map_to_style
 from ..models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 from .serializers import (
     FileUploadSerializer,
@@ -22,6 +23,12 @@ class MapViewSet(viewsets.ModelViewSet):
     queryset = Map.objects.all()
     serializer_class = MapSerializer
     lookup_field = "slug"
+
+    @action(detail=True, methods=["get"], permission_classes=[permissions.AllowAny])
+    def style(self, request, *args, **kwargs):
+        obj = self.get_object()
+        style = map_to_style(obj, request)
+        return Response(data=style.model_dump(exclude_none=True, by_alias=True))
 
 
 UPLOAD_REQUEST_SCHEMA = {
