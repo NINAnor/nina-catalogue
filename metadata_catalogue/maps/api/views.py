@@ -1,15 +1,17 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from ..models import Layer, LayerGroup, Map, RasterSource, Source, VectorSource
+from ..models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 from .serializers import (
     FileUploadSerializer,
     LayerGroupSerializer,
     LayerSerializer,
     MapSerializer,
+    PortalMapSerializer,
+    PortalSerializer,
     RasterSourceSerializer,
     SourceSerializer,
     VectorSourceSerializer,
@@ -84,3 +86,19 @@ class LayerGroupViewSet(viewsets.ModelViewSet):
     queryset = LayerGroup.objects.all()
     serializer_class = LayerGroupSerializer
     lookup_field = "slug"
+
+
+class PortalViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Portal.objects.all()
+    serializer_class = PortalSerializer
+    lookup_field = "uuid"
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return super().get_queryset()
+
+
+class PortalMapViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PortalMap.objects.all()
+    serializer_class = PortalMapSerializer
+    lookup_field = "id"

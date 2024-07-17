@@ -10,6 +10,8 @@ router.register(r"sources", views.SourceViewSet, basename="sources")
 router.register(r"raster-sources", views.RasterSourceViewSet, basename="raster-sources")
 router.register(r"vector-sources", views.VectorSourceViewSet, basename="vector-sources")
 router.register(r"layer-groups", views.LayerGroupViewSet, basename="layer-groups")
+router.register(r"portals", views.PortalViewSet, basename="portals")
+router.register(r"portal-maps", views.PortalMapViewSet, basename="portal-maps")
 
 
 maps_router = routers.NestedSimpleRouter(router, r"maps", lookup="map")

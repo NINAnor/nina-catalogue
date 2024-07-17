@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import Layer, LayerGroup, Map, RasterSource, Source, VectorSource
+from ..models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 
 
 class FileUploadSerializer(serializers.Serializer):
@@ -121,3 +121,34 @@ class LayerGroupSerializer(serializers.ModelSerializer):
             return parent.add_child(**validated_data)
         else:
             return LayerGroup.add_root(**validated_data)
+
+
+class MapMetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Map
+        fields = [
+            "slug",
+            "title",
+            "subtitle",
+            "logo",
+        ]
+
+
+class PortalMapSerializer(serializers.ModelSerializer):
+    map = MapMetadataSerializer()
+
+    class Meta:
+        model = PortalMap
+        fields = [
+            "map",
+            "order",
+            "extra",
+        ]
+
+
+class PortalSerializer(serializers.ModelSerializer):
+    maps = PortalMapSerializer(many=True)
+
+    class Meta:
+        model = Portal
+        fields = ["uuid", "title", "maps", "extra", "visibility"]
