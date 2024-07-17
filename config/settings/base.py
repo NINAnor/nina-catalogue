@@ -373,6 +373,10 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "APIs for the NINA catalogue and NINA maps",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "metadata_catalogue.maps.api.helpers.postprocessing",
+    ],
 }
 
 DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}

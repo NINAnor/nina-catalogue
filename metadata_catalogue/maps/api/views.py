@@ -1,10 +1,10 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from ..libs.maplibre import map_to_style
+from ..libs.maplibre import MapStyle, map_to_style
 from ..models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 from .serializers import (
     FileUploadSerializer,
@@ -24,6 +24,7 @@ class MapViewSet(viewsets.ModelViewSet):
     serializer_class = MapSerializer
     lookup_field = "slug"
 
+    @extend_schema(responses={"200": OpenApiResponse(response=MapStyle)})
     @action(detail=True, methods=["get"], permission_classes=[permissions.AllowAny])
     def style(self, request, *args, **kwargs):
         obj = self.get_object()
