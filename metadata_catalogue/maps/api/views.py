@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
@@ -107,6 +108,9 @@ class PortalViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PortalMapViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = PortalMap.objects.all()
+    queryset = PortalMap.objects.all().order_by("order")
     serializer_class = PortalMapSerializer
     lookup_field = "id"
+    permission_classes = [permissions.AllowAny]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("portal",)

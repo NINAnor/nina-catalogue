@@ -5,7 +5,7 @@
 groups = ["default", "dev", "docs", "production"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:c9fd77319acc86634aba27904bb18aae3312172f5e6656318b5cf692e1e44809"
+content_hash = "sha256:e24079a7c59bbc976082eaf325bf456dd9e46d3108117617ba5a9800710147cf"
 
 [[package]]
 name = "affine"
@@ -784,6 +784,19 @@ dependencies = [
 files = [
     {file = "django-extensions-3.2.3.tar.gz", hash = "sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a"},
     {file = "django_extensions-3.2.3-py3-none-any.whl", hash = "sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401"},
+]
+
+[[package]]
+name = "django-filter"
+version = "24.2"
+requires_python = ">=3.8"
+summary = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
+dependencies = [
+    "Django>=4.2",
+]
+files = [
+    {file = "django-filter-24.2.tar.gz", hash = "sha256:48e5fc1da3ccd6ca0d5f9bb550973518ce977a4edde9d2a8a154a7f4f0b9f96e"},
+    {file = "django_filter-24.2-py3-none-any.whl", hash = "sha256:df2ee9857e18d38bed203c8745f62a803fa0f31688c9fe6f8e868120b1848e48"},
 ]
 
 [[package]]

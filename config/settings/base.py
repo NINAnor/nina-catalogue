@@ -96,6 +96,7 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "drf_spectacular",
     "drf_standardized_errors",
+    "django_filters",
 ]
 
 LOCAL_APPS = [

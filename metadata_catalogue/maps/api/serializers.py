@@ -150,8 +150,6 @@ class PortalMapSerializer(serializers.ModelSerializer):
 
 
 class PortalSerializer(serializers.ModelSerializer):
-    maps = PortalMapSerializer(many=True)
-
     class Meta:
         model = Portal
-        fields = ["uuid", "title", "maps", "extra", "visibility"]
+        fields = ["uuid", "title", "extra", "visibility"]
