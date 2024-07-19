@@ -121,9 +121,12 @@ class Layer(models.Model):
     def __str__(self):
         return f"{self.slug} @ {self.map}"
 
-    def get_download_url(self, request):
-        if self.source and self.downloadable:
-            s = self.source.get_real_instance()
+    def get_download_url(self, request, sources=None):
+        if self.source_id and self.downloadable:
+            if sources:
+                s = sources[self.source_id]
+            else:
+                s = self.source.get_real_instance()
             return s.get_download_url(request)
         return None
 
@@ -313,7 +316,7 @@ class LayerGroup(MP_Node):
     def __str__(self):
         return f"{self.name} @ {self.map}"
 
-    def as_layer_tree(self, request, map_instance: Map):
+    def as_layer_tree(self, request, map_instance: Map, sources=None):
         current_group = {
             "id": f"group-{self.id}",
             "name": self.name,
@@ -323,16 +326,14 @@ class LayerGroup(MP_Node):
             "description": self.description,
         }
         for sub_group in self.get_children():
-            current_group["children"].append(sub_group.as_layer_tree(request, map_instance))
+            current_group["children"].append(sub_group.as_layer_tree(request, map_instance, sources=sources))
 
-        for layer in (
-            self.layers.filter(map=map_instance).select_related("source").order_by("group_order", "source__name")
-        ):
+        for layer in self.layers.filter(map=map_instance).order_by("group_order", "name"):
             current_group["children"].append(
                 {
                     "id": layer.slug,
                     "name": str(layer.name),
-                    "download": layer.get_download_url(request),
+                    "download": layer.get_download_url(request, sources=sources),
                     "link": layer.link,
                     "description": layer.description,
                 }

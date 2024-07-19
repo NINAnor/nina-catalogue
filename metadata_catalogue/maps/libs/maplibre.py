@@ -3,7 +3,7 @@ from typing import Dict, List, Literal, Union
 from django.db.models import Q
 from pydantic import BaseModel, Field, JsonValue
 
-from metadata_catalogue.maps.models import Map
+from metadata_catalogue.maps.models import Map, Source
 
 
 def hyphenize(field: str):
@@ -152,9 +152,14 @@ def map_to_style(map: Map, request) -> MapStyle:
     onload_sources = {}
     onload_layers = []
 
+    sources = {o.pk: o for o in Source.objects.filter(layer__map=map).get_real_instances()}
+
     for layer in map.layers.order_by("map_order"):
         # extract the real instance (not the polymorphic parent)
-        source = layer.source.get_real_instance() if layer.source else None
+        if layer.source_id:
+            source = sources[layer.source_id]
+        else:
+            source = None
 
         maplibre_source = None
 
@@ -223,7 +228,7 @@ def map_to_style(map: Map, request) -> MapStyle:
         # )
 
     for root in map.groups.order_by("order").all():
-        tree.append(root.as_layer_tree(request, map))
+        tree.append(root.as_layer_tree(request, map, sources=sources))
 
     catalogue = MapCatalogue(
         basemaps_ids=basemaps_ids,
