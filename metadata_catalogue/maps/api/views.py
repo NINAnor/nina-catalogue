@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django_filters import rest_framework as filters
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, viewsets
@@ -5,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
+from ..enums import Visibility
 from ..libs.maplibre import MapStyle, map_to_style
 from ..models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 from .serializers import (
@@ -24,6 +26,21 @@ class MapViewSet(viewsets.ModelViewSet):
     queryset = Map.objects.all()
     serializer_class = MapSerializer
     lookup_field = "slug"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        if self.action != "style":
+            return qs
+
+        expression = Q()
+        if self.request.user.is_authenticated:
+            if not self.request.user.is_staff:
+                expression = Q(visibility=Visibility.PUBLIC) | Q(owner=self.request.user)
+        else:
+            expression = Q(visibility=Visibility.PUBLIC)
+
+        return qs.filter(expression).prefetch_related("groups")  # .select_related('map', 'portal')
 
     @extend_schema(responses={"200": OpenApiResponse(response=MapStyle)})
     @action(detail=True, methods=["get"], permission_classes=[permissions.AllowAny])
@@ -104,7 +121,16 @@ class PortalViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        return super().get_queryset()
+        qs = super().get_queryset()
+
+        expression = Q()
+        if self.request.user.is_authenticated:
+            if not self.request.user.is_staff:
+                expression = Q(visibility=Visibility.PUBLIC) | Q(owner=self.request.user)
+        else:
+            expression = Q(visibility=Visibility.PUBLIC)
+
+        return qs.filter(expression)
 
 
 class PortalMapViewSet(viewsets.ReadOnlyModelViewSet):
@@ -114,3 +140,17 @@ class PortalMapViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("portal",)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        expression = Q()
+        if self.request.user.is_authenticated:
+            if not self.request.user.is_staff:
+                expression = (Q(map__visibility=Visibility.PUBLIC) | Q(map__owner=self.request.user)) & (
+                    Q(map__visibility=Visibility.PUBLIC) | Q(map__owner=self.request.user)
+                )
+        else:
+            expression = Q(map__visibility=Visibility.PUBLIC) & Q(portal__visibility=Visibility.PUBLIC)
+
+        return qs.filter(expression).select_related("map", "portal")
