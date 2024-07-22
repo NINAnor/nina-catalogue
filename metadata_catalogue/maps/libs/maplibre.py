@@ -109,7 +109,7 @@ class CatalogueTreeNode(BaseModel):
 
 class MapConfig(BaseModel):
     exclusive_layers: bool = Field(default=False, description="Only one layer should be visible at a time")
-    zoom_to_extend: bool = Field(default=False, description="Enable zoom to extend button")
+    zoom_to_extent: bool = Field(default=False, description="Enable zoom to extend button")
     logo_layout: Literal["vertical"] | Literal["horizontal"] = "horizontal"
     layer_legend: bool = Field(default=True, description="Enable layer legend")
 
