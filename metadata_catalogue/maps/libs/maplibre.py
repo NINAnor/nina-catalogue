@@ -1,5 +1,6 @@
 from typing import Dict, List, Literal, Union
 
+from django.contrib.gis.db.models import Extent
 from django.db.models import Q
 from pydantic import BaseModel, Field, JsonValue
 
@@ -102,6 +103,8 @@ class CatalogueTreeNode(BaseModel):
     children: list["CatalogueTreeNode"] | None = None
     link: str | None = None
     description: str | None = None
+    is_open: bool = True
+    bbox: list[float] | None = None
 
 
 class MapConfig(BaseModel):
@@ -227,8 +230,13 @@ def map_to_style(map: Map, request) -> MapStyle:
         #     }
         # )
 
-    for root in map.groups.order_by("order").all():
-        tree.append(root.as_layer_tree(request, map, sources=sources))
+    for root in map.groups.all().order_by("order"):
+        # Precompute the extent list of all the nodes in the tree
+        extents = {
+            o["id"]: o["bbox_extent"]
+            for o in root.get_tree().annotate(bbox_extent=Extent("bbox")).values("id", "bbox_extent")
+        }
+        tree.append(root.as_layer_tree(request, map, sources=sources, extents=extents))
 
     catalogue = MapCatalogue(
         basemaps_ids=basemaps_ids,

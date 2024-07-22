@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.contrib.gis.db.models import PolygonField
 from django.db import models
 from django.urls import reverse
 from django_lifecycle import BEFORE_CREATE, LifecycleModel, hook
@@ -307,6 +308,8 @@ class LayerGroup(MP_Node):
     download_url = models.URLField(null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     link = models.URLField(null=True, blank=True)
+    bbox = PolygonField(null=True, blank=True)
+    is_open = models.BooleanField(default=True)
 
     node_order_by = ["order", "name"]
 
@@ -316,7 +319,7 @@ class LayerGroup(MP_Node):
     def __str__(self):
         return f"{self.name} @ {self.map}"
 
-    def as_layer_tree(self, request, map_instance: Map, sources=None):
+    def as_layer_tree(self, request, map_instance: Map, sources=None, extents={}):
         current_group = {
             "id": f"group-{self.id}",
             "name": self.name,
@@ -324,9 +327,13 @@ class LayerGroup(MP_Node):
             "download": self.download_url,
             "link": self.link,
             "description": self.description,
+            "is_open": self.is_open,
+            "bbox": extents[self.id] if self.id in extents else None,
         }
         for sub_group in self.get_children():
-            current_group["children"].append(sub_group.as_layer_tree(request, map_instance, sources=sources))
+            current_group["children"].append(
+                sub_group.as_layer_tree(request, map_instance, sources=sources, extents=extents)
+            )
 
         for layer in self.layers.filter(map=map_instance).order_by("group_order", "name"):
             current_group["children"].append(
