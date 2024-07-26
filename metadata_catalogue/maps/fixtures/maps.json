@@ -12,6 +12,7 @@
                 "maxZoom": 20,
                 "tileSize": 256
             },
+            "polymorphic_ctype": ["maps","source"],
             "owner": null,
             "style": {},
             "metadata": {},
