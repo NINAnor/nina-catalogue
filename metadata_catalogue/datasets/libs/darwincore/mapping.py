@@ -1,3 +1,4 @@
+import pathlib
 import re
 
 from bs4 import BeautifulSoup
@@ -8,7 +9,7 @@ from django.template.loader import render_to_string
 
 class SourceLayer:
     def __init__(self, node, base_path, extension=False) -> None:
-        self.type = node["rowType"].split("/")[-1].lower()
+        self.type = pathlib.Path(node.find("location").text).stem
 
         self.path = base_path / node.find("location").text
         if not self.path.is_file():
