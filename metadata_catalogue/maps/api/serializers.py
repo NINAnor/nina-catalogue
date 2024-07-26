@@ -155,6 +155,7 @@ class MapMetadataSerializer(serializers.HyperlinkedModelSerializer):
             "subtitle",
             "logo",
             "style",
+            "visibility",
         ]
 
 
