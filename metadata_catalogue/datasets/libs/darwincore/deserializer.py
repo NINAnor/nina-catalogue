@@ -117,7 +117,8 @@ def soup_save_as_metadata(soup, metadata):
     if intellectual_rights := dataset.find("intellectualRights"):
         name = text_or_null(intellectual_rights.find("citetitle"))
         url = intellectual_rights.find("ulink")["url"] if intellectual_rights.find("ulink") else None
-        license, _ = License.objects.get_or_create(name=name, url=url)
+        # license link has priority over license name
+        license, _ = License.objects.get_or_create(url=url, defaults={"name": name})
         metadata.license = license
 
     if maintenance := dataset.find("maintenance"):
