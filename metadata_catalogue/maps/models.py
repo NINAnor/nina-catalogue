@@ -366,10 +366,14 @@ class Portal(models.Model):
 
 
 class PortalMap(models.Model):
-    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="portals")
+    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="portals", null=True, blank=True)
     portal = models.ForeignKey("maps.Portal", on_delete=models.CASCADE, related_name="maps")
     order = models.IntegerField(default=0, blank=True)
     extra = models.JSONField(default=empty_json, blank=True)
+    external_title = models.CharField(null=True, blank=True)
+    external_subtitle = models.CharField(null=True, blank=True)
+    external_cover = models.URLField(null=True, blank=True)
+    external_link = models.URLField(null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.map} @ {self.portal}"

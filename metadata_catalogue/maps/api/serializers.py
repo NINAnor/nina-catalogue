@@ -41,7 +41,16 @@ class SourceSerializer(serializers.ModelSerializer):
 class RasterSourceBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = RasterSource
-        fields = ["name", "slug", "extra", "style", "url", "attribution", "protocol", "metadata"]
+        fields = [
+            "name",
+            "slug",
+            "extra",
+            "style",
+            "url",
+            "attribution",
+            "protocol",
+            "metadata",
+        ]
 
 
 class RasterSourceSerializer(serializers.ModelSerializer):
@@ -108,12 +117,24 @@ class LayerSerializer(serializers.ModelSerializer):
 class LayerGroupSerializer(serializers.ModelSerializer):
     map = serializers.SlugRelatedField(slug_field="slug", queryset=Map.objects.all(), allow_null=True, required=False)
     parent = serializers.SlugRelatedField(
-        slug_field="slug", queryset=LayerGroup.objects.all(), allow_null=True, required=False
+        slug_field="slug",
+        queryset=LayerGroup.objects.all(),
+        allow_null=True,
+        required=False,
     )
 
     class Meta:
         model = LayerGroup
-        fields = ["name", "order", "slug", "map", "description", "link", "download_url", "parent"]
+        fields = [
+            "name",
+            "order",
+            "slug",
+            "map",
+            "description",
+            "link",
+            "download_url",
+            "parent",
+        ]
 
     def create(self, validated_data):
         parent = validated_data.pop("parent")
@@ -146,6 +167,10 @@ class PortalMapSerializer(serializers.ModelSerializer):
             "map",
             "order",
             "extra",
+            "external_title",
+            "external_subtitle",
+            "external_cover",
+            "external_link",
         ]
 
 
