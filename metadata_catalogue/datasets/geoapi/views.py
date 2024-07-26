@@ -34,12 +34,10 @@
 # =================================================================
 
 """Integration module for Django"""
-from collections.abc import Mapping
-from typing import Dict, Optional, Tuple
 
-from django.conf import settings
+from collections.abc import Mapping
+
 from django.http import HttpRequest, HttpResponse
-from django.views.decorators.cache import cache_page
 from django.views.decorators.common import no_append_slash
 from pygeoapi.api import API
 
@@ -48,7 +46,6 @@ from .models import GeoAPIConfig
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def landing_page(request: HttpRequest) -> HttpResponse:
     """
     OGC API landing page endpoint
@@ -58,14 +55,10 @@ def landing_page(request: HttpRequest) -> HttpResponse:
     :returns: Django HTTP Response
     """
 
-    response_ = _feed_response(request, "landing_page")
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "landing_page")
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def openapi(request: HttpRequest) -> HttpResponse:
     """
     OpenAPI endpoint
@@ -75,14 +68,10 @@ def openapi(request: HttpRequest) -> HttpResponse:
     :returns: Django HTTP Response
     """
 
-    response_ = _feed_response(request, "openapi_")
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "openapi_")
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def conformance(request: HttpRequest) -> HttpResponse:
     """
     OGC API conformance endpoint
@@ -92,14 +81,10 @@ def conformance(request: HttpRequest) -> HttpResponse:
     :returns: Django HTTP Response
     """
 
-    response_ = _feed_response(request, "conformance")
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "conformance")
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collections(request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
     """
     OGC API collections endpoint
@@ -110,14 +95,10 @@ def collections(request: HttpRequest, collection_id: str | None = None) -> HttpR
     :returns: Django HTTP Response
     """
 
-    response_ = _feed_response(request, "describe_collections", collection_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "describe_collections", collection_id)
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_queryables(request: HttpRequest, collection_id: str | None = None) -> HttpResponse:
     """
     OGC API collections queryables endpoint
@@ -128,14 +109,10 @@ def collection_queryables(request: HttpRequest, collection_id: str | None = None
     :returns: Django HTTP Response
     """
 
-    response_ = _feed_response(request, "get_collection_queryables", collection_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_queryables", collection_id)
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API collections items endpoint
@@ -147,7 +124,7 @@ def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
 
     if request.method == "GET":
-        response_ = _feed_response(
+        return _feed_response(
             request,
             "get_collection_items",
             collection_id,
@@ -155,19 +132,14 @@ def collection_items(request: HttpRequest, collection_id: str) -> HttpResponse:
     elif request.method == "POST":
         if request.content_type is not None:
             if request.content_type == "application/geo+json":
-                response_ = _feed_response(request, "manage_collection_item", request, "create", collection_id)
+                return _feed_response(request, "manage_collection_item", request, "create", collection_id)
             else:
-                response_ = _feed_response(request, "post_collection_items", request, collection_id)
+                return _feed_response(request, "post_collection_items", request, collection_id)
     elif request.method == "OPTIONS":
-        response_ = _feed_response(request, "manage_collection_item", request, "options", collection_id)
-
-    response = _to_django_response(*response_)
-
-    return response
+        return _feed_response(request, "manage_collection_item", request, "options", collection_id)
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_map(request: HttpRequest, collection_id: str):
     """
     OGC API - Maps map render endpoint
@@ -177,15 +149,10 @@ def collection_map(request: HttpRequest, collection_id: str):
     :returns: HTTP response
     """
 
-    response_ = _feed_response(request, "get_collection_map", collection_id)
-
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_map", collection_id)
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_style_map(request: HttpRequest, collection_id: str, style_id: str = None):
     """
     OGC API - Maps map render endpoint
@@ -196,15 +163,10 @@ def collection_style_map(request: HttpRequest, collection_id: str, style_id: str
     :returns: HTTP response
     """
 
-    response_ = _feed_response(request, "get_collection_map", collection_id, style_id)
-
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_map", collection_id, style_id)
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> HttpResponse:
     """
     OGC API collections items endpoint
@@ -217,21 +179,23 @@ def collection_item(request: HttpRequest, collection_id: str, item_id: str) -> H
     """
 
     if request.method == "GET":
-        response_ = _feed_response(request, "get_collection_item", collection_id, item_id)
+        return _feed_response(request, "get_collection_item", collection_id, item_id)
     elif request.method == "PUT":
-        response_ = _feed_response(request, "manage_collection_item", request, "update", collection_id, item_id)
+        return _feed_response(request, "manage_collection_item", request, "update", collection_id, item_id)
     elif request.method == "DELETE":
-        response_ = _feed_response(request, "manage_collection_item", request, "delete", collection_id, item_id)
+        return _feed_response(request, "manage_collection_item", request, "delete", collection_id, item_id)
     elif request.method == "OPTIONS":
-        response_ = _feed_response(request, "manage_collection_item", request, "options", collection_id, item_id)
-
-    response = _to_django_response(*response_)
-
-    return response
+        return _feed_response(
+            request,
+            "manage_collection_item",
+            request,
+            "options",
+            collection_id,
+            item_id,
+        )
 
 
 @no_append_slash
-@cache_page(settings.GEOAPI_CACHE_TIMEOUT)
 def collection_coverage(request: HttpRequest, collection_id: str) -> HttpResponse:
     """
     OGC API - Coverages coverage endpoint
@@ -242,10 +206,7 @@ def collection_coverage(request: HttpRequest, collection_id: str) -> HttpRespons
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_collection_coverage", collection_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_coverage", collection_id)
 
 
 @no_append_slash
@@ -259,10 +220,7 @@ def collection_coverage_domainset(request: HttpRequest, collection_id: str) -> H
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_collection_coverage_domainset", collection_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_coverage_domainset", collection_id)
 
 
 @no_append_slash
@@ -276,10 +234,7 @@ def collection_coverage_rangetype(request: HttpRequest, collection_id: str) -> H
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_collection_coverage_rangetype", collection_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_coverage_rangetype", collection_id)
 
 
 @no_append_slash
@@ -293,10 +248,7 @@ def collection_tiles(request: HttpRequest, collection_id: str) -> HttpResponse:
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_collection_tiles", collection_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_tiles", collection_id)
 
 
 @no_append_slash
@@ -311,15 +263,12 @@ def collection_tiles_metadata(request: HttpRequest, collection_id: str, tileMatr
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(
+    return _feed_response(
         request,
         "get_collection_tiles_metadata",
         collection_id,
         tileMatrixSetId,
     )
-    response = _to_django_response(*response_)
-
-    return response
 
 
 @no_append_slash
@@ -344,7 +293,7 @@ def collection_item_tiles(
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(
+    return _feed_response(
         request,
         "get_collection_tiles_metadata",
         collection_id,
@@ -353,9 +302,6 @@ def collection_item_tiles(
         tileRow,
         tileCol,
     )
-    response = _to_django_response(*response_)
-
-    return response
 
 
 @no_append_slash
@@ -369,10 +315,7 @@ def processes(request: HttpRequest, process_id: str | None = None) -> HttpRespon
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "describe_processes", process_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "describe_processes", process_id)
 
 
 @no_append_slash
@@ -387,10 +330,7 @@ def jobs(request: HttpRequest, job_id: str | None = None) -> HttpResponse:
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_jobs", job_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_jobs", job_id)
 
 
 @no_append_slash
@@ -404,10 +344,7 @@ def job_results(request: HttpRequest, job_id: str | None = None) -> HttpResponse
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_job_result", job_id)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_job_result", job_id)
 
 
 @no_append_slash
@@ -422,10 +359,7 @@ def job_results_resource(request: HttpRequest, process_id: str, job_id: str, res
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_job_result_resource", job_id, resource)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_job_result_resource", job_id, resource)
 
 
 @no_append_slash
@@ -441,10 +375,7 @@ def get_collection_edr_query(request: HttpRequest, collection_id: str, instance_
     """
 
     query_type = request.path.split("/")[-1]
-    response_ = _feed_response(request, "get_collection_edr_query", collection_id, instance_id, query_type)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_collection_edr_query", collection_id, instance_id, query_type)
 
 
 @no_append_slash
@@ -457,10 +388,7 @@ def stac_catalog_root(request: HttpRequest) -> HttpResponse:
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_stac_root")
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_stac_root")
 
 
 @no_append_slash
@@ -474,24 +402,11 @@ def stac_catalog_path(request: HttpRequest, path: str) -> HttpResponse:
     :returns: Django HTTP response
     """
 
-    response_ = _feed_response(request, "get_stac_path", path)
-    response = _to_django_response(*response_)
-
-    return response
+    return _feed_response(request, "get_stac_path", path)
 
 
 def stac_catalog_search(request: HttpRequest) -> HttpResponse:
     pass
-
-
-def _feed_response(request: HttpRequest, api_definition: str, *args, **kwargs) -> tuple[dict, int, str]:
-    """Use pygeoapi api to process the input request"""
-
-    config = GeoAPIConfig.get_solo()
-    geoapi_conf, openapi_def = config.get_config(req_to_base(request))
-    api_ = API(geoapi_conf, openapi_def)
-    api = getattr(api_, api_definition)
-    return api(request, *args, **kwargs)
 
 
 def _to_django_response(headers: Mapping, status_code: int, content: str) -> HttpResponse:
@@ -502,3 +417,14 @@ def _to_django_response(headers: Mapping, status_code: int, content: str) -> Htt
     for key, value in headers.items():
         response[key] = value
     return response
+
+
+def _feed_response(request: HttpRequest, api_definition: str, *args, **kwargs) -> HttpResponse:
+    """Use pygeoapi api to process the input request"""
+
+    config = GeoAPIConfig.get_solo()
+    geoapi_conf, openapi_def = config.get_config(req_to_base(request))
+    api_ = API(geoapi_conf, openapi_def)
+    api = getattr(api_, api_definition)
+    response = api(request, *args, **kwargs)
+    return _to_django_response(*response)
