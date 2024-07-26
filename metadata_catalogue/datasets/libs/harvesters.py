@@ -35,24 +35,36 @@ def harvest_dataset(dataset_id: int):
         if dataset.fetch_url:
             file = NamedTemporaryFile(delete=True)
             # TODO: handle network errors
-            stream = requests.get(dataset.fetch_url, stream=True)
-            for block in stream.iter_content(1024 * 8):
-                if not block:
-                    break
-                file.write(block)
+            try:
+                stream = requests.get(dataset.fetch_url, stream=True)
+                for block in stream.iter_content(1024 * 8):
+                    if not block:
+                        break
+                    file.write(block)
 
-            file.flush()
+                file.flush()
 
-            if dataset.fetch_type == Dataset.FetchType.DARWINCORE:
-                try:
-                    handle_file_as_darwincore_zip(file, dataset)
-                    dataset.set_fetch_message("", append=True, success=True)
-                except:
-                    dataset.set_fetch_message(
-                        traceback.format_exc(), append=True, logger_fn=logger.error, success=False
-                    )
-            else:
-                dataset.set_fetch_message("Not implemented fetch type", logger_fn=logger.warn, success=False)
+                if dataset.fetch_type == Dataset.FetchType.DARWINCORE:
+                    try:
+                        handle_file_as_darwincore_zip(file, dataset)
+                        dataset.set_fetch_message("", append=True, success=True)
+                    except:
+                        dataset.set_fetch_message(
+                            traceback.format_exc(), append=True, logger_fn=logger.error, success=False
+                        )
+                else:
+                    dataset.set_fetch_message("Not implemented fetch type", logger_fn=logger.warn, success=False)
+            except requests.RequestException:
+                dataset.set_fetch_message(
+                    "Unable to fetch the dataset, will be hidden",
+                    append=True,
+                    logger_fn=logger.error,
+                    success=False,
+                    commit=False,
+                )
+                dataset.public = False
+                dataset.save()
+
         else:
             dataset.set_fetch_message(
                 f"No fetch URL for dataset {dataset_id}, ignoring", logger_fn=logger.warn, success=False

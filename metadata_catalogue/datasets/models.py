@@ -52,7 +52,7 @@ class Dataset(LifecycleModel):
     def __str__(self):
         return f"{self.id} - {self.name}"
 
-    def set_fetch_message(self, message, *args, append=False, success=None, logger_fn=None):
+    def set_fetch_message(self, message, *args, append=False, success=None, logger_fn=None, commit=True):
         text = ""
         if append and self.fetch_message:
             text = self.fetch_message
@@ -66,7 +66,8 @@ class Dataset(LifecycleModel):
         if logger_fn:
             logger_fn(message)
 
-        self.save()
+        if commit:
+            self.save()
 
     @hook(AFTER_CREATE)
     def create_metadata_content(self):
