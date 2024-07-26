@@ -248,7 +248,7 @@ def map_to_style(map: Map, request) -> MapStyle:
         title=map.title,
         subtitle=map.subtitle,
         description=map.description,
-        logo=map.logo.url if map.logo else None,
+        logo=request.build_absolute_uri(map.logo.url) if map.logo else None,
         legends=map.legend_config,
         catalogue=catalogue,
         config=MapConfig(**map.config) if map.config else MapConfig(),
