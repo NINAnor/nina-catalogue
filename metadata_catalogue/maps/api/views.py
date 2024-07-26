@@ -7,6 +7,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from ..enums import Visibility
+from ..filters import PortalMapFilter
 from ..libs.maplibre import MapStyle, map_to_style
 from ..models import Layer, LayerGroup, Map, Portal, PortalMap, RasterSource, Source, VectorSource
 from .serializers import (
@@ -139,7 +140,7 @@ class PortalMapViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "id"
     permission_classes = [permissions.AllowAny]
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = ("portal",)
+    filterset_class = PortalMapFilter
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -147,9 +148,7 @@ class PortalMapViewSet(viewsets.ReadOnlyModelViewSet):
         expression = Q()
         if self.request.user.is_authenticated:
             if not self.request.user.is_staff:
-                expression = (Q(map__visibility=Visibility.PUBLIC) | Q(map__owner=self.request.user)) & (
-                    Q(map__visibility=Visibility.PUBLIC) | Q(map__owner=self.request.user)
-                )
+                expression = Q(map__visibility=Visibility.PUBLIC) | Q(map__owner=self.request.user)
         else:
             expression = Q(map__visibility=Visibility.PUBLIC) & Q(portal__visibility=Visibility.PUBLIC)
 
