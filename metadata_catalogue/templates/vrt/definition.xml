@@ -13,13 +13,12 @@
         </OGRVRTDataSource>]]>
       </SrcDataSource>
       <SrcSQL>select * from {{ core }}{% for ext in extensions %} join {{ ext }} on {{ ext }}.{{ ext.id }}={{ core }}.{{ core.id }}{% endfor %}</SrcSQL>
-      {% if geometry_field == "footprintWKT" %}
-      <GeometryField encoding="WKT" field="footprintWKT" reportSrcColumn="false">
+      <GeometryField name="locationGeometry" encoding="PointFromColumns" x="decimalLongitude" y="decimalLatitude" reportSrcColumn="true">
+        <GeometryType>wkbPoint</GeometryType>
         <SRS>WGS84</SRS>
       </GeometryField>
-      {% else %}
-      <GeometryField encoding="PointFromColumns" x="decimalLongitude" y="decimalLatitude" reportSrcColumn="false">
-        <GeometryType>wkbPoint</GeometryType>
+      {% if geometry_field == "footprintWKT" %}
+      <GeometryField encoding="WKT" name="footprintWKT" field="footprintWKT" reportSrcColumn="false">
         <SRS>WGS84</SRS>
       </GeometryField>
       {% endif %}
