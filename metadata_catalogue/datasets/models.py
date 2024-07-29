@@ -414,6 +414,8 @@ class Content(LifecycleModel):
     pagination = models.BooleanField(default=False)
     provider_override = models.JSONField(default=empty_json, blank=True)
     data_override = models.JSONField(default=empty_json, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     @hook(AFTER_SAVE, when_any=["gdal_vrt_definition"], has_changed=True)
     def check_is_valid(self):
