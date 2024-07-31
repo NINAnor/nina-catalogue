@@ -151,7 +151,7 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         integrations=integrations,
         environment=env("SENTRY_ENVIRONMENT", default="production"),
-        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.1),
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.05),
     )
 
     LOGGING["loggers"] = {
