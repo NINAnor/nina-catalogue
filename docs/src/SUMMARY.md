@@ -1,5 +1,6 @@
 # Summary
 
+- [Features](./features.md)
 - [Architecture](./architecture.md)
 
 # Modules
