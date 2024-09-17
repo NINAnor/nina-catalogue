@@ -183,7 +183,7 @@ def map_to_style(map: Map, request) -> MapStyle:
 
         # These arguments can be overrided
         extra_args = {
-            "type": source.type,
+            "type": maplibre_source.type if maplibre_source and maplibre_source.type else "background",
             "layout": {"visibility": "none" if layer.hidden and not layer.is_lazy else "visible"},
             "attribution": source.attribution,
             **source.style,
