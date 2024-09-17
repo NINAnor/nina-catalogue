@@ -45,7 +45,7 @@ class CSWConfig(SingletonModel):
                 "contact_address": safe_get(info.contact, "delivery_point"),
                 "contact_city": safe_get(info.contact, "city"),
                 "contact_stateorprovince": str(safe_get(info.contact, "country")),
-                "contact_postalcode": safe_get(info.contact, "postal_code"),
+                "contact_postalcode": str(safe_get(info.contact, "postal_code")),
                 "contact_country": str(safe_get(info.contact, "country")),
                 "contact_phone": safe_get(info.contact, "phone"),
                 "contact_fax": safe_get(info.contact, "phone"),
