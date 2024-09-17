@@ -1,8 +1,10 @@
+import logging
+import traceback
 from typing import Dict, List, Literal, Union
 
 from django.contrib.gis.db.models import Extent
 from django.db.models import Q
-from pydantic import BaseModel, Field, JsonValue
+from pydantic import BaseModel, Field, JsonValue, ValidationError
 
 from metadata_catalogue.maps.models import Map, Source
 
@@ -167,13 +169,17 @@ def map_to_style(map: Map, request) -> MapStyle:
         maplibre_source = None
 
         if source:
-            maplibre_source = MaplibreSource(
-                id=source.id,
-                type=source.type,
-                url=source.get_source_url(request),
-                attribution=source.attribution,
+            kwargs = {
+                "id": source.id,
+                "type": source.type,
+                "url": source.get_source_url(request),
+                "attribution": source.attribution,
                 **source.extra,
-            )
+            }
+            try:
+                maplibre_source = MaplibreSource(**kwargs)
+            except ValidationError:
+                logging.warning(f"Error while creating source for {layer.source_id}: {traceback.format_exc()}")
 
         # These arguments can be overrided
         extra_args = {
