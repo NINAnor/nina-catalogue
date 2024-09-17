@@ -10,7 +10,8 @@
                     "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
                 ],
                 "maxZoom": 20,
-                "tileSize": 256
+                "tileSize": 256,
+                "type": "raster"
             },
             "polymorphic_ctype": ["maps","source"],
             "owner": null,
@@ -38,9 +39,9 @@
             "description": "",
             "link": null,
             "legend": null,
-            "is_basemap": false,
-            "is_lazy": true,
-            "hidden": true,
+            "is_basemap": true,
+            "is_lazy": false,
+            "hidden": false,
             "metadata": {}
         }
     },
