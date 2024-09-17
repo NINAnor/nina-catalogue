@@ -166,7 +166,7 @@ def map_to_style(map: Map, request) -> MapStyle:
 
         maplibre_source = None
 
-        if source and source.type:
+        if source:
             maplibre_source = MaplibreSource(
                 id=source.id,
                 type=source.type,
