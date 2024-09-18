@@ -24,8 +24,8 @@ class MaplibreSource(BaseModel):
     url: str | None = None
     attribution: str | None = None
     bounds: list[float] | None = None
-    maxzoom: str | None = None
-    minzoom: str | None = None
+    maxzoom: int | None = None
+    minzoom: int | None = None
     promoteId: str | dict[str, str] | None = None
     scheme: str | None = None
     volatile: bool | None = None
