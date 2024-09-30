@@ -1,5 +1,5 @@
 # from pycsw.core.repository import Repository
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Q
 
 from metadata_catalogue.datasets.models import Dataset
 
@@ -8,6 +8,11 @@ from . import logger
 
 class DatasetsRepository:
     """Class to interact with underlying repository"""
+
+    def _get_queryset(self):
+        return Dataset.objects.select_related("metadata").exclude(
+            Q(metadata=None) | Q(public=False) | Q(metadata__xml="")
+        )
 
     def __init__(self, context, repo_filter=None):
         """Initialize repository"""
@@ -36,27 +41,33 @@ class DatasetsRepository:
 
     def query_ids(self, ids):
         """Query by list of identifiers"""
-        return Dataset.objects.filter(uuid__in=ids).all().as_csw()
+        return self._get_queryset().filter(uuid__in=ids).all().as_csw()
 
     def query_insert(self, direction="max"):
         """Query to get latest (default) or earliest update to repository"""
         if direction == "min":
-            return Dataset.objects.aggregate(Min("last_modified_at"))["last_modified_at__min"].strftime(
-                "%Y-%m-%dT%H:%M:%SZ"
+            return (
+                self._get_queryset()
+                .aggregate(Min("last_modified_at"))["last_modified_at__min"]
+                .strftime("%Y-%m-%dT%H:%M:%SZ")
             )
-        return Dataset.objects.aggregate(Max("last_modified_at"))["last_modified_at__max"].strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
+        return (
+            self._get_queryset()
+            .aggregate(Max("last_modified_at"))["last_modified_at__max"]
+            .strftime("%Y-%m-%dT%H:%M:%SZ")
         )
 
     def query_source(self, source):
         """Query by source"""
-        return Dataset.objects.filter(source=source)
+        return self._get_queryset().filter(source=source)
 
     def query(self, constraint, sortby=None, typenames=None, maxrecords=10, startposition=0):
         """Query records from underlying repository"""
         limit = int(maxrecords)
         offset = int(startposition)
-        query = Dataset.objects.csw_filter(constraint)
+        query = self._get_queryset().csw_filter(constraint)
         if sortby:
             query = query.csw_sort(sortby)
-        return [str(query.count()), query[offset : offset + limit].as_csw()]
+
+        csw = query[offset : offset + limit].as_csw()
+        return [str(query.count()), csw]

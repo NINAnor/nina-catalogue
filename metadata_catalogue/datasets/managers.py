@@ -11,7 +11,7 @@ SORT_CONFIG = {"title": "metadata__title", "csw_wkt_geometry": "metadata__boundi
 
 class DatasetQuerySet(models.QuerySet):
     def as_csw(self, *args, base_url="", warn=True, **kwargs):
-        logger.warn("DANGER: This method consumes the queryset and returns and array of items")
+        logger.warning("DANGER: This method consumes the queryset and returns and array of items")
         return [CSWMapping(instance, base_url) for instance in self]
 
     def csw_filter(self, filter):
