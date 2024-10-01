@@ -65,11 +65,18 @@ class SequentialLegend(BaseModel):
     title: str | None = None
 
 
+class WMSLegend(BaseModel):
+    url: str
+    type: Literal["wms"]
+    id: str | None = None
+    title: str | None = None
+
+
 class LayerMetadata(BaseModel):
     name: str | None = None
     description: str | None = None
     is_basemap: bool
-    legend: IntervalLegend | SequentialLegend | None = None
+    legend: IntervalLegend | SequentialLegend | WMSLegend | None = None
     download: str | None = None
 
 
