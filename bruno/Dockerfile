@@ -1,8 +1,8 @@
-FROM node:18-bookworm as base
+FROM node:18-bookworm AS base
 RUN npm install -g @usebruno/cli
 WORKDIR /app
 
-FROM base as deps
+FROM base AS deps
 COPY ./bruno/catalogue/package.json .
 RUN npm install
 

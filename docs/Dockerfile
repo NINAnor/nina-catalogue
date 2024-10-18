@@ -1,7 +1,7 @@
 FROM rust:1.74-slim-bookworm AS base
 
 
-FROM base as builder
+FROM base AS builder
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
     musl-tools
@@ -11,7 +11,7 @@ ARG MDBOOK_VERSION=0.4.36
 RUN cargo install mdbook --version "${MDBOOK_VERSION}" --target "${ARC}"
 
 
-FROM base as dev
+FROM base AS dev
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
     musl-tools libssl-dev pkg-config
@@ -21,7 +21,7 @@ WORKDIR /book
 ENTRYPOINT [ "/usr/local/bin/mdbook" ]
 
 
-FROM dev as build
+FROM dev AS build
 ARG KROKI_ENDPOINT="https://kroki.io/"
 ENV MDBOOK_PREPROCESSOR__KROKI_PREPROCESSOR__ENDPOINT="${KROKI_ENDPOINT}"
 COPY src src
@@ -30,6 +30,6 @@ COPY book.toml .
 RUN mdbook build
 
 
-FROM nginx as prod
+FROM nginx AS prod
 COPY --from=build /book/book/ /var/www/
 COPY default.conf.template /etc/nginx/templates/
