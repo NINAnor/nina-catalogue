@@ -85,6 +85,15 @@ services:
       <<: *django-dev-env
       DJANGO_MIGRATE: 1
 
+  tailwind:
+    <<: *django-dev
+    tty: true
+    stdin_open: true
+    command: python manage.py tailwind start
+    environment:
+      <<: *django-dev-env
+      DJANGO_TAILWIND: 1
+
   queue:
     <<: *django-prod
     environment:
@@ -199,15 +208,11 @@ services:
       - TITILER_API_CACHECONTROL=no-cache
       - FORWARDED_ALLOW_IPS=*
       - TITILER_API_ROOT_PATH=/titiler
-    ports:
-      - "8989:80"
 
   maps:
     profiles:
       - maps
     image: ghcr.io/ninanor/nina-map-explorer:main
-    ports:
-      - "3000:80"
     volumes:
       - ./nginx/maps.config.js:/var/www/config.js
 

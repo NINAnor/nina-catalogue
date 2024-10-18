@@ -20,6 +20,13 @@ else
   python manage.py setup
 fi
 
+if [[ -z "${DJANGO_TAILWIND}" ]]
+then
+  echo "Skip tailwind"
+else
+  python manage.py tailwind install --no-input
+fi
+
 if [[ -z "${DJANGO_COLLECTSTATIC}" ]]
 then
   echo "Skip collectstatic"

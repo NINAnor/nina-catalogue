@@ -17,6 +17,10 @@ RUN --mount=type=cache,target=/var/cache/zypper \
 RUN python3.11 -m pip install pdm
 COPY ./pyproject.toml ./pdm.lock .
 
+FROM pdm AS pdm-node
+RUN --mount=type=cache,target=/var/cache/zypper \
+    zypper install --no-recommends -y nodejs20 npm20
+
 FROM pdm AS production
 RUN --mount=type=cache,target=/var/cache/zypper \
     zypper install --no-recommends -y gdal-devel gcc gcc-c++ python311-devel
@@ -34,15 +38,27 @@ RUN DATABASE_URL="" DJANGO_BASE_SCHEMA_URL="" \
   DJANGO_SETTINGS_MODULE="config.settings.test" \
   pdm run ./manage.py compilemessages
 
+FROM pdm-node AS tailwind
+COPY --from=production /app .
+COPY --from=translation /app/locale locale
+COPY --from=source /app .
+RUN DATABASE_URL="" \
+DJANGO_SETTINGS_MODULE="config.settings.test" \
+python manage.py tailwind install
+RUN DATABASE_URL="" \
+DJANGO_SETTINGS_MODULE="config.settings.test" \
+python manage.py tailwind build
+
 FROM base AS django
 COPY --from=production /app .
 COPY --from=translation /app/locale locale
+COPY --from=tailwind /app/metadata_catalogue/theme/static /app/metadata_catalogue/theme/static
 COPY --from=source /app .
 RUN mkdir media
 COPY entrypoint.sh .
 ENTRYPOINT ["./entrypoint.sh"]
 
-FROM pdm AS dev
+FROM pdm-node AS dev
 COPY --from=django /app/.venv .venv
 RUN --mount=type=cache,target=/root/.cache/pdm \
     pdm install --dev
