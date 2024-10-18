@@ -11,9 +11,13 @@ SECRET_KEY = env(
     default="iUb7AqZQ5PzH8EeOdXOQgwwvfhbtyQWuziGY8XfG6hAM1KVwH0Ukt8q4nAuKHF5m",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "django", "django-dev"] + env.list(
-    "DJANGO_ALLOWED_HOSTS", default=[""]
-)
+ALLOWED_HOSTS = [
+    "localhost",
+    "0.0.0.0",
+    "127.0.0.1",
+    "django",
+    "django-dev",
+] + env.list("DJANGO_ALLOWED_HOSTS", default=[""])
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -28,7 +32,9 @@ CACHES = {
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+EMAIL_BACKEND = env(
+    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
@@ -37,9 +43,16 @@ INSTALLED_APPS += ["debug_toolbar"]  # noqa: F405
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#middleware
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]  # noqa: F405
 # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#debug-toolbar-config
+
+
+def show_toolbar(request):
+    return True
+
+
 DEBUG_TOOLBAR_CONFIG = {
     "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
     "SHOW_TEMPLATE_CONTEXT": True,
+    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips
 INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]

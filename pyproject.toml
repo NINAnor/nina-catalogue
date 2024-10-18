@@ -172,8 +172,18 @@ dependencies = [
     "django-rest-framework>=0.1.0",
     "drf-spectacular>=0.27.2",
     "drf-nested-routers",
+    "dj-rest-auth",
     "drf-standardized-errors[openapi]",
+    "djangorestframework-simplejwt",
     "django-filter>=24.2",
+    "iommi",
+    "fontawesomefree",
+    "django-allauth",
+    "slippers",
+    "crispy-tailwind",
+    "django-tailwind",
+    "django-allauth-ui",
+    "django-widget-tweaks",
 ]
 requires-python = ">=3.10"
 name = "nina-catalogue"
