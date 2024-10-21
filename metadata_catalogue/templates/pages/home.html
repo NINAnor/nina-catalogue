@@ -1,9 +1,12 @@
 {% extends "app.html" %}
 
-{% block content %}
+{% block article %}
   <div>
-    <h3 class="text-3xl">Services Available</h3>
-    <ul>
+    <h1 class="text-4xl font-bold">Services Available</h1>
+    <ul class="list-disc pl-5">
+      <li>
+        <a href="{% url 'dataset-list' %}">Datasets</a>
+      </li>
       <li>
         <a href="{% url 'csw' %}">CSW</a>
       </li>
@@ -12,4 +15,4 @@
       </li>
     </ul>
   </div>
-{% endblock content %}
+{% endblock article %}

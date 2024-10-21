@@ -102,6 +102,7 @@ THIRD_PARTY_APPS = [
     "drf_standardized_errors",
     "django_filters",
     "tailwind",
+    "django_tables2",
     "widget_tweaks",
     "slippers",
     "fontawesomefree",
