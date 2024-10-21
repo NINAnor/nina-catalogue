@@ -2,10 +2,7 @@
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--ds=config.settings.test --reuse-db"
-python_files = [
-    "tests.py",
-    "test_*.py",
-]
+python_files = ["tests.py", "test_*.py"]
 
 # ==== Coverage ====
 [tool.coverage.run]
@@ -24,10 +21,7 @@ target-version = ['py311']
 [tool.isort]
 profile = "black"
 line_length = 119
-known_first_party = [
-    "metadata_catalogue",
-    "config",
-]
+known_first_party = ["metadata_catalogue", "config"]
 skip = ["venv/"]
 skip_glob = ["**/migrations/*.py"]
 
@@ -40,9 +34,7 @@ ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unused_configs = true
-plugins = [
-    "mypy_django_plugin.main",
-]
+plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
 # Django migrations should not produce any errors:
@@ -55,19 +47,14 @@ django_settings_module = "config.settings.test"
 
 # ==== PyLint ====
 [tool.pylint.MASTER]
-load-plugins = [
-    "pylint_django",
-]
+load-plugins = ["pylint_django"]
 django-settings-module = "config.settings.local"
 
 [tool.pylint.FORMAT]
 max-line-length = 119
 
 [tool.pylint."MESSAGES CONTROL"]
-disable = [
-    "missing-docstring",
-    "invalid-name",
-]
+disable = ["missing-docstring", "invalid-name"]
 
 [tool.pylint.DESIGN]
 max-parents = 13
@@ -176,7 +163,6 @@ dependencies = [
     "drf-standardized-errors[openapi]",
     "djangorestframework-simplejwt",
     "django-filter>=24.2",
-    "iommi",
     "fontawesomefree",
     "django-allauth",
     "slippers",
@@ -184,23 +170,19 @@ dependencies = [
     "django-tailwind",
     "django-allauth-ui",
     "django-widget-tweaks",
+    "django-tables2",
 ]
 requires-python = ">=3.10"
-name = "nina-catalogue"
+name = ""
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Niccolò Cantù", email = "niccolo.cantu@nina.no"},
-]
+authors = [{ name = "Niccolò Cantù", email = "niccolo.cantu@nina.no" }]
 readme = "README.md"
-license = {text = "GPLv3"}
+license = { text = "GPLv3" }
 
 [project.optional-dependencies]
-production = [
-    "sentry-sdk[django]>=1.43.0",
-    "gunicorn>=21.2.0",
-]
-docs = [
-    "sphinx>=7.2.6",
-    "sphinx-autobuild>=2021.3.14",
-]
+production = ["sentry-sdk[django]>=1.43.0", "gunicorn>=21.2.0"]
+docs = ["sphinx>=7.2.6", "sphinx-autobuild>=2021.3.14"]
+
+[tool.setuptools]
+packages = ["metadata_catalogue"]
