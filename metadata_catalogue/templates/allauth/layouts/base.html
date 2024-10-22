@@ -1,0 +1,8 @@
+{% extends 'allauth/layouts/base.html' %}
+
+{% load static tailwind_tags %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}" />
+  {% tailwind_css %}
+{% endblock extra_head %}

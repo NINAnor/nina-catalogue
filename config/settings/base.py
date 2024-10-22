@@ -318,7 +318,7 @@ ACCOUNT_ADAPTER = "metadata_catalogue.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 ACCOUNT_FORMS = {"signup": "metadata_catalogue.users.forms.UserSignupForm"}
 
-ALLAUTH_UI_THEME = "light"
+ALLAUTH_UI_THEME = "nina"
 
 if env("SOCIALACCOUNT_ADAPTER", default=None):
     SOCIALACCOUNT_ADAPTER = env("SOCIALACCOUNT_ADAPTER")
