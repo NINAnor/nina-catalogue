@@ -3,19 +3,38 @@
 {% load render_table from django_tables2 %}
 
 {% block article %}
-  <div>
+  <div class="dataset-metadata">
     <div class="flex my-5 justify-between items-center">
       <h1 class="font-bold text-4xl">{{ dataset.metadata.title }}</h1>
       <div class="flex">
         <a href="{% url 'dataset-list' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
       </div>
     </div>
-    <div>
-      <b>Publish date:</b> <em>{{ dataset.metadata.date_publication|date:"d/m/Y" }}</em>
+    <div class="dataset-metadata-section">
+      <b>Publication date:</b> <em>{{ dataset.metadata.date_publication|date:"d/m/Y" }}</em>
     </div>
-    <h2 class="font-bold text-3xl mt-5">Abstract</h2>
-    <div class="prose lg:prose-lg max-w-full">{{ dataset.metadata.abstract  }}</div>
-    <h2 class="font-bold text-3xl mt-5">People involved</h2>
-    {% render_table people_table %}
+    <div class="dataset-metadata-section">
+      <h2>Abstract</h2>
+      <div class="free-text">{{ dataset.metadata.abstract  }}</div>
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>People involved</h2>
+      {% render_table people_table %}
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>Geographic Coverage</h2>
+      <div class="free-text">{{ dataset.metadata.geographic_description }}</div>
+      <div class="dataset-metadata-section-values">
+        <div>Bounding coordinates</div>
+        <div>{{ dataset.metadata.bounding_box.coords }}</div>
+      </div>
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>Temporal Coverage</h2>
+      <div class="dataset-metadata-section-values">
+        <div>Formation period</div>
+        <div>{{ dataset.metadata.formation_period_start|date:'Y' }}-{{ dataset.metadata.formation_period_end|date:'Y' }}</div>
+      </div>
+    </div>
   </div>
 {% endblock article %}
