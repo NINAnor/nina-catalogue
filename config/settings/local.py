@@ -75,3 +75,5 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 
 
 INSTALLED_APPS += ["models2puml"]
+
+SOCIALACCOUNT_ADAPTER = "metadata_catalogue.users.adapters.SocialAccountAdapter"
