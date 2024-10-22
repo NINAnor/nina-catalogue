@@ -5,6 +5,7 @@ from django.views.generic import CreateView, DetailView
 from typing import Any
 from django_tables2 import SingleTableView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.postgres.aggregates import ArrayAgg
 
 
 def get_dataset_vrt_view(request, dataset_uuid):
@@ -54,7 +55,16 @@ class DatasetDetailPage(DetailView):
         ctx = super().get_context_data(**kwargs)
 
         ctx["people_table"] = tables.RolesTable(
-            self.object.metadata.people.all(), prefix="people-"
+            self.object.metadata.people.values(
+                "person__last_name", "person__first_name"
+            )
+            .annotate(
+                role=ArrayAgg(
+                    "role",
+                )
+            )
+            .order_by("person__last_name", "person__first_name"),
+            prefix="people-",
         )
 
         return ctx
