@@ -13,7 +13,7 @@ from django_lifecycle import (
     hook,
 )
 from django.urls import reverse
-from django_q.tasks import async_task
+from metadata_catalogue.core.utils import async_task
 from solo.models import SingletonModel
 
 from .libs.iso.mapping import ISOMapping
@@ -35,7 +35,7 @@ class Dataset(LifecycleModel):
     fetch_url = models.TextField(
         verbose_name=_("URL of the resource to fetch"), null=True, blank=True
     )
-    fetch_type = models.IntegerField(choices=FetchType.choices, null=True, blank=True)
+    fetch_type = models.IntegerField(choices=FetchType, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     last_modified_at = models.DateTimeField(
         auto_now=True, verbose_name=_("Last modified at")
@@ -212,7 +212,7 @@ class PersonRole(LifecycleModel):
     metadata = models.ForeignKey(
         "datasets.Metadata", on_delete=models.CASCADE, related_name="people"
     )
-    role = models.CharField(max_length=10, choices=RoleType.choices)
+    role = models.CharField(max_length=10, choices=RoleType)
     description = models.CharField(max_length=250, null=True, blank=True)
 
     def __str__(self) -> str:
@@ -356,7 +356,7 @@ class MetadataIdentifier(models.Model):
 
     identifier = models.CharField(max_length=500)
     metadata = models.ForeignKey("datasets.Metadata", on_delete=models.CASCADE)
-    source = models.CharField(max_length=5, choices=Type.choices, null=True, blank=True)
+    source = models.CharField(max_length=5, choices=Type, null=True, blank=True)
 
     class Meta:
         constraints = [
