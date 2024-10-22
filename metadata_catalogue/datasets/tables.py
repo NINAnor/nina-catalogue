@@ -21,6 +21,14 @@ class DatasetTable(tables.Table):
 
 
 class RolesTable(tables.Table):
+    person = tables.Column(empty_values=())
+
+    def render_person(self, value, record):
+        return f"{record['person__last_name']}, {record['person__first_name']}"
+
+    def render_role(self, value: list[str]):
+        return ", ".join([str(models.PersonRole.RoleType(v).label) for v in value])
+
     class Meta:
         model = models.PersonRole
         template_name = "django_tables2/bootstrap.html"
