@@ -3,11 +3,10 @@ import traceback
 
 from bs4 import BeautifulSoup
 from django.db import transaction
-from django_q.tasks import async_task
+from metadata_catalogue.core.utils import async_task
+from metadata_catalogue.datasets.models import Dataset
 
 logger = logging.getLogger(__name__)
-
-from metadata_catalogue.datasets.models import Dataset
 
 
 def rss_to_datasets(rss_content):
@@ -25,7 +24,10 @@ def rss_to_datasets(rss_content):
                         },
                         fetch_url=archive.text,
                     )
-                    async_task("metadata_catalogue.datasets.libs.harvesters.harvest_dataset", d.id)
+                    async_task(
+                        "metadata_catalogue.datasets.libs.harvesters.harvest_dataset",
+                        d.id,
+                    )
                 else:
                     logger.warn(f'no archive url found for {item.find("title").text}')
             except Exception:

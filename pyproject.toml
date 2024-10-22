@@ -121,26 +121,21 @@ dependencies = [
     "rcssmin",
     "argon2-cffi",
     "whitenoise",
-    "redis",
-    "hiredis",
     "psycopg[binary]",
     "backoff",
     "requests",
     "beautifulsoup4",
     "lxml",
-    "django>=4.0.0,<5.0.0",
+    "django>=5.0.0",
     "django-environ",
     "django-model-utils",
     "django-allauth",
     "django-crispy-forms",
-    "crispy-bootstrap5",
-    "django-redis",
     "django-health-check",
     "django-probes",
     "django-countries-plus",
     "django-languages-plus",
     "django-postgres-extra",
-    "django-q",
     "OWSLib",
     "shapely",
     "xmltodict",
@@ -171,6 +166,7 @@ dependencies = [
     "django-allauth-ui",
     "django-widget-tweaks",
     "django-tables2",
+    "setuptools>=75.2.0",
 ]
 requires-python = ">=3.10"
 name = ""
@@ -181,7 +177,12 @@ readme = "README.md"
 license = { text = "GPLv3" }
 
 [project.optional-dependencies]
-production = ["sentry-sdk[django]>=1.43.0", "gunicorn>=21.2.0"]
+production = [
+    "sentry-sdk[django]>=1.43.0",
+    "gunicorn>=21.2.0",
+    "django-redis",
+    "redis",
+]
 docs = ["sphinx>=7.2.6", "sphinx-autobuild>=2021.3.14"]
 
 [tool.setuptools]

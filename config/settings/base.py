@@ -87,7 +87,6 @@ THIRD_PARTY_APPS = [
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
-    "django_q",
     "countries_plus",
     "languages_plus",
     "psqlextra",
@@ -106,6 +105,7 @@ THIRD_PARTY_APPS = [
     "widget_tweaks",
     "slippers",
     "fontawesomefree",
+    "leaflet",
 ]
 
 LOCAL_APPS = [
@@ -320,46 +320,27 @@ ACCOUNT_FORMS = {"signup": "metadata_catalogue.users.forms.UserSignupForm"}
 
 ALLAUTH_UI_THEME = "light"
 
-if SOCIALACCOUNT_ADAPTER := env("SOCIALACCOUNT_ADAPTER", default=None):
+if env("SOCIALACCOUNT_ADAPTER", default=None):
+    SOCIALACCOUNT_ADAPTER = env("SOCIALACCOUNT_ADAPTER")
+
+if OIDC_CLIENT_ID := env("OIDC_CLIENT_ID", default=None):
     SOCIALACCOUNT_ONLY = True
     SOCIALACCOUNT_STORE_TOKENS = True
-    if OIDC_CLIENT_ID := env("OIDC_CLIENT_ID", default=None):
-        SOCIALACCOUNT_PROVIDERS = {
-            "openid_connect": {
-                "APPS": [
-                    {
-                        "provider_id": env("OIDC_PROVIDER_ID"),
-                        "name": env("OIDC_PROVIDER_NAME"),
-                        "client_id": OIDC_CLIENT_ID,
-                        "secret": env("OIDC_SECRET"),
-                        "settings": {
-                            "server_url": env("OIDC_PROVIDER_URL"),
-                        },
+    SOCIALACCOUNT_PROVIDERS = {
+        "openid_connect": {
+            "APPS": [
+                {
+                    "provider_id": env("OIDC_PROVIDER_ID"),
+                    "name": env("OIDC_PROVIDER_NAME"),
+                    "client_id": OIDC_CLIENT_ID,
+                    "secret": env("OIDC_SECRET"),
+                    "settings": {
+                        "server_url": env("OIDC_PROVIDER_URL"),
                     },
-                ]
-            }
+                },
+            ]
         }
-
-
-# DJANGO Q
-Q_CLUSTER = {
-    "name": "viltkamera",
-    "workers": env.int("Q_WORKERS", default=1),
-    "recycle": 500,
-    "retry": env.int("Q_RETRY", default=6000),
-    "timeout": env.int("Q_TIMEOUT", default=5999),
-    "cpu_affinity": env.int("Q_AFFINITY", default=0),
-    "save_limit": env.int("Q_SAVE_LIMIT", default=250),
-    "queue_limit": 500,
-    "label": "Django Q",
-    "orm": "default",
-}
-
-if Q_BROKER_CLASS := env(
-    "Q_BROKER_CLASS",
-    default="metadata_catalogue.core.brokers.GeneralPurposeBroker",
-):
-    Q_CLUSTER.update({"broker_class": Q_BROKER_CLASS})
+    }
 
 
 CSW = {

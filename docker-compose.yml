@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   pgdata: {}
@@ -36,7 +36,6 @@ x-django: &django
     - postgres
   environment:
     <<: *django-env
-
 
 x-django-prod: &django-prod
   <<: *django
@@ -94,19 +93,19 @@ services:
       <<: *django-dev-env
       DJANGO_TAILWIND: 1
 
-  queue:
-    <<: *django-prod
-    environment:
-      <<: *django-prod-env
-      WAIT_FOR_HTTP: http://django:8000/ht/
-    command: python manage.py qcluster
+  # queue:
+  #   <<: *django-prod
+  #   environment:
+  #     <<: *django-prod-env
+  #     WAIT_FOR_HTTP: http://django:8000/ht/
+  #   command: python manage.py qcluster
 
-  queue-dev:
-    <<: *django-dev
-    environment:
-      <<: *django-dev-env
-      WAIT_FOR_HTTP: http://django:8000/ht/
-    command: python manage.py qcluster
+  # queue-dev:
+  #   <<: *django-dev
+  #   environment:
+  #     <<: *django-dev-env
+  #     WAIT_FOR_HTTP: http://django:8000/ht/
+  #   command: python manage.py qcluster
 
   postgres:
     image: postgis/postgis:16-3.4
@@ -127,7 +126,7 @@ services:
     volumes:
       - ./docs:/book
     ports:
-      - '3001:3000'
+      - "3001:3000"
     command: serve --hostname 0.0.0.0
     profiles:
       - dev
@@ -139,7 +138,7 @@ services:
       dockerfile: ./Dockerfile
       target: prod
     ports:
-      - '3000:80'
+      - "3000:80"
     profiles:
       - prod
 
