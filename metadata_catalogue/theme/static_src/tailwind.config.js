@@ -57,7 +57,9 @@ module.exports = {
       {
         nina: {
           primary: "#008C95",
+          "primary-content": "#fff",
           secondary: "#7A9A01",
+          "secondary-content": "#fff",
           accent: "#E57200",
           neutral: "#425563",
           "base-100": "#ffffff",
