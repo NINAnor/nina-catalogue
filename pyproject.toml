@@ -166,6 +166,7 @@ dependencies = [
     "django-allauth-ui",
     "django-widget-tweaks",
     "django-tables2",
+    "django-leaflet",
     "setuptools>=75.2.0",
 ]
 requires-python = ">=3.10"
