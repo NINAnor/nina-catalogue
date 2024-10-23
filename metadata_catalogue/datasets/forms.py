@@ -1,9 +1,4 @@
-from django.forms import (
-    ModelForm,
-    widgets,
-    CharField,
-    IntegerField,
-)
+from django.forms import ModelForm, widgets, CharField, IntegerField, Form
 import logging
 from datetime import date
 from crispy_forms.helper import FormHelper
@@ -14,10 +9,13 @@ from django.db import transaction
 
 
 class DatasetCreateForm(ModelForm):
-    abstract = CharField(widget=widgets.Textarea(attrs=dict(rows=2)))
+    abstract = CharField(
+        label="Description", widget=widgets.Textarea(attrs=dict(rows=2))
+    )
     formation_period_start = IntegerField(label="Temporal start (year)")
     formation_period_end = IntegerField(label="Temporal end (year)")
     geographic_description = CharField(label="Geographic description")
+    source = CharField(required=True, widget=widgets.Textarea(attrs=dict(rows=2)))
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,3 +63,14 @@ class DatasetCreateForm(ModelForm):
             ),
             "notes": widgets.Textarea({"rows": 2, "class": "textarea-bordered"}),
         }
+
+
+class DatasetFilterForm(Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.disable_csrf = True
+        self.helper.add_input(Submit("submit", "Search", css_class="mt-2"))
+
+    class Meta:
+        widgets = {"my_datasets": widgets.CheckboxInput()}

@@ -11,6 +11,5 @@
   </div>
   <form action="{% url 'dataset-create' %}" method="post">
     {% crispy form %}
-    {% csrf_token %}
   </form>
 {% endblock article %}

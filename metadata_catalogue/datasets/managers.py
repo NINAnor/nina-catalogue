@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.db.models import Q
+from django.contrib.postgres.search import SearchVector
 
 from . import logger
 from .libs.csw.mapping import CSWMapping
@@ -11,7 +12,9 @@ SORT_CONFIG = {"title": "metadata__title", "csw_wkt_geometry": "metadata__boundi
 
 class DatasetQuerySet(models.QuerySet):
     def as_csw(self, *args, base_url="", warn=True, **kwargs):
-        logger.warning("DANGER: This method consumes the queryset and returns and array of items")
+        logger.warning(
+            "DANGER: This method consumes the queryset and returns and array of items"
+        )
         return [CSWMapping(instance, base_url) for instance in self]
 
     def csw_filter(self, filter):
@@ -27,13 +30,17 @@ class DatasetQuerySet(models.QuerySet):
 
     def csw_sort(self, sort):
         try:
-            return self.order_by(f'{"-" if sort["order"] == "DESC" else ""}{SORT_CONFIG[sort["propertyname"]]}')
+            return self.order_by(
+                f'{"-" if sort["order"] == "DESC" else ""}{SORT_CONFIG[sort["propertyname"]]}'
+            )
         except (AttributeError, KeyError):
             logger.warn(f"Not implemented! {sort}")
         return self
 
     def as_geoapi_resource(self, base_url, *args, warn=True, **kwargs):
-        logger.warn("DANGER: This method consumes the queryset and returns and array of items")
+        logger.warn(
+            "DANGER: This method consumes the queryset and returns and array of items"
+        )
         return [
             ResourceMapping(instance, base_url).as_resource()
             for instance in self.select_related("metadata", "content").exclude(
@@ -44,6 +51,25 @@ class DatasetQuerySet(models.QuerySet):
                 | Q(content__valid=False)
             )
         ]
+
+    def search(self, text):
+        return (
+            self.select_related("metadata")
+            .annotate(
+                search=SearchVector(
+                    "name",
+                    "metadata__title",
+                    "metadata__abstract",
+                    "metadata__geographic_description",
+                    "metadata__fts",
+                    "metadata__project_title",
+                    "metadata__project_abstract",
+                    "metadata__project_study_area_description",
+                    "metadata__project_design_description",
+                )
+            )
+            .filter(search=text)
+        )
 
 
 class DatasetManager(models.Manager):

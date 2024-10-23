@@ -1,9 +1,10 @@
 from django.http import HttpResponse, HttpResponseNotFound
 from .models import Dataset
-from . import tables, forms
+from . import tables, forms, filters
 from django.views.generic import CreateView, DetailView
 from typing import Any
-from django_tables2 import SingleTableView
+from django_tables2.views import SingleTableMixin
+from django_filters.views import FilterView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.aggregates import ArrayAgg
 
@@ -16,9 +17,11 @@ def get_dataset_vrt_view(request, dataset_uuid):
         return HttpResponseNotFound()
 
 
-class DatasetsListPage(SingleTableView):
+class DatasetsListPage(SingleTableMixin, FilterView):
     model = Dataset
     table_class = tables.DatasetTable
+    filterset_class = filters.DatasetFilter
+    template_name = "datasets/dataset_list.html"
 
     def get_queryset(self):
         qs = super().get_queryset().order_by("created_at")
