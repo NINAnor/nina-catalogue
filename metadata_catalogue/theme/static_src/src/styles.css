@@ -46,3 +46,7 @@
 .dataset-metadata-section-values *:nth-child(2) {
     @apply col-span-3;
 }
+
+select {
+    @apply pr-8 !important;
+}
