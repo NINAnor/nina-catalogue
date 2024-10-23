@@ -3,8 +3,8 @@ import traceback
 
 from bs4 import BeautifulSoup
 from django.db import transaction
-from metadata_catalogue.core.utils import async_task
 from metadata_catalogue.datasets.models import Dataset
+from procrastinate.contrib.django import app
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +24,9 @@ def rss_to_datasets(rss_content):
                         },
                         fetch_url=archive.text,
                     )
-                    async_task(
-                        "metadata_catalogue.datasets.libs.harvesters.harvest_dataset",
-                        d.id,
-                    )
+                    app.configure_task(
+                        name="harvest_dataset",
+                    ).defer(dataset_id=d.id)
                 else:
                     logger.warn(f'no archive url found for {item.find("title").text}')
             except Exception:

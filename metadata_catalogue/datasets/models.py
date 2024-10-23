@@ -13,7 +13,7 @@ from django_lifecycle import (
     hook,
 )
 from django.urls import reverse
-from metadata_catalogue.core.utils import async_task
+from procrastinate.contrib.django import app
 from solo.models import SingletonModel
 
 from .libs.iso.mapping import ISOMapping
@@ -498,7 +498,7 @@ class Content(LifecycleModel):
 
     @hook(AFTER_SAVE, when_any=["gdal_vrt_definition"], has_changed=True)
     def check_is_valid(self):
-        async_task("metadata_catalogue.datasets.libs.checks.validate_vrt", self.id)
+        app.configure_task(name="validate_vrt").defer(content_id=self.id)
 
     def __str__(self):
         return str(self.dataset)
