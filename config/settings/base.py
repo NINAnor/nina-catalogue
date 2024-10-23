@@ -50,6 +50,8 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ENGINE"] = "psqlextra.backend"
 POSTGRES_EXTRA_DB_BACKEND_BASE = "django.contrib.gis.db.backends.postgis"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=None)
+
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -106,6 +108,7 @@ THIRD_PARTY_APPS = [
     "slippers",
     "fontawesomefree",
     "leaflet",
+    "procrastinate.contrib.django",
 ]
 
 LOCAL_APPS = [
@@ -406,3 +409,6 @@ SPECTACULAR_SETTINGS = {
 DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}
 
 TAILWIND_APP_NAME = "metadata_catalogue.theme"
+
+IPT_SOURCES = env.list("IPT_SOURCES", default=[])
+IPT_SOURCES_CRON = env("IPT_SOURCES_CRON", default="0 0 * * 0")

@@ -10,6 +10,7 @@ x-django-env: &django-env
   DJANGO_ACCOUNT_ALLOW_REGISTRATION: "True"
   USE_DOCKER: "yes"
   DJANGO_BASE_SCHEMA_URL: "http://django:8000"
+  IPT_SOURCES: "https://ipt.nina.no"
 
 x-django-prod-env: &django-prod-env
   <<: *django-env
@@ -93,19 +94,19 @@ services:
       <<: *django-dev-env
       DJANGO_TAILWIND: 1
 
-  # queue:
-  #   <<: *django-prod
-  #   environment:
-  #     <<: *django-prod-env
-  #     WAIT_FOR_HTTP: http://django:8000/ht/
-  #   command: python manage.py qcluster
+  queue:
+    <<: *django-prod
+    environment:
+      <<: *django-prod-env
+      WAIT_FOR_HTTP: http://django:8000/ht/
+    command: python manage.py procrastinate worker
 
-  # queue-dev:
-  #   <<: *django-dev
-  #   environment:
-  #     <<: *django-dev-env
-  #     WAIT_FOR_HTTP: http://django:8000/ht/
-  #   command: python manage.py qcluster
+  queue-dev:
+    <<: *django-dev
+    environment:
+      <<: *django-dev-env
+      WAIT_FOR_HTTP: http://django:8000/ht/
+    command: python manage.py procrastinate worker
 
   postgres:
     image: postgis/postgis:16-3.4
