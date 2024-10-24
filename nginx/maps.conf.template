@@ -5,17 +5,14 @@ map $http_upgrade $connection_upgrade {
 
 upstream django_upstream {
     server django:8000;
-    keepalive 64;
 }
 
 upstream maps_upstream {
     server maps:80;
-    keepalive 64;
 }
 
 upstream titiler_upstream {
     server titiler:80;
-    keepalive 64;
 }
 
 
@@ -40,11 +37,11 @@ server {
     proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;
     proxy_set_header   X-Forwarded-Proto    $scheme;
     proxy_set_header   X-NginX-Proxy        true;
+    proxy_set_header   Host                 $http_host;
     proxy_set_header   Cookie               $http_cookie;
+    proxy_set_header   Upgrade              $http_upgrade;
+    proxy_set_header   Connection           "upgrade";
     proxy_redirect     off;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $connection_upgrade;
-    proxy_set_header Host $http_host;
 
     location /static/ {
         alias /statics/;
