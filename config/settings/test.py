@@ -2,8 +2,12 @@
 With these settings, tests run faster.
 """
 
+import os
+
+os.environ["DJANGO_BASE_SCHEMA_URL"] = ""
+
 from .base import *  # noqa
-from .base import env
+from .base import env  # noqa: E402
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -32,6 +36,6 @@ TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore # noqa: F405
 # MEDIA
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-MEDIA_URL = "http://media.testserver"
+MEDIA_URL = "http://media.testserver/"
 # Your stuff...
 # ------------------------------------------------------------------------------
