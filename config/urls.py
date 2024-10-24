@@ -20,6 +20,7 @@ urlpatterns = [
     path("ht/", include("health_check.urls")),
     path("csw/", include("metadata_catalogue.datasets.csw.urls")),
     path("geoapi", landing_page),
+    path("map-portals/", include("metadata_catalogue.maps.urls", namespace="maps")),
     path(
         "geoapi/",
         include("metadata_catalogue.datasets.geoapi.urls", namespace="geoapi"),

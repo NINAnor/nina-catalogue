@@ -1,6 +1,19 @@
-from ninja import NinjaAPI
+from django.urls import path
 
-from .apis import maps_router
+from .views import ConfigJSView, PortalListPage, PortalPreview
 
-api = NinjaAPI()
-api.add_router("/maps/", maps_router)
+app_name = "maps"
+
+urlpatterns = [
+    path(
+        "<uuid:slug>/preview/config.js",
+        ConfigJSView.as_view(),
+        name="portal-preview-config",
+    ),
+    path(
+        "<uuid:slug>/preview/",
+        PortalPreview.as_view(),
+        name="portal-preview",
+    ),
+    path("", PortalListPage.as_view(), name="portals-list"),
+]

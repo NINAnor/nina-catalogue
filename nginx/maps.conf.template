@@ -44,6 +44,7 @@ server {
     proxy_redirect     off;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection $connection_upgrade;
+    proxy_set_header Host $http_host;
 
     location /static/ {
         alias /statics/;
@@ -62,46 +63,22 @@ server {
 
     location @proxy {
         proxy_pass http://django_upstream;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
     }
 
     location /titiler/ {
         proxy_pass http://titiler_upstream;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
     }
 
-    location /admin/ {
-        # TODO: use a better solution to upload files, for example s3 + tusd
-        # allow upload of big file - this is a temporary solution
-        client_max_body_size 8000M;
-        client_body_buffer_size 8000M;
-        client_body_timeout 360;
-
-        proxy_pass http://django_upstream;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
-    }
-
-    location /api/ {
-        # TODO: use a better solution to upload files, for example s3 + tusd
-        # allow upload of big file - this is a temporary solution
-        client_max_body_size 8000M;
-        client_body_buffer_size 8000M;
-        client_body_timeout 360;
-
-        proxy_pass http://django_upstream;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+    location ~ ^\/map-portals\/[\w-]*\/preview\/(?!config\.js).*$ {
+        rewrite ^\/map-portals\/[\w-]*\/preview(.*)$ $1 break;
+        proxy_pass http://maps_upstream;
     }
 
     location / {
-        proxy_pass http://maps_upstream;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+        client_max_body_size 8000M;
+        client_body_buffer_size 8000M;
+        client_body_timeout 360;
+
+        proxy_pass http://django_upstream;
     }
 }
