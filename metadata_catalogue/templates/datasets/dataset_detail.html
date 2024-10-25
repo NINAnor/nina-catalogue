@@ -1,0 +1,72 @@
+{% extends 'app.html' %}
+
+{% load render_table from django_tables2 %}
+{% load leaflet_tags %}
+
+{% block css %}
+  {{ block.super }}
+  {% leaflet_css %}
+{% endblock css %}
+{% block body_javascript %}
+  {{ block.super }}
+  {% leaflet_js %}
+{% endblock body_javascript %}
+{% block article %}
+  <div class="dataset-metadata">
+    <div class="flex my-5 justify-between items-center">
+      <h1 class="font-bold text-4xl">{{ dataset.metadata.title }}</h1>
+      <div class="flex gap-4">
+        {% if dataset.owner == request.user %}
+          <a href="{% url 'dataset-edit' slug=object.uuid %}"
+             class="btn btn-accent"><i class="fas fa-edit"></i> Edit</a>
+        {% endif %}
+        <a href="{% url 'dataset-list' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+      </div>
+    </div>
+    <div class="dataset-metadata-section">
+      <b>Publication date:</b> <em>{{ dataset.metadata.date_publication|date:"d/m/Y" }}</em>
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>Abstract</h2>
+      <div class="free-text">{{ dataset.metadata.abstract  }}</div>
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>People involved</h2>
+      {% render_table people_table %}
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>Geographic Coverage</h2>
+      <div class="free-text">{{ dataset.metadata.geographic_description }}</div>
+      <div class="dataset-metadata-section-values">
+        <div>Bounding box</div>
+        <div>
+          <div>
+            {% leaflet_map "bboxmap" callback="window.map_init_basic" %}
+            <script id="geometry" type="application/json">
+              {
+                {
+                  object.metadata.bounding_box.geojson | safe
+                }
+              }
+            </script>
+            <script>
+              window.addEventListener("map:init", function(e) {
+                var detail = e.detail;
+                geometry = JSON.parse(document.getElementById('geometry').textContent);
+                const layer = L.geoJSON(geometry).addTo(detail.map);
+                detail.map.fitBounds(layer.getBounds())
+              }, false);
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dataset-metadata-section">
+      <h2>Temporal Coverage</h2>
+      <div class="dataset-metadata-section-values">
+        <div>Formation period</div>
+        <div>{{ dataset.metadata.formation_period_start|date:'Y' }}-{{ dataset.metadata.formation_period_end|date:'Y' }}</div>
+      </div>
+    </div>
+  </div>
+{% endblock article %}

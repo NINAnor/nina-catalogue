@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+[x-cloak] {
+    display: none !important;
+}
+
+.pagination {
+    @apply join gap-1;
+}
+
+.pagination>li {
+    @apply join-item;
+}
+
+.pagination li a {
+    @apply btn;
+}
+
+.pagination>li.active a {
+    @apply btn-active;
+}
+
+.dataset-metadata .dataset-metadata-section {
+    @apply mb-20;
+}
+
+.dataset-metadata .dataset-metadata-section>h2 {
+    @apply font-bold text-3xl;
+}
+
+.dataset-metadata .dataset-metadata-section .free-text {
+    @apply prose lg:prose-lg max-w-full;
+}
+
+.dataset-metadata-section-values {
+    @apply grid grid-cols-4 my-3;
+}
+
+.dataset-metadata-section-values *:first-child {
+    @apply font-bold;
+}
+
+.dataset-metadata-section-values *:nth-child(2) {
+    @apply col-span-3;
+}
+
+select {
+    @apply pr-8 !important;
+}
+
+a {
+    @apply link link-primary;
+}
