@@ -3,9 +3,11 @@ import logging
 from datetime import date
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-from .models import Dataset
+from .models import Dataset, Metadata
 
 from django.db import transaction
+
+from leaflet.forms.widgets import LeafletWidget
 
 
 class DatasetCreateForm(ModelForm):
@@ -74,3 +76,53 @@ class DatasetFilterForm(Form):
 
     class Meta:
         widgets = {"my_datasets": widgets.CheckboxInput()}
+
+
+class DatasetMetadataEditForm(ModelForm):
+    source = CharField(required=False, widget=widgets.Textarea(attrs=dict(rows=2)))
+    notes = CharField(required=False, widget=widgets.Textarea(attrs=dict(rows=2)))
+
+    def __init__(self, *args, initial, instance, **kwargs):
+        initial["source"] = instance.dataset.source
+        initial["notes"] = instance.dataset.notes
+        super().__init__(*args, initial=initial, instance=instance, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", "Submit", css_class="mt-2"))
+
+    def save(self, commit: bool = True):
+        with transaction.atomic():
+            instance = super().save(commit=False)
+            logging.warning(
+                "This form will always commit, ensure you are using transaction.atomic to cancel this"
+            )
+            instance.save()
+            instance.dataset.notes = self.cleaned_data["notes"]
+            instance.dataset.source = self.cleaned_data["source"]
+            instance.dataset.save(update_fields=["notes", "source"])
+            return instance
+
+    class Meta:
+        model = Metadata
+        fields = (
+            "title",
+            "abstract",
+            "license",
+            "language",
+            "geographic_description",
+            "formation_period_description",
+            "formation_period_start",
+            "formation_period_end",
+            "date_publication",
+            "maintenance_update_frequency",
+            "maintenance_update_description",
+            "bounding_box",
+            "keywords",
+            "taxonomies",
+            "project_id",
+            "project_title",
+            "project_abstract",
+            "project_study_area_description",
+            "project_design_description",
+        )
+        widgets = {"bounding_box": LeafletWidget()}

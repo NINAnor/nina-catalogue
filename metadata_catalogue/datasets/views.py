@@ -1,12 +1,13 @@
 from django.http import HttpResponse, HttpResponseNotFound
-from .models import Dataset
+from .models import Dataset, Metadata
 from . import tables, forms, filters
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, UpdateView
 from typing import Any
 from django_tables2.views import SingleTableMixin
 from django_filters.views import FilterView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.urls import reverse
 
 
 def get_dataset_vrt_view(request, dataset_uuid):
@@ -71,3 +72,23 @@ class DatasetDetailPage(DetailView):
         )
 
         return ctx
+
+
+class DatasetEditPage(UpdateView):
+    model = Metadata
+    slug_field = "dataset__uuid"
+    form_class = forms.DatasetMetadataEditForm
+    template_name = "datasets/dataset_edit.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related("dataset")
+
+        if not self.request.user.is_authenticated:
+            qs = qs.filter(dataset__public=True)
+        else:
+            qs = qs.filter(dataset__owner=self.request.user)
+
+        return qs
+
+    def get_success_url(self) -> str:
+        return reverse("dataset-detail", kwargs=dict(slug=self.object.dataset.uuid))

@@ -10,4 +10,5 @@ urlpatterns = [
     path("", views.DatasetsListPage.as_view(), name="dataset-list"),
     path("create/", views.DatasetCreatePage.as_view(), name="dataset-create"),
     path("<uuid:slug>/", views.DatasetDetailPage.as_view(), name="dataset-detail"),
+    path("<uuid:slug>/edit/", views.DatasetEditPage.as_view(), name="dataset-edit"),
 ]
