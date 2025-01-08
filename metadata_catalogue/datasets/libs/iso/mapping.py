@@ -76,6 +76,7 @@ class ISOMapping:
                         "name": "OGC API Feature",
                         "description": "OGC REST API to the resource",
                         "function": "download",
+                        "format": "GeoJSON",
                     },
                 },
             }

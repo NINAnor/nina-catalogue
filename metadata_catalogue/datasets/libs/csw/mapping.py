@@ -18,7 +18,7 @@ class CSWMapping:
         self.csw_wkt_geometry = dataset.metadata.bounding_box.ewkt
         self.language = dataset.metadata.language.iso_639_2T
         self.abstract = dataset.metadata.abstract
-        self.format = "OGCFeat"
+        self.format = "GeoJSON"
         self.source = settings.BASE_SCHEMA_URL + reverse_lazy(
             "geoapi:collection-detail", kwargs={"collection_id": str(dataset.uuid)}
         )
