@@ -130,7 +130,7 @@ dev = [
 # See https://www.python.org/dev/peps/pep-0621/
 dependencies = [
     "python-slugify>=8.0.1",
-    "Pillow==10.1.0",
+    "Pillow==11.1.0",
     "rcssmin",
     "argon2-cffi",
     "whitenoise",
