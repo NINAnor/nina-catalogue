@@ -162,7 +162,10 @@ class Person(models.Model):
         verbose_name_plural = "people"
 
     def __str__(self):
-        return f"{self.last_name}, {self.first_name}"
+        if self.last_name and self.first_name:
+            return f"{self.last_name}, {self.first_name}"
+        else:
+            return self.first_name or self.last_name
 
 
 class PersonRole(LifecycleModel):
