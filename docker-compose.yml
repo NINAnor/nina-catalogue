@@ -212,7 +212,7 @@ services:
   maps:
     profiles:
       - maps
-    image: ghcr.io/ninanor/nina-map-explorer:main
+    image: ghcr.io/ninanor/nina-map-explorer:change-url
     volumes:
       - ./nginx/maps.config.js:/var/www/config.js
 
