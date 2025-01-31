@@ -194,13 +194,13 @@ services:
   titiler:
     profiles:
       - maps
-    image: ghcr.io/ninanor/experimental-bbox-colorscale-map-titiler:master
+    image: ghcr.io/ninanor/titiler-app-titiler:next
     environment:
       - TITILER_API_CACHECONTROL=no-cache
       - FORWARDED_ALLOW_IPS=*
       - TITILER_API_ROOT_PATH=/titiler
     ports:
-      - "8989:8080"
+      - "8989:80"
 
   maps:
     profiles:
