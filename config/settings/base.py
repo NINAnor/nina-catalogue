@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # metadata_catalogue/
 APPS_DIR = BASE_DIR / "metadata_catalogue"
-env = environ.Env()
+env = environ.FileAwareEnv()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
