@@ -1,6 +1,5 @@
 import uuid
 
-from django.conf import settings
 from django.contrib.gis.db.models import PolygonField
 from django.db import models
 from django.urls import reverse
@@ -30,7 +29,9 @@ class Source(PolymorphicModel):
     name = models.CharField(max_length=250)
     slug = models.SlugField(null=True, blank=True, max_length=250)
     extra = models.JSONField(default=empty_json, blank=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     style = models.JSONField(default=empty_json, blank=True)
     metadata = models.JSONField(default=empty_json, blank=True)
     attribution = models.CharField(null=True, blank=True, max_length=250)
@@ -61,13 +62,21 @@ class Source(PolymorphicModel):
 
 
 class RasterSource(Source):
-    source = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
-    original_data = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
+    source = models.FileField(
+        upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage
+    )
+    original_data = models.FileField(
+        upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage
+    )
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
 
     def get_download_url(self, request):
-        return request.build_absolute_uri(self.original_data.url) if self.original_data else self.url
+        return (
+            request.build_absolute_uri(self.original_data.url)
+            if self.original_data
+            else self.url
+        )
 
     def get_source_url(self, request):
         url = request.build_absolute_uri(self.source.url) if self.source else self.url
@@ -79,15 +88,23 @@ class RasterSource(Source):
 
 
 class VectorSource(Source):
-    source = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
-    original_data = models.FileField(upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage)
+    source = models.FileField(
+        upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage
+    )
+    original_data = models.FileField(
+        upload_to=layers_folder, null=True, blank=True, storage=OverwriteStorage
+    )
     protocol = models.CharField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
 
     default_layer = models.CharField(null=True, blank=True)
 
     def get_download_url(self, request):
-        return request.build_absolute_uri(self.original_data.url) if self.original_data else self.url
+        return (
+            request.build_absolute_uri(self.original_data.url)
+            if self.original_data
+            else self.url
+        )
 
     def get_source_url(self, request):
         url = request.build_absolute_uri(self.source.url) if self.source else self.url
@@ -102,12 +119,18 @@ class Layer(models.Model):
     name = models.CharField(max_length=250, null=True, blank=True)
     slug = models.SlugField(null=True, blank=True, max_length=250)
     map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="layers")
-    source = models.ForeignKey("maps.Source", on_delete=models.CASCADE, null=True, blank=True)
+    source = models.ForeignKey(
+        "maps.Source", on_delete=models.CASCADE, null=True, blank=True
+    )
     source_layer = models.CharField(blank=True, null=True)
     style = models.JSONField(default=empty_json, blank=True)
     map_order = models.IntegerField(default=0)
     group = models.ForeignKey(
-        "maps.LayerGroup", on_delete=models.SET_NULL, related_name="layers", null=True, blank=True
+        "maps.LayerGroup",
+        on_delete=models.SET_NULL,
+        related_name="layers",
+        null=True,
+        blank=True,
     )
     group_order = models.IntegerField(default=0)
     downloadable = models.BooleanField(default=False)
@@ -153,7 +176,9 @@ class Layer(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["slug", "map"], name="layer with unique slug"),
+            models.UniqueConstraint(
+                fields=["slug", "map"], name="layer with unique slug"
+            ),
         ]
 
 
@@ -165,8 +190,12 @@ class Map(LifecycleModel):
     # center =
     zoom = models.IntegerField(null=True, blank=True)
     extra = models.JSONField(default=empty_json, blank=True)
-    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
-    visibility = models.CharField(default=Visibility.PRIVATE, max_length=10, choices=Visibility.choices)
+    owner = models.ForeignKey(
+        "users.User", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    visibility = models.CharField(
+        default=Visibility.PRIVATE, max_length=10, choices=Visibility
+    )
     logo = models.ImageField(blank=True, null=True, upload_to=logo_folder)
     legend_config = models.JSONField(null=True, blank=True)
     basemap_config = models.JSONField(null=True, blank=True)
@@ -190,10 +219,14 @@ class Map(LifecycleModel):
             layers.append(root.as_layer_tree(request, self))
 
         style_url = request.build_absolute_uri(
-            reverse(f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug})
+            reverse(
+                f"{settings.MAPS_API_PREFIX}:map_style", kwargs={"map_slug": self.slug}
+            )
         )
 
-        for layer in self.layers.filter(is_basemap=False, is_lazy=True).order_by("map_order"):
+        for layer in self.layers.filter(is_basemap=False, is_lazy=True).order_by(
+            "map_order"
+        ):
             source = layer.source.get_real_instance() if layer.source else None
 
             lazy_layers[layer.slug] = {
@@ -214,7 +247,9 @@ class Map(LifecycleModel):
                     s["type"] = source.type
 
                     if layer.downloadable:
-                        lazy_layers[layer.slug]["metadata"]["download"] = source.get_download_url(request)
+                        lazy_layers[layer.slug]["metadata"]["download"] = (
+                            source.get_download_url(request)
+                        )
 
                 if source.extra and len(source.extra):
                     lazy_layers[layer.slug]["source"] = {**s, **source.extra}
@@ -222,7 +257,12 @@ class Map(LifecycleModel):
             if source.attribution is not None:
                 lazy_layers[layer.slug]["attribution"] = source.attribution
 
-            if source and source.type and source.type == "vector" and layer.source_layer:
+            if (
+                source
+                and source.type
+                and source.type == "vector"
+                and layer.source_layer
+            ):
                 lazy_layers[layer.slug]["source-layer"] = layer.source_layer
 
             for k, v in source.style.items():
@@ -247,7 +287,9 @@ class Map(LifecycleModel):
         sources = {}
         layers = []
 
-        for layer in self.layers.filter(models.Q(is_basemap=True) | models.Q(is_lazy=False)).order_by("map_order"):
+        for layer in self.layers.filter(
+            models.Q(is_basemap=True) | models.Q(is_lazy=False)
+        ).order_by("map_order"):
             source = layer.source.get_real_instance() if layer.source else None
             if source and source.type:
                 sources[source.slug] = {
@@ -289,7 +331,9 @@ class Map(LifecycleModel):
                 "legend": self.legend_config,
                 "subtitle": self.subtitle,
                 "title": self.title,
-                "logo": request.build_absolute_uri(self.logo.url) if self.logo else None,
+                "logo": request.build_absolute_uri(self.logo.url)
+                if self.logo
+                else None,
                 "description": self.description,
                 "basemaps": {
                     "config": self.basemap_config,
@@ -304,7 +348,13 @@ class LayerGroup(MP_Node):
     name = models.CharField(max_length=150)
     slug = models.SlugField(null=True, blank=True, max_length=250)
     order = models.IntegerField(default=0, blank=True)
-    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, null=True, blank=True, related_name="groups")
+    map = models.ForeignKey(
+        "maps.Map",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="groups",
+    )
     download_url = models.URLField(null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     link = models.URLField(null=True, blank=True)
@@ -332,10 +382,14 @@ class LayerGroup(MP_Node):
         }
         for sub_group in self.get_children():
             current_group["children"].append(
-                sub_group.as_layer_tree(request, map_instance, sources=sources, extents=extents)
+                sub_group.as_layer_tree(
+                    request, map_instance, sources=sources, extents=extents
+                )
             )
 
-        for layer in self.layers.filter(map=map_instance).order_by("group_order", "name"):
+        for layer in self.layers.filter(map=map_instance).order_by(
+            "group_order", "name"
+        ):
             current_group["children"].append(
                 {
                     "id": layer.slug,
@@ -352,8 +406,12 @@ class LayerGroup(MP_Node):
 class Portal(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4)
     title = models.CharField(max_length=250)
-    visibility = models.CharField(max_length=10, choices=Visibility.choices, default=Visibility.PRIVATE)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    visibility = models.CharField(
+        max_length=10, choices=Visibility, default=Visibility.PRIVATE
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL
+    )
     extra = models.JSONField(default=empty_json, blank=True)
 
     class Meta:
@@ -366,8 +424,16 @@ class Portal(models.Model):
 
 
 class PortalMap(models.Model):
-    map = models.ForeignKey("maps.Map", on_delete=models.CASCADE, related_name="portals", null=True, blank=True)
-    portal = models.ForeignKey("maps.Portal", on_delete=models.CASCADE, related_name="maps")
+    map = models.ForeignKey(
+        "maps.Map",
+        on_delete=models.CASCADE,
+        related_name="portals",
+        null=True,
+        blank=True,
+    )
+    portal = models.ForeignKey(
+        "maps.Portal", on_delete=models.CASCADE, related_name="maps"
+    )
     order = models.IntegerField(default=0, blank=True)
     extra = models.JSONField(default=empty_json, blank=True)
     external_title = models.CharField(null=True, blank=True)

@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   pgdata: {}
@@ -10,6 +10,7 @@ x-django-env: &django-env
   DJANGO_ACCOUNT_ALLOW_REGISTRATION: "True"
   USE_DOCKER: "yes"
   DJANGO_BASE_SCHEMA_URL: "http://django:8000"
+  IPT_SOURCES: "https://ipt.nina.no"
 
 x-django-prod-env: &django-prod-env
   <<: *django-env
@@ -36,7 +37,6 @@ x-django: &django
     - postgres
   environment:
     <<: *django-env
-
 
 x-django-prod: &django-prod
   <<: *django
@@ -85,19 +85,28 @@ services:
       <<: *django-dev-env
       DJANGO_MIGRATE: 1
 
+  tailwind:
+    <<: *django-dev
+    tty: true
+    stdin_open: true
+    command: python manage.py tailwind start
+    environment:
+      <<: *django-dev-env
+      DJANGO_TAILWIND: 1
+
   queue:
     <<: *django-prod
     environment:
       <<: *django-prod-env
       WAIT_FOR_HTTP: http://django:8000/ht/
-    command: python manage.py qcluster
+    command: python manage.py procrastinate worker
 
   queue-dev:
     <<: *django-dev
     environment:
       <<: *django-dev-env
       WAIT_FOR_HTTP: http://django:8000/ht/
-    command: python manage.py qcluster
+    command: python manage.py procrastinate worker
 
   postgres:
     image: postgis/postgis:16-3.4
@@ -118,7 +127,7 @@ services:
     volumes:
       - ./docs:/book
     ports:
-      - '3001:3000'
+      - "3001:3000"
     command: serve --hostname 0.0.0.0
     profiles:
       - dev
@@ -130,7 +139,7 @@ services:
       dockerfile: ./Dockerfile
       target: prod
     ports:
-      - '3000:80'
+      - "3000:80"
     profiles:
       - prod
 
@@ -199,15 +208,11 @@ services:
       - TITILER_API_CACHECONTROL=no-cache
       - FORWARDED_ALLOW_IPS=*
       - TITILER_API_ROOT_PATH=/titiler
-    ports:
-      - "8989:80"
 
   maps:
     profiles:
       - maps
-    image: ghcr.io/ninanor/nina-map-explorer:main
-    ports:
-      - "3000:80"
+    image: ghcr.io/ninanor/nina-map-explorer:change-url
     volumes:
       - ./nginx/maps.config.js:/var/www/config.js
 

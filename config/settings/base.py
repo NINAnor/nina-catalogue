@@ -1,6 +1,7 @@
 """
 Base settings to build other settings files upon.
 """
+
 from pathlib import Path
 
 import environ
@@ -49,6 +50,8 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ENGINE"] = "psqlextra.backend"
 POSTGRES_EXTRA_DB_BACKEND_BASE = "django.contrib.gis.db.backends.postgis"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=None)
+
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -76,14 +79,16 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "crispy_forms",
-    "crispy_bootstrap5",
+    "crispy_tailwind",
+    "allauth_ui",
     "allauth",
     "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.openid_connect",
     "django_probes",
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
-    "django_q",
     "countries_plus",
     "languages_plus",
     "psqlextra",
@@ -97,6 +102,13 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
     "drf_standardized_errors",
     "django_filters",
+    "tailwind",
+    "django_tables2",
+    "widget_tweaks",
+    "slippers",
+    "fontawesomefree",
+    "leaflet",
+    "procrastinate.contrib.django",
 ]
 
 LOCAL_APPS = [
@@ -106,6 +118,7 @@ LOCAL_APPS = [
     "metadata_catalogue.datasets.csw",
     "metadata_catalogue.datasets.geoapi",
     "metadata_catalogue.maps",
+    "metadata_catalogue.theme",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -126,7 +139,7 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
+LOGIN_REDIRECT_URL = "home"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
 
@@ -142,7 +155,9 @@ PASSWORD_HASHERS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -209,6 +224,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "metadata_catalogue.users.context_processors.allauth_settings",
             ],
+            "builtins": ["slippers.templatetags.slippers"],
         },
     }
 ]
@@ -217,8 +233,8 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "bootstrap5"
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "tailwind"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 
 # FIXTURES
 # ------------------------------------------------------------------------------
@@ -305,25 +321,34 @@ ACCOUNT_ADAPTER = "metadata_catalogue.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 ACCOUNT_FORMS = {"signup": "metadata_catalogue.users.forms.UserSignupForm"}
 
-# DJANGO Q
-Q_CLUSTER = {
-    "name": "viltkamera",
-    "workers": env.int("Q_WORKERS", default=1),
-    "recycle": 500,
-    "retry": env.int("Q_RETRY", default=6000),
-    "timeout": env.int("Q_TIMEOUT", default=5999),
-    "cpu_affinity": env.int("Q_AFFINITY", default=0),
-    "save_limit": env.int("Q_SAVE_LIMIT", default=250),
-    "queue_limit": 500,
-    "label": "Django Q",
-    "orm": "default",
-}
+ALLAUTH_UI_THEME = "nina"
 
-if Q_BROKER_CLASS := env(
-    "Q_BROKER_CLASS",
-    default="metadata_catalogue.core.brokers.GeneralPurposeBroker",
-):
-    Q_CLUSTER.update({"broker_class": Q_BROKER_CLASS})
+if env("SOCIALACCOUNT_ADAPTER", default=None):
+    SOCIALACCOUNT_ADAPTER = env("SOCIALACCOUNT_ADAPTER")
+
+if OIDC_CLIENT_ID := env("OIDC_CLIENT_ID", default=None):
+    SOCIALACCOUNT_ONLY = True
+    SOCIALACCOUNT_STORE_TOKENS = env("SOCIALACCOUNT_STORE_TOKENS", default=False)
+    extra = {}
+    if OIDC_SECRET := env("OIDC_SECRET", default=None):
+        extra["secret"] = OIDC_SECRET
+
+    SOCIALACCOUNT_PROVIDERS = {
+        "openid_connect": {
+            "OAUTH_PKCE_ENABLED": env("OAUTH_PKCE_ENABLED", default=False),
+            "APPS": [
+                {
+                    "provider_id": env("OIDC_PROVIDER_ID"),
+                    "name": env("OIDC_PROVIDER_NAME"),
+                    "client_id": OIDC_CLIENT_ID,
+                    "settings": {
+                        "server_url": env("OIDC_PROVIDER_URL"),
+                    },
+                    **extra,
+                },
+            ],
+        },
+    }
 
 
 CSW = {
@@ -349,6 +374,7 @@ GEOAPI_CACHE_TIMEOUT = env.int("DJANGO_GEOAPI_CACHE_TIMEOUT", default=0)
 GEOAPI_SETTINGS_CACHE_ENABLED = env.bool("GEOAPI_SETTINGS_CACHE_ENABLED", default=False)
 
 CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS", default=[])
+CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOW_CREDENTIALS = True
 
 MAPS_API_KEY = env("MAPS_API_KEY", default=None)
@@ -381,3 +407,8 @@ SPECTACULAR_SETTINGS = {
 }
 
 DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}
+
+TAILWIND_APP_NAME = "metadata_catalogue.theme"
+
+IPT_SOURCES = env.list("IPT_SOURCES", default=[])
+IPT_SOURCES_CRON = env("IPT_SOURCES_CRON", default="0 0 * * 0")

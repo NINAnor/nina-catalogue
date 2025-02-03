@@ -3,9 +3,8 @@ map $http_upgrade $connection_upgrade {
     '' close;
 }
 
-upstream django {
+upstream django_upstream {
     server django:8000;
-    keepalive 64;
 }
 
 server {
@@ -29,7 +28,10 @@ server {
     proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;
     proxy_set_header   X-Forwarded-Proto    $scheme;
     proxy_set_header   X-NginX-Proxy        true;
+    proxy_set_header   Host                 $http_host;
     proxy_set_header   Cookie               $http_cookie;
+    proxy_set_header   Upgrade              $http_upgrade;
+    proxy_set_header   Connection           "upgrade";
     proxy_redirect     off;
 
     location /static/ {
@@ -48,11 +50,7 @@ server {
     }
 
     location @proxy {
-        proxy_pass http://django;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+        proxy_pass http://django_upstream;
     }
 
     location / {
@@ -62,10 +60,6 @@ server {
         client_body_buffer_size 8000M;
         client_body_timeout 360;
 
-        proxy_pass http://django;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+        proxy_pass http://django_upstream;
     }
 }

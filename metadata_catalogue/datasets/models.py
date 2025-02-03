@@ -1,4 +1,3 @@
-import traceback
 import uuid
 
 from django.contrib.gis.db import models
@@ -6,8 +5,15 @@ from django.db.models import Value
 from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-from django_lifecycle import AFTER_CREATE, AFTER_DELETE, AFTER_SAVE, LifecycleModel, hook
-from django_q.tasks import async_task
+from django_lifecycle import (
+    AFTER_CREATE,
+    AFTER_DELETE,
+    AFTER_SAVE,
+    LifecycleModel,
+    hook,
+)
+from django.urls import reverse
+from procrastinate.contrib.django import app
 from solo.models import SingletonModel
 
 from .libs.iso.mapping import ISOMapping
@@ -20,11 +26,20 @@ class Dataset(LifecycleModel):
 
     name = models.CharField(max_length=250, verbose_name=_("Internal name"))
     uuid = models.UUIDField(default=uuid.uuid4)
-    source = models.TextField(null=True, blank=True)
-    fetch_url = models.TextField(verbose_name=_("URL of the resource to fetch"), null=True, blank=True)
-    fetch_type = models.IntegerField(choices=FetchType.choices, null=True, blank=True)
+    source = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Describe where the dataset is stored (example: on a CSV file on P:, on a notebook)",
+    )
+    notes = models.TextField(null=True, blank=True)
+    fetch_url = models.TextField(
+        verbose_name=_("URL of the resource to fetch"), null=True, blank=True
+    )
+    fetch_type = models.IntegerField(choices=FetchType, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
-    last_modified_at = models.DateTimeField(auto_now=True, verbose_name=_("Last modified at"))
+    last_modified_at = models.DateTimeField(
+        auto_now=True, verbose_name=_("Last modified at")
+    )
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.SET_NULL,
@@ -33,7 +48,9 @@ class Dataset(LifecycleModel):
         verbose_name=_("Owner"),
         related_name="owned_datasets",
     )
-    validated_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Validated at"))
+    validated_at = models.DateTimeField(
+        null=True, blank=True, verbose_name=_("Validated at")
+    )
     validated_by = models.ForeignKey(
         "users.User",
         on_delete=models.SET_NULL,
@@ -52,7 +69,9 @@ class Dataset(LifecycleModel):
     def __str__(self):
         return f"{self.id} - {self.name}"
 
-    def set_fetch_message(self, message, *args, append=False, success=None, logger_fn=None, commit=True):
+    def set_fetch_message(
+        self, message, *args, append=False, success=None, logger_fn=None, commit=True
+    ):
         text = ""
         if append and self.fetch_message:
             text = self.fetch_message
@@ -68,6 +87,9 @@ class Dataset(LifecycleModel):
 
         if commit:
             self.save()
+
+    def get_absolute_url(self):
+        return reverse("dataset-detail", kwargs={"slug": self.uuid})
 
     @hook(AFTER_CREATE)
     def create_metadata_content(self):
@@ -101,7 +123,11 @@ class Keyword(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint("name", Coalesce("definition", Value("")), name="unique_kw_name_definition")
+            models.UniqueConstraint(
+                "name",
+                Coalesce("definition", Value("")),
+                name="unique_kw_name_definition",
+            )
         ]
 
     def __str__(self) -> str:
@@ -149,9 +175,13 @@ class PersonIdentifier(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length=150, null=True, blank=True)
     last_name = models.CharField(max_length=150, null=True, blank=True)
-    belongs_to = models.ForeignKey("datasets.Organization", on_delete=models.PROTECT, null=True, blank=True)
+    belongs_to = models.ForeignKey(
+        "datasets.Organization", on_delete=models.PROTECT, null=True, blank=True
+    )
     position = models.CharField(max_length=250, null=True, blank=True)
-    country = models.ForeignKey("countries_plus.Country", null=True, blank=True, on_delete=models.PROTECT)
+    country = models.ForeignKey(
+        "countries_plus.Country", null=True, blank=True, on_delete=models.PROTECT
+    )
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=15, null=True, blank=True)
     city = models.TextField(null=True, blank=True)
@@ -176,9 +206,13 @@ class PersonRole(LifecycleModel):
         PROVIDER = "PROVIDER", _("Provider")
         ASSOCIATED_PARTY = "ASSOCIATED", _("Associated party")
 
-    person = models.ForeignKey("datasets.Person", on_delete=models.CASCADE, related_name="roles")
-    metadata = models.ForeignKey("datasets.Metadata", on_delete=models.CASCADE, related_name="people")
-    role = models.CharField(max_length=10, choices=RoleType.choices)
+    person = models.ForeignKey(
+        "datasets.Person", on_delete=models.CASCADE, related_name="roles"
+    )
+    metadata = models.ForeignKey(
+        "datasets.Metadata", on_delete=models.CASCADE, related_name="people"
+    )
+    role = models.CharField(max_length=10, choices=RoleType)
     description = models.CharField(max_length=250, null=True, blank=True)
 
     def __str__(self) -> str:
@@ -216,8 +250,12 @@ class OrganizationRole(models.Model):
     class RoleType(models.TextChoices):
         FUNDING = "FUNDING", _("Funding")
 
-    organization = models.ForeignKey("datasets.Organization", on_delete=models.CASCADE, related_name="roles")
-    metadata = models.ForeignKey("datasets.Metadata", on_delete=models.CASCADE, related_name="organizations")
+    organization = models.ForeignKey(
+        "datasets.Organization", on_delete=models.CASCADE, related_name="roles"
+    )
+    metadata = models.ForeignKey(
+        "datasets.Metadata", on_delete=models.CASCADE, related_name="organizations"
+    )
     role = models.CharField(max_length=250)
 
     def __str__(self) -> str:
@@ -274,12 +312,18 @@ class TaxonomyType(models.Model):
 
 
 class Taxonomy(models.Model):
-    type = models.ForeignKey("datasets.TaxonomyType", on_delete=models.PROTECT, null=True, blank=True)
+    type = models.ForeignKey(
+        "datasets.TaxonomyType", on_delete=models.PROTECT, null=True, blank=True
+    )
     name = models.CharField(max_length=250)
     common = models.CharField(max_length=250, null=True, blank=True)
 
     class Meta:
-        constraints = [models.UniqueConstraint(name="unique_taxonomy_name_type", fields=["name", "type"])]
+        constraints = [
+            models.UniqueConstraint(
+                name="unique_taxonomy_name_type", fields=["name", "type"]
+            )
+        ]
 
     def __str__(self) -> str:
         return self.name
@@ -296,7 +340,9 @@ class Citation(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(name="unique_citation", fields=["identifier", "text"]),
+            models.UniqueConstraint(
+                name="unique_citation", fields=["identifier", "text"]
+            ),
         ]
 
     def __str__(self) -> str:
@@ -310,11 +356,13 @@ class MetadataIdentifier(models.Model):
 
     identifier = models.CharField(max_length=500)
     metadata = models.ForeignKey("datasets.Metadata", on_delete=models.CASCADE)
-    source = models.CharField(max_length=5, choices=Type.choices, null=True, blank=True)
+    source = models.CharField(max_length=5, choices=Type, null=True, blank=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(name="unique_metadata_identifier", fields=["identifier", "source"]),
+            models.UniqueConstraint(
+                name="unique_metadata_identifier", fields=["identifier", "source"]
+            ),
         ]
 
     def __str__(self) -> str:
@@ -323,7 +371,11 @@ class MetadataIdentifier(models.Model):
 
 class Metadata(LifecycleModel):
     dataset = models.OneToOneField(
-        "datasets.Dataset", related_name="metadata", on_delete=models.CASCADE, null=True, blank=True
+        "datasets.Dataset",
+        related_name="metadata",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     title = models.CharField(max_length=500, null=True, blank=True)
     # title_alternate = models.CharField(max_length=500, null=True, blank=True)
@@ -331,10 +383,16 @@ class Metadata(LifecycleModel):
     logo_url = models.URLField(null=True, blank=True)
 
     date_publication = models.DateField(null=True, blank=True)
-    language = models.ForeignKey("languages_plus.Language", null=True, blank=True, on_delete=models.PROTECT)
+    language = models.ForeignKey(
+        "languages_plus.Language", null=True, blank=True, on_delete=models.PROTECT
+    )
     abstract = models.TextField(null=True, blank=True)
-    keywords = models.ManyToManyField("datasets.Keyword", blank=True, related_name="metadatas")
-    license = models.ForeignKey("datasets.License", null=True, blank=True, on_delete=models.PROTECT)
+    keywords = models.ManyToManyField(
+        "datasets.Keyword", blank=True, related_name="metadatas"
+    )
+    license = models.ForeignKey(
+        "datasets.License", null=True, blank=True, on_delete=models.PROTECT
+    )
     maintenance_update_frequency = models.TextField(
         null=True, blank=True
     )  # provide a set of choices, with default "not planned"
@@ -343,12 +401,20 @@ class Metadata(LifecycleModel):
     geographic_description = models.TextField(blank=True, null=True)
     bounding_box = models.GeometryField(null=True, blank=True)
 
-    taxonomies = models.ManyToManyField("datasets.Taxonomy", blank=True)
+    taxonomies = models.ManyToManyField(
+        "datasets.Taxonomy", blank=True, related_name="metadatas"
+    )
 
     citation = models.ForeignKey(
-        "datasets.Citation", on_delete=models.PROTECT, null=True, blank=True, related_name="cited_by_dataset"
+        "datasets.Citation",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="cited_by_dataset",
     )
-    bibliography = models.ManyToManyField("datasets.Citation", blank=True, related_name="in_dataset_bibliography")
+    bibliography = models.ManyToManyField(
+        "datasets.Citation", blank=True, related_name="in_dataset_bibliography"
+    )
 
     formation_period_start = models.DateField(null=True, blank=True)
     formation_period_end = models.DateField(null=True, blank=True)
@@ -387,7 +453,7 @@ class Metadata(LifecycleModel):
     def update_xml_anytext(self):
         self._update_xml(save=True)
 
-    def __str__(self):
+    def __str__(self):  # noqa: F811
         return str(self.dataset)
 
 
@@ -397,12 +463,20 @@ class ServiceInfo(SingletonModel):
     identification_keywords = models.TextField(null=True, blank=True, default="")
     identification_keywords_type = models.TextField(null=True, blank=True, default="")
     identification_fees = models.TextField(null=True, blank=True, default="")
-    identification_accessconstraints = models.TextField(null=True, blank=True, default="")
-    contact = models.ForeignKey("datasets.Person", blank=True, null=True, on_delete=models.SET_NULL)
+    identification_accessconstraints = models.TextField(
+        null=True, blank=True, default=""
+    )
+    contact = models.ForeignKey(
+        "datasets.Person", blank=True, null=True, on_delete=models.SET_NULL
+    )
     contact_hours = models.TextField(null=True, blank=True, default="")
     contact_instructions = models.TextField(null=True, blank=True, default="")
-    provider = models.ForeignKey("datasets.Organization", blank=True, null=True, on_delete=models.SET_NULL)
-    license = models.ForeignKey("datasets.License", on_delete=models.SET_NULL, null=True, blank=True)
+    provider = models.ForeignKey(
+        "datasets.Organization", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    license = models.ForeignKey(
+        "datasets.License", on_delete=models.SET_NULL, null=True, blank=True
+    )
     language = models.CharField(max_length=7, null=True, blank=True)
 
 
@@ -411,7 +485,9 @@ def empty_json():
 
 
 class Content(LifecycleModel):
-    dataset = models.OneToOneField("datasets.Dataset", on_delete=models.CASCADE, related_name="content")
+    dataset = models.OneToOneField(
+        "datasets.Dataset", on_delete=models.CASCADE, related_name="content"
+    )
     gdal_vrt_definition = models.TextField(null=True, blank=True)
     valid = models.BooleanField(default=False)
     pagination = models.BooleanField(default=False)
@@ -422,7 +498,7 @@ class Content(LifecycleModel):
 
     @hook(AFTER_SAVE, when_any=["gdal_vrt_definition"], has_changed=True)
     def check_is_valid(self):
-        async_task("metadata_catalogue.datasets.libs.checks.validate_vrt", self.id)
+        app.configure_task(name="validate_vrt").defer(content_id=self.id)
 
     def __str__(self):
         return str(self.dataset)

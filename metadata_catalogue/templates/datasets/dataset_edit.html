@@ -1,0 +1,18 @@
+{% extends 'app.html' %}
+
+{% load crispy_forms_tags leaflet_tags %}
+
+{% block article %}
+  {% leaflet_js plugins="forms" %}
+  {% leaflet_css plugins="forms" %}
+  <div class="flex my-5 justify-between items-center">
+    <h1 class="font-bold text-4xl">Edit Dataset - {{ object.title }}</h1>
+    <div class="flex">
+      <a href="{% url 'dataset-list' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </div>
+  <form action="{% url 'dataset-edit' slug=object.dataset.uuid %}"
+        method="post">
+    {% crispy form %}
+  </form>
+{% endblock article %}

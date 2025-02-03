@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from .models import PortalMap
+from .models import PortalMap, Portal
 
 
 class PortalMapFilter(filters.FilterSet):
@@ -12,3 +12,9 @@ class PortalMapFilter(filters.FilterSet):
 
     def portal_filter(self, queryset, name, value):
         return queryset.filter(portal__uuid=value)
+
+
+class PortalFilter(filters.FilterSet):
+    class Meta:
+        model = Portal
+        fields = ["visibility"]

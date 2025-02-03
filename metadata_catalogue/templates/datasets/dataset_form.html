@@ -1,0 +1,15 @@
+{% extends 'app.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block article %}
+  <div class="flex my-5 justify-between items-center">
+    <h1 class="font-bold text-4xl">Create Dataset</h1>
+    <div class="flex">
+      <a href="{% url 'dataset-list' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </div>
+  <form action="{% url 'dataset-create' %}" method="post">
+    {% crispy form %}
+  </form>
+{% endblock article %}
