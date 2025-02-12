@@ -117,32 +117,6 @@ services:
     ports:
       - 5432:5432
 
-  # documentation
-  docs-dev:
-    image: metadata_catalogue_docs
-    build:
-      context: ./docs
-      dockerfile: ./Dockerfile
-      target: dev
-    volumes:
-      - ./docs:/book
-    ports:
-      - "3001:3000"
-    command: serve --hostname 0.0.0.0
-    profiles:
-      - dev
-
-  docs:
-    image: metadata_catalogue_docs
-    build:
-      context: ./docs
-      dockerfile: ./Dockerfile
-      target: prod
-    ports:
-      - "3000:80"
-    profiles:
-      - prod
-
   bruno:
     build:
       dockerfile: ./bruno/Dockerfile

@@ -23,9 +23,6 @@ jobs:
           - context: ./nginx
             args: TEMPLATE_NAME=maps
             image: ghcr.io/ninanor/nina-catalogue-maps-proxy
-          - context: ./docs
-            image: ghcr.io/ninanor/nina-catalogue-docs
-            target: prod
 
     permissions:
       contents: read
@@ -60,31 +57,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-  publish_docs:
-    if: github.ref == 'refs/heads/master'
-    needs: build
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ninanor/nina-catalogue-docs:master
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      # environment created automatically by GitHub
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: "/var/www"
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
