@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -39,6 +41,8 @@ jobs:
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup secrets
         run: cd setup && docker compose up --build && cd ..
